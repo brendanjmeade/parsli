@@ -66,6 +66,9 @@ include = [
   "/src/parsli/viewer/*.json",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/parsli"]
+
 [tool.hatch.envs.default]
 features = ["test"]
 scripts.test = "pytest {args}"
