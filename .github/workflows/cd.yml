@@ -20,7 +20,7 @@ env:
   FORCE_COLOR: 3
 
 jobs:
-  dist:
+  release:
     name: Distribution build
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -38,25 +38,6 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v9.15.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    needs: [dist]
-    name: Publish to PyPI
-    environment: pypi
-    permissions:
-      id-token: write
-      attestations: write
-      contents: write
-    runs-on: ubuntu-latest
-    if:
-      steps.dist.outputs.released == 'true' && github.event_name == 'release' &&
-      github.event.action == 'published'
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: Packages
-          path: dist
 
       - name: Generate artifact attestation for sdist and wheel
         uses: actions/attest-build-provenance@v2.1.0
