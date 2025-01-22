@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import h5py
@@ -8,6 +9,83 @@ from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData
 
 from parsli.utils import earth
+
+
+class EarthLocation:
+    __slots__ = ("lat", "lon")
+
+    def __ilshift__(self, other):
+        self.lat = other.lat
+        self.lon = other.lon
+
+    def flip(self):
+        self.lon *= -1
+        self.lat *= -1
+
+    def interpolate_from(self, start_lon, start_lat, end_lon, end_lat, distance):
+        self.lon, self.lat = earth.interpolate(
+            start_lon, start_lat, end_lon, end_lat, distance
+        )
+
+
+class QuadCell:
+    __slots__ = ("end", "normal", "point_a", "point_b", "start")
+
+    def __init__(self):
+        self.start = EarthLocation()
+        self.point_a = EarthLocation()
+        self.point_b = EarthLocation()
+        self.end = EarthLocation()
+        self.normal = EarthLocation()
+
+    def update(self, row):
+        if row[0] >= row[2]:
+            self.start.lon = row[0]
+            self.start.lat = row[1]
+            self.end.lon = row[2]
+            self.end.lat = row[3]
+        else:
+            self.end.lon = row[0]
+            self.end.lat = row[1]
+            self.start.lon = row[2]
+            self.start.lat = row[3]
+
+        dip = row[14]
+        locking_depth = row[4]
+
+        if dip == 90 or locking_depth <= 0:
+            self.point_a <<= self.start
+            self.point_b <<= self.end
+            return False
+
+        self.normal.lon = self.end.lat - self.start.lat
+        self.normal.lat = -(self.end.lon - self.start.lon)
+
+        dip_to_left = dip < 90
+        if dip_to_left:
+            self.normal.flip()
+
+        dip_base = (90 - dip) if dip_to_left else (dip - 90)
+        dip_angle = dip_base * (math.pi / 180)
+        proj_dist = math.fabs(math.tan(dip_angle) * locking_depth)
+
+        self.point_a.interpolate_from(
+            self.start.lon,
+            self.start.lat,
+            self.start.lon + self.normal.lon,
+            self.start.lat + self.normal.lat,
+            proj_dist,
+        )
+
+        self.point_b.interpolate_from(
+            self.end.lon,
+            self.end.lat,
+            self.end.lon + self.normal.lon,
+            self.end.lat + self.normal.lat,
+            proj_dist,
+        )
+
+        return True
 
 
 class VtkSegmentReader(VTKPythonAlgorithmBase):
@@ -52,10 +130,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         output = self.GetOutputData(outInfo, 0)
         vtk_points = vtkPoints()
         vtk_points.SetDataTypeToDouble()
-        vtk_lines = vtkCellArray()
+        vtk_polys = vtkCellArray()
         vtk_mesh = vtkPolyData()
         vtk_mesh.points = vtk_points
-        vtk_mesh.lines = vtk_lines
+        vtk_mesh.polys = vtk_polys
 
         # Projection selection
         insert_pt = earth.insert_spherical if self.spherical else earth.insert_euclidian
@@ -66,14 +144,24 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
             # making a line for now (should move to 4 once quad)
             vtk_points.Allocate(data_size[0] * 2)
-            vtk_lines.Allocate(data_size[0] * 3)
+            vtk_polys.Allocate(data_size[0] * 5)
 
+            cell = QuadCell()
             for row in h5_ds:
-                id0 = insert_pt(vtk_points, row[0], row[1], 0)
-                id1 = insert_pt(vtk_points, row[2], row[3], 0)
-                vtk_lines.InsertNextCell(2)
-                vtk_lines.InsertCellPoint(id0)
-                vtk_lines.InsertCellPoint(id1)
+                if cell.update(row):
+                    vtk_polys.InsertNextCell(4)
+                    vtk_polys.InsertCellPoint(
+                        insert_pt(vtk_points, cell.start.lon, cell.start.lat, 0)
+                    )
+                    vtk_polys.InsertCellPoint(
+                        insert_pt(vtk_points, cell.point_a.lon, cell.point_a.lat, 0)
+                    )
+                    vtk_polys.InsertCellPoint(
+                        insert_pt(vtk_points, cell.point_b.lon, cell.point_b.lat, 0)
+                    )
+                    vtk_polys.InsertCellPoint(
+                        insert_pt(vtk_points, cell.end.lon, cell.end.lat, 0)
+                    )
 
         output.ShallowCopy(vtk_mesh)
         return 1

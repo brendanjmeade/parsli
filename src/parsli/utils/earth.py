@@ -22,3 +22,25 @@ def insert_euclidian(vtk_point, longitude, latitude, depth):
         latitude,
         depth,
     )
+
+
+def interpolate(a_longitude, a_latitude, b_longitude, b_latitude, distance):
+    a_xyz = (
+        EARTH_RADIUS * math.cos(a_longitude) * math.cos(a_latitude),
+        EARTH_RADIUS * math.sin(a_longitude) * math.cos(a_latitude),
+        EARTH_RADIUS * math.sin(a_latitude),
+    )
+    b_xyz = (
+        EARTH_RADIUS * math.cos(b_longitude) * math.cos(b_latitude),
+        EARTH_RADIUS * math.sin(b_longitude) * math.cos(b_latitude),
+        EARTH_RADIUS * math.sin(b_latitude),
+    )
+    ab_xyz = (b_xyz[0] - a_xyz[0], b_xyz[1] - a_xyz[1], b_xyz[2] - a_xyz[2])
+    ab_dist = math.sqrt(
+        ab_xyz[0] * ab_xyz[0] + ab_xyz[1] * ab_xyz[1] + ab_xyz[2] * ab_xyz[2]
+    )
+    ratio = distance / ab_dist
+    return (
+        ratio * (b_longitude - a_longitude) + a_longitude,
+        ratio * (b_latitude - a_latitude) + a_latitude,
+    )
