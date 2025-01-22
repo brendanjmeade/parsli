@@ -31,9 +31,9 @@ jobs:
         with:
           extra_args: --hook-stage manual --all-files
       - name: Run Lint
-        run: pipx run nox -s lint -- --output-format=github
+        run: pipx run nox -s lint
       - name: Run Tests
-        run: pipx run nox -s tests -- --output-format=github
+        run: pipx run nox -s tests
 
   checks:
     name: Check Python ${{ matrix.python-version }} on ${{ matrix.runs-on }}
