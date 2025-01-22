@@ -44,3 +44,5 @@ following command:
 ```
 python -m parsli.viewer --data ./data/model_0000000878.hdf5
 ```
+
+![App](./parsli.png)

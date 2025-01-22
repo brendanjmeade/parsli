@@ -61,9 +61,10 @@ Homepage = "https://github.com/brendanjmeade/parsli"
 Discussions = "https://github.com/brendanjmeade/parsli/discussions"
 Changelog = "https://github.com/brendanjmeade/parsli/releases"
 
-
-[tool.hatch]
-version.path = "src/parsli/__init__.py"
+[tool.hatch.build]
+include = [
+  "/src/parsli/viewer/*.json",
+]
 
 [tool.hatch.envs.default]
 features = ["test"]
