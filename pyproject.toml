@@ -32,7 +32,7 @@ classifiers = [
 ]
 dependencies = [
   "h5py",
-  "vtk>=9.4",
+  "vtk>=9.4.1",
   "trame",
   "trame-vuetify",
   "trame-vtk",
