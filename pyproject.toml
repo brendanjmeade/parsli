@@ -174,7 +174,7 @@ version_toml = [
     "pyproject.toml:project.version",
 ]
 version_variables = [
-    "parsli/__init__.py:__version__",
+    "src/parsli/__init__.py:__version__",
 ]
 build_command = """
   python -m venv .venv

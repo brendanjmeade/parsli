@@ -1,4 +1,4 @@
-name: CI
+name: Test and Release
 
 on:
   workflow_dispatch:
@@ -69,3 +69,34 @@ jobs:
         uses: codecov/codecov-action@v5.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  release:
+    needs: [pre-commit, checks]
+    name: Distribution build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Python Semantic Release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v9.15.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate artifact attestation for sdist and wheel
+        uses: actions/attest-build-provenance@v2.1.0
+        with:
+          subject-path: "dist/*"
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Remember to tell (test-)pypi about this repo before publishing
+          # Remove this line to publish to PyPI
+          repository-url: https://test.pypi.org/legacy/
