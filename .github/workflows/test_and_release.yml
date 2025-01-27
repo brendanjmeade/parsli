@@ -64,7 +64,7 @@ jobs:
           --durations=20
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5.1.2
+        uses: codecov/codecov-action@v5.3.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -84,12 +84,12 @@ jobs:
           fetch-depth: 0
       - name: Python Semantic Release
         id: release
-        uses: python-semantic-release/python-semantic-release@v9.15.2
+        uses: python-semantic-release/python-semantic-release@v9.17.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@v2.1.0
+        uses: actions/attest-build-provenance@v2.2.0
         with:
           subject-path: "dist/*"
 
