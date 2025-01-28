@@ -1,5 +1,66 @@
 # CHANGELOG
 
+
+## v0.1.1 (2025-01-28)
+
+### Bug Fixes
+
+- **segment**: Use fix depth for now
+  ([`a68fb3b`](https://github.com/brendanjmeade/parsli/commit/a68fb3b3402e3a029caad5e2c0611f3608ab833b))
+
+### Build System
+
+- **deps**: Bump the actions group across 1 directory with 3 updates
+  ([`984e640`](https://github.com/brendanjmeade/parsli/commit/984e640d422afe5cafa6947a0117462b23afebe6))
+
+Bumps the actions group with 3 updates in the / directory:
+  [codecov/codecov-action](https://github.com/codecov/codecov-action),
+  [python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release)
+  and [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance).
+
+Updates `codecov/codecov-action` from 5.1.2 to 5.3.1 - [Release
+  notes](https://github.com/codecov/codecov-action/releases) -
+  [Changelog](https://github.com/codecov/codecov-action/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/codecov/codecov-action/compare/v5.1.2...v5.3.1)
+
+Updates `python-semantic-release/python-semantic-release` from 9.15.2 to 9.17.0 - [Release
+  notes](https://github.com/python-semantic-release/python-semantic-release/releases) -
+  [Changelog](https://github.com/python-semantic-release/python-semantic-release/blob/master/CHANGELOG.rst)
+  -
+  [Commits](https://github.com/python-semantic-release/python-semantic-release/compare/v9.15.2...v9.17.0)
+
+Updates `actions/attest-build-provenance` from 2.1.0 to 2.2.0 - [Release
+  notes](https://github.com/actions/attest-build-provenance/releases) -
+  [Changelog](https://github.com/actions/attest-build-provenance/blob/main/RELEASE.md) -
+  [Commits](https://github.com/actions/attest-build-provenance/compare/v2.1.0...v2.2.0)
+
+--- updated-dependencies: - dependency-name: codecov/codecov-action dependency-type:
+  direct:production
+
+update-type: version-update:semver-minor
+
+dependency-group: actions
+
+- dependency-name: python-semantic-release/python-semantic-release dependency-type:
+  direct:production
+
+- dependency-name: actions/attest-build-provenance dependency-type: direct:production
+
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+### Continuous Integration
+
+- Test_and_release.yml add environment
+  ([`09ede87`](https://github.com/brendanjmeade/parsli/commit/09ede87677b20f7a99cecacb5c67a7501650b6c2))
+
+### Documentation
+
+- **readme**: Add dev setup info
+  ([`869786b`](https://github.com/brendanjmeade/parsli/commit/869786b072d0db08838082a87275d11a199f1d94))
+
+
 ## v0.1.0 (2025-01-22)
 
 ### Continuous Integration
