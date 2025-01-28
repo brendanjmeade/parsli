@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.1.2 (2025-01-28)
+
+### Bug Fixes
+
+- **ci**: Publish to proper pypi
+  ([`90db78c`](https://github.com/brendanjmeade/parsli/commit/90db78c03993010acc45b60af9a10594c29cb171))
+
+### Continuous Integration
+
+- Ignore changelog formatting
+  ([`4eaf793`](https://github.com/brendanjmeade/parsli/commit/4eaf79347d658ab8ec91f588c1ed36e1f4d7f5a1))
+
+
 ## v0.1.1 (2025-01-28)
 
 ### Bug Fixes
