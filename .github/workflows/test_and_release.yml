@@ -77,6 +77,9 @@ jobs:
       id-token: write
       attestations: write
       contents: write
+    environment:
+      name: pypi
+      url: https://pypi.org/p/parsli
 
     steps:
       - uses: actions/checkout@v4
