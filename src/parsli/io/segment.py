@@ -154,10 +154,14 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                         insert_pt(vtk_points, cell.start.lon, cell.start.lat, 0)
                     )
                     vtk_polys.InsertCellPoint(
-                        insert_pt(vtk_points, cell.point_a.lon, cell.point_a.lat, 0)
+                        insert_pt(
+                            vtk_points, cell.start.lon, cell.start.lat, 100
+                        )  # go inside 100m
                     )
                     vtk_polys.InsertCellPoint(
-                        insert_pt(vtk_points, cell.point_b.lon, cell.point_b.lat, 0)
+                        insert_pt(
+                            vtk_points, cell.end.lon, cell.end.lat, 100
+                        )  # go inside 100m
                     )
                     vtk_polys.InsertCellPoint(
                         insert_pt(vtk_points, cell.end.lon, cell.end.lat, 0)

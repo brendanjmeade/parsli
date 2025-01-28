@@ -43,3 +43,12 @@ python -m parsli.viewer --data ./data/model_0000000878.hdf5
 ```
 
 ![App](./parsli.png)
+
+## Development setup
+
+We assume your virtual environment is activated
+
+```
+uv pip install pre-commit
+pre-commit install
+```
