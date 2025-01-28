@@ -52,3 +52,10 @@ We assume your virtual environment is activated
 uv pip install pre-commit
 pre-commit install
 ```
+
+This will automatically format and some static checking on the code at commit
+time, but you can also run it by hand using the following command line.
+
+```
+pre-commit run --all-files
+```
