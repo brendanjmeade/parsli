@@ -64,6 +64,29 @@ class Viewer:
     def state(self):
         return self.server.state
 
+    @change("seg_color_by")
+    def on_seg_color_by(self, seg_color_by, **_):
+        pipeline_item = self.scene_manager["segment"]
+        source = pipeline_item.get("source")
+        mapper = pipeline_item.get("mapper")
+
+        if seg_color_by is None or seg_color_by == "":
+            mapper.SetScalarVisibility(0)
+            self.ctrl.view_update()
+            return
+
+        # Extract data range
+        ds = source()
+        total_range = ds.GetCellData().GetArray(seg_color_by).GetRange()
+
+        mapper.SelectColorArray(seg_color_by)
+        mapper.SetScalarModeToUseCellFieldData()
+        mapper.InterpolateScalarsBeforeMappingOn()
+        mapper.SetScalarVisibility(1)
+        mapper.SetScalarRange(*total_range)
+
+        self.ctrl.view_update()
+
     @change("color_by")
     def _on_color_by(self, color_by, **_):
         pipeline_item = self.scene_manager["meshes"]
@@ -101,6 +124,16 @@ class Viewer:
             with layout.toolbar as tb:
                 tb.density = "compact"
                 v3.VSpacer()
+                v3.VSelect(
+                    v_model=("seg_color_by", ""),
+                    items=("['', 'dip', 'Locking depth']",),
+                    density="compact",
+                    hide_details=True,
+                    variant="outlined",
+                    flat=True,
+                    style="max-width: 200px;",
+                    classes="mr-2",
+                )
                 v3.VSelect(
                     v_model=("color_by", None),
                     items=("fields",),
