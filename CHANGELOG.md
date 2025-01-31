@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.1.3 (2025-01-31)
+
+### Bug Fixes
+
+- **segment**: Proper location, depth and field association
+  ([`63343cc`](https://github.com/brendanjmeade/parsli/commit/63343cc745b3567cb6515edfedd6a640b08d9525))
+
+### Documentation
+
+- **README**: Update url to picture
+  ([`d2caf3a`](https://github.com/brendanjmeade/parsli/commit/d2caf3a960927309e36f1d4a5fe9d28c704d7f03))
+
+- **README**: Use 1 line for badges
+  ([`b014b71`](https://github.com/brendanjmeade/parsli/commit/b014b71374206a4ee1e30331d51d20fa6ab31510))
+
+
 ## v0.1.2 (2025-01-28)
 
 ### Bug Fixes
