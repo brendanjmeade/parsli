@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.4 (2025-01-31)
+
+### Bug Fixes
+
+- **proj**: Allow to toggle projection
+  ([`7d2ca55`](https://github.com/brendanjmeade/parsli/commit/7d2ca5546a09222edb9c4a3d7b9629cd348c38ae))
+
+
 ## v0.1.3 (2025-01-31)
 
 ### Bug Fixes
