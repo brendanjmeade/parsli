@@ -104,6 +104,9 @@ class SceneManager:
     def __getitem__(self, key):
         return self.geometries.get(key)
 
+    def reset_camera_to(self, bounds):
+        self.renderer.ResetCamera(bounds)
+
     def add_geometry(self, name, source, composite=False):
         lut = vtkLookupTable()
         set_preset(lut, "Fast")

@@ -48,6 +48,8 @@ class Viewer:
         mesh_reader.file_name = data_file
         self.state.fields = mesh_reader.available_fields
 
+        self.readers = [mesh_reader, seg_reader]
+
         # writer = vtkXMLPartitionedDataSetWriter()
         # writer.SetInputData(mesh_reader())
         # writer.SetFileName("all_meshes.vtpd")
@@ -113,18 +115,40 @@ class Viewer:
 
         self.ctrl.view_update()
 
+    @change("spherical")
+    def _on_projection_change(self, spherical, **_):
+        for geo_name in ["segment", "meshes"]:
+            pipeline_item = self.scene_manager[geo_name]
+            pipeline_item.get("source").spherical = spherical
+            actor = pipeline_item.get("actor")
+
+            if spherical:
+                actor.scale = (1, 1, 1)
+            else:
+                actor.scale = (1, 1, 0.01)
+
+        self.ctrl.view_reset_camera()
+
+    def reset_to_mesh(self):
+        bounds = self.scene_manager["meshes"].get("actor").bounds
+        self.scene_manager.reset_camera_to(bounds)
+        self.ctrl.view_update()
+
     def _build_ui(self):
         with SinglePageLayout(self.server, full_height=True) as layout:
             self.ui = layout
 
             layout.title.set_text("Parsli")
+            layout.icon.click = "spherical = !spherical"
             with layout.icon:
-                v3.VIcon("mdi-earth")
+                v3.VIcon("mdi-earth", v_if=("spherical", True))
+                v3.VIcon("mdi-earth-box", v_else=True)
 
             with layout.toolbar as tb:
                 tb.density = "compact"
                 v3.VSpacer()
                 v3.VSelect(
+                    prepend_inner_icon="mdi-razor-single-edge",
                     v_model=("seg_color_by", ""),
                     items=("['', 'dip', 'Locking depth']",),
                     density="compact",
@@ -135,6 +159,7 @@ class Viewer:
                     classes="mr-2",
                 )
                 v3.VSelect(
+                    prepend_inner_icon="mdi-texture-box",
                     v_model=("color_by", None),
                     items=("fields",),
                     density="compact",
@@ -144,8 +169,17 @@ class Viewer:
                     style="max-width: 200px;",
                     classes="mr-2",
                 )
+                # v3.VBtn(
+                #     icon="mdi-crop-free",
+                #     click=self.ctrl.view_reset_camera,
+                # )
+
                 v3.VBtn(
-                    icon="mdi-crop-free",
+                    icon="mdi-arrow-collapse-all",
+                    click=self.reset_to_mesh,
+                )
+                v3.VBtn(
+                    icon="mdi-arrow-expand-all",
                     click=self.ctrl.view_reset_camera,
                 )
 

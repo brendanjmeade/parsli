@@ -56,3 +56,13 @@ time, but you can also run it by hand using the following command line.
 ```
 pre-commit run --all-files
 ```
+
+Nox can also be used for running tests or linting the code.
+
+```
+# run everything
+nox
+
+# run just the linting
+nox -s lint
+```
