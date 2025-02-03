@@ -93,7 +93,7 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                 vtk_points.Allocate(n_points)
 
                 for xyz in hdf_ds:
-                    insert_pt(vtk_points, xyz[0], xyz[1], xyz[2])
+                    insert_pt(vtk_points, xyz[0], xyz[1], -xyz[2])
 
                 # - verts
                 vtk_polys = vtkCellArray()
