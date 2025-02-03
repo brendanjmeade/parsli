@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.5 (2025-02-03)
+
+### Bug Fixes
+
+- **mesh**: Invert the z orientation
+  ([`c3dacbb`](https://github.com/brendanjmeade/parsli/commit/c3dacbbda4a30f99a73f67b07c14d81d7e0ae4d3))
+
+
 ## v0.1.4 (2025-01-31)
 
 ### Bug Fixes
