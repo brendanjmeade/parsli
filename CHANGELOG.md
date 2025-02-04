@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.1.6 (2025-02-04)
+
+### Bug Fixes
+
+- **segment**: Ignore quad when col[36] is true
+  ([`8de82da`](https://github.com/brendanjmeade/parsli/commit/8de82da693cd7de5b0d92e21dd8d58e30f166e8e))
+
+fix #2
+
+
 ## v0.1.5 (2025-02-03)
 
 ### Bug Fixes
