@@ -74,6 +74,10 @@ class QuadCell:
         self.normal = EarthLocation()
 
     def update(self, row):
+        if row[36]:
+            # skip cell is column 36 is true
+            return False
+
         if row[0] >= row[2]:
             self.start.lon = row[0]
             self.start.lat = row[1]
