@@ -190,7 +190,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
             # Create fields and attach to mesh
             vtk_field_arrays = {}
-            for name in cell.field_names:
+            for name in FIELD_NAMES:
                 array = vtkFloatArray()
                 array.SetName(name)
                 array.Allocate(data_size[0])
