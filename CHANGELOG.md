@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-02-05)
+
+### Bug Fixes
+
+- **fields**: Typo in refactor
+  ([`f484f90`](https://github.com/brendanjmeade/parsli/commit/f484f90814d836cfce1ea52abce41e3e53b33957))
+
+### Features
+
+- **segment**: Add fields on segments
+  ([`201701b`](https://github.com/brendanjmeade/parsli/commit/201701b149634957b792417e969183930e4304b5))
+
+
 ## v0.1.6 (2025-02-04)
 
 ### Bug Fixes
