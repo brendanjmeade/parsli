@@ -63,8 +63,24 @@ class EarthLocation:
         )
 
 
+FIELD_COLS = {
+    "strike-slip": 68,
+    "dip-slip": 69,
+    "tensile-slip": 70,
+}
+FIELD_NAMES = list(FIELD_COLS.keys())
+
+
 class QuadCell:
-    __slots__ = ("dip", "end", "locking_depth", "normal", "point_a", "point_b", "start")
+    __slots__ = (
+        "dip",
+        "end",
+        "locking_depth",
+        "normal",
+        "point_a",
+        "point_b",
+        "start",
+    )
 
     def __init__(self):
         self.start = EarthLocation()
@@ -75,7 +91,7 @@ class QuadCell:
 
     def update(self, row):
         if row[34]:
-            # skip cell is column 34 is true
+            # skip cell if column 34 is true
             return False
 
         if row[0] >= row[2]:
@@ -106,7 +122,7 @@ class QuadCell:
         self.point_b.lon = lon4
         self.point_b.lat = lat4
 
-        return True
+        return [(k, row[FIELD_COLS[k]]) for k in FIELD_NAMES]
 
 
 class VtkSegmentReader(VTKPythonAlgorithmBase):
@@ -119,6 +135,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         )
         self._file_name = None
         self._proj_spherical = True
+
+    @property
+    def field_names(self):
+        return FIELD_NAMES
 
     @property
     def file_name(self):
@@ -156,32 +176,29 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         vtk_mesh.points = vtk_points
         vtk_mesh.polys = vtk_polys
 
-        # Dip field
-        vtk_dip = vtkFloatArray()
-        vtk_dip.SetName("dip")
-        vtk_mesh.cell_data.AddArray(vtk_dip)
-
-        # Locking depth field
-        vtk_locking_depth = vtkFloatArray()
-        vtk_locking_depth.SetName("Locking depth")
-        vtk_mesh.cell_data.AddArray(vtk_locking_depth)
-
         # Projection selection
         insert_pt = earth.insert_spherical if self.spherical else earth.insert_euclidian
 
         with h5py.File(self._file_name, "r") as hdf:
+            cell = QuadCell()
             h5_ds = hdf["segment"]
             data_size = h5_ds.shape
 
             # making a line for now (should move to 4 once quad)
             vtk_points.Allocate(data_size[0] * 2)
             vtk_polys.Allocate(data_size[0] * 5)
-            vtk_dip.Allocate(data_size[0])
-            vtk_locking_depth.Allocate(data_size[0])
 
-            cell = QuadCell()
+            # Create fields and attach to mesh
+            vtk_field_arrays = {}
+            for name in cell.field_names:
+                array = vtkFloatArray()
+                array.SetName(name)
+                array.Allocate(data_size[0])
+                vtk_mesh.cell_data.AddArray(array)
+                vtk_field_arrays[name] = array
+
             for row in h5_ds:
-                if cell.update(row):
+                if fields := cell.update(row):
                     vtk_polys.InsertNextCell(4)
                     vtk_polys.InsertCellPoint(
                         insert_pt(vtk_points, cell.start.lon, cell.start.lat, 0)
@@ -205,8 +222,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                     vtk_polys.InsertCellPoint(
                         insert_pt(vtk_points, cell.end.lon, cell.end.lat, 0)
                     )
-                    vtk_dip.InsertNextTuple1(cell.dip)
-                    vtk_locking_depth.InsertNextTuple1(cell.locking_depth)
+
+                    # Add fields values
+                    for k, v in fields:
+                        vtk_field_arrays[k].InsertNextTuple1(v)
 
         output.ShallowCopy(vtk_mesh)
         return 1

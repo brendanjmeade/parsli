@@ -41,6 +41,7 @@ class Viewer:
         # load segments
         seg_reader = VtkSegmentReader()
         seg_reader.file_name = data_file
+        self.state.seg_fields = ["", *seg_reader.field_names]
         self.scene_manager.add_geometry("segment", seg_reader)
 
         # load meshes
@@ -150,7 +151,7 @@ class Viewer:
                 v3.VSelect(
                     prepend_inner_icon="mdi-razor-single-edge",
                     v_model=("seg_color_by", ""),
-                    items=("['', 'dip', 'Locking depth']",),
+                    items=("seg_fields", []),
                     density="compact",
                     hide_details=True,
                     variant="outlined",
