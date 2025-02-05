@@ -74,8 +74,8 @@ class QuadCell:
         self.normal = EarthLocation()
 
     def update(self, row):
-        if row[36]:
-            # skip cell is column 36 is true
+        if row[34]:
+            # skip cell is column 34 is true
             return False
 
         if row[0] >= row[2]:
