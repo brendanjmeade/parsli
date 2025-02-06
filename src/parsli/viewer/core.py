@@ -106,7 +106,7 @@ class Viewer:
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.reset_camera_to(bounds)
-        self.ctrl.view_update()
+        self.ctrl.view_update(push_camera=True)
 
     def _build_ui(self):
         self.state.trame__title = "Parsli"
