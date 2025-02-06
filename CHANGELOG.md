@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-02-06)
+
+### Features
+
+- **rendering**: Allow to use wasm for local rendering
+  ([`96f2369`](https://github.com/brendanjmeade/parsli/commit/96f2369189c271da16e46b967e31e37e11c8b080))
+
+To use local rendering run the application with --wasm Also increased image quality
+
+fix #11
+
+
 ## v0.2.0 (2025-02-05)
 
 ### Bug Fixes
