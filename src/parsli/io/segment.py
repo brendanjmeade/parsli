@@ -62,11 +62,14 @@ class EarthLocation:
             start_lon, start_lat, end_lon, end_lat, distance
         )
 
+    def __repr__(self):
+        return f"Longitude: {self.lon}, Latitude: {self.lat}"
+
 
 FIELD_COLS = {
-    "strike-slip": 68,
-    "dip-slip": 69,
-    "tensile-slip": 70,
+    "strike_slip": 68,
+    "dip_slip": 69,
+    "tensile_slip": 70,
 }
 FIELD_NAMES = list(FIELD_COLS.keys())
 
@@ -75,14 +78,18 @@ class QuadCell:
     __slots__ = (
         "dip",
         "end",
+        "latitude_bnds",
         "locking_depth",
+        "longitude_bnds",
         "normal",
         "point_a",
         "point_b",
         "start",
     )
 
-    def __init__(self):
+    def __init__(self, longitude_bnds, latitude_bnds):
+        self.longitude_bnds = longitude_bnds
+        self.latitude_bnds = latitude_bnds
         self.start = EarthLocation()
         self.point_a = EarthLocation()
         self.point_b = EarthLocation()
@@ -104,6 +111,15 @@ class QuadCell:
             self.end.lat = row[1]
             self.start.lon = row[2]
             self.start.lat = row[3]
+
+        if (
+            self.start.lon < self.longitude_bnds[0]
+            or self.end.lon > self.longitude_bnds[1]
+            or self.start.lat < self.latitude_bnds[0]
+            or self.end.lat > self.longitude_bnds[1]
+        ):
+            # print(f"skip {self.start} {self.end}")
+            return False
 
         self.dip = row[4]
         self.locking_depth = row[14]
@@ -135,6 +151,8 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         )
         self._file_name = None
         self._proj_spherical = True
+        self._longitude_bnds = [0, 360]
+        self._latitude_bnds = [-90, 90]
 
     @property
     def field_names(self):
@@ -163,6 +181,26 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
             self._proj_spherical = value
             self.Modified()
 
+    @property
+    def longitude_bnds(self):
+        return self._longitude_bnds
+
+    @longitude_bnds.setter
+    def longitude_bnds(self, value):
+        if self._longitude_bnds != value:
+            self._longitude_bnds = value
+            self.Modified()
+
+    @property
+    def latitude_bnds(self):
+        return self._latitude_bnds
+
+    @latitude_bnds.setter
+    def latitude_bnds(self, value):
+        if self._latitude_bnds != value:
+            self._latitude_bnds = value
+            self.Modified()
+
     def RequestData(self, _request, _inInfo, outInfo):
         if self._file_name is None or not self._file_name.exists():
             return 1
@@ -180,7 +218,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         insert_pt = earth.insert_spherical if self.spherical else earth.insert_euclidian
 
         with h5py.File(self._file_name, "r") as hdf:
-            cell = QuadCell()
+            cell = QuadCell(self.longitude_bnds, self.latitude_bnds)
             h5_ds = hdf["segment"]
             data_size = h5_ds.shape
 

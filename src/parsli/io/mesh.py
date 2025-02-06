@@ -24,6 +24,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
         )
         self._file_name = None
         self._proj_spherical = True
+        self._longitude_bnd = [0, 360]
+        self._latitude_bnd = [-90, 90]
 
     @property
     def file_name(self):
@@ -64,9 +66,28 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
 
         return list(result)
 
+    @property
+    def longitude_bounds(self):
+        return self._longitude_bnd
+
+    @property
+    def latitude_bounds(self):
+        return self._latitude_bnd
+
+    def _expend_bounds(self, longitude, latitude):
+        self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
+        self._longitude_bnd[1] = max(longitude, self._longitude_bnd[1])
+
+        self._latitude_bnd[0] = min(latitude, self._latitude_bnd[0])
+        self._latitude_bnd[1] = max(latitude, self._latitude_bnd[1])
+
     def RequestData(self, _request, _inInfo, outInfo):
         if self._file_name is None or not self._file_name.exists():
             return 1
+
+        # Reset bounds
+        self._longitude_bnd = [360, 0]
+        self._latitude_bnd = [90, -90]
 
         # Read file and generate mesh
         output = self.GetOutputData(outInfo, 0)
@@ -93,6 +114,7 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                 vtk_points.Allocate(n_points)
 
                 for xyz in hdf_ds:
+                    self._expend_bounds(xyz[0], xyz[1])
                     insert_pt(vtk_points, xyz[0], xyz[1], -xyz[2])
 
                 # - verts

@@ -1,0 +1,26 @@
+.controller {
+  position: absolute !important;
+  top: 1rem;
+  left: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  z-index: 2;
+}
+
+.controller-content {
+  width: clamp(20rem, 25vw, 30rem);
+}
+
+html {
+  overflow: hidden;
+}
+
+.view-toolbar {
+  position: absolute !important;
+  top: 1rem;
+  right: 1rem;
+  opacity: 0.8;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 2;
+}
