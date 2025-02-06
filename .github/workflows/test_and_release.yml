@@ -91,9 +91,10 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@v2.2.0
-        with:
-          subject-path: "dist/*"
+      # When Brendan commit, this fails...
+      # - name: Generate artifact attestation for sdist and wheel
+      #   uses: actions/attest-build-provenance@v2.2.0
+      #   with:
+      #     subject-path: "dist/*"
 
       - uses: pypa/gh-action-pypi-publish@release/v1
