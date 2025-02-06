@@ -37,6 +37,7 @@ dependencies = [
   "trame",
   "trame-vuetify",
   "trame-vtk",
+  "trame-vtklocal",
 ]
 
 [project.optional-dependencies]

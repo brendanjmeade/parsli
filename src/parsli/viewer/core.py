@@ -6,6 +6,7 @@ from trame.app import get_server
 from trame.decorators import TrameApp, change
 from trame.ui.vuetify3 import SinglePageLayout
 from trame.widgets import vtk as vtkw
+from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
 
 from parsli.io import VtkMeshReader, VtkSegmentReader
@@ -31,12 +32,18 @@ class Viewer:
         self.server.cli.add_argument(
             "--data", help="Path of hdf5 file to load", required=True
         )
-        self.scene_manager = SceneManager(self.server)
-        self._build_ui()
+        self.server.cli.add_argument(
+            "--wasm", help="Use local rendering", action="store_true"
+        )
 
         # process cli
         args, _ = self.server.cli.parse_known_args()
         data_file = str(Path(args.data).resolve())
+        self.local_rendering = args.wasm
+
+        # Setup app
+        self.scene_manager = SceneManager(self.server)
+        self._build_ui()
 
         # load segments
         seg_reader = VtkSegmentReader()
@@ -186,9 +193,19 @@ class Viewer:
 
             with layout.content:
                 with v3.VContainer(fluid=True, classes="fill-height pa-0 ma-0"):
-                    with vtkw.VtkRemoteView(
-                        self.scene_manager.render_window,
-                        interactive_ratio=1,
-                    ) as view:
-                        self.ctrl.view_update = view.update
-                        self.ctrl.view_reset_camera = view.reset_camera
+                    if self.local_rendering:
+                        with vtklocal.LocalView(
+                            self.scene_manager.render_window,
+                            20,
+                        ) as view:
+                            view.register_widget(self.scene_manager.widget)
+                            self.ctrl.view_update = view.update
+                            self.ctrl.view_reset_camera = view.reset_camera
+                    else:
+                        with vtkw.VtkRemoteView(
+                            self.scene_manager.render_window,
+                            interactive_ratio=1,
+                            still_ratio=2,
+                        ) as view:
+                            self.ctrl.view_update = view.update
+                            self.ctrl.view_reset_camera = view.reset_camera
