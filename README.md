@@ -29,14 +29,18 @@ following commands, we will be using `uv` with Python 3.10.
 ```
 uv venv -p 3.10
 source .venv/bin/activate
-uv pip install -e ".[dev]"
+uv pip install parsli
 ```
 
 Once your environment is loaded, you can start the viewer by running the
 following command:
 
 ```
+# use remote rendering
 python -m parsli.viewer --data ./data/model_0000000878.hdf5
+
+# use wasm for local rendering
+python -m parsli.viewer --data ./data/model_0000000878.hdf5 --wasm
 ```
 
 ![App](https://github.com/brendanjmeade/parsli/blob/main/parsli.png)
@@ -46,7 +50,7 @@ python -m parsli.viewer --data ./data/model_0000000878.hdf5
 We assume your virtual environment is activated
 
 ```
-uv pip install pre-commit
+uv pip install -e ".[dev]"
 pre-commit install
 ```
 
