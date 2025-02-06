@@ -105,16 +105,16 @@ class QuadCell:
             self.start.lon = row[2]
             self.start.lat = row[3]
 
-        self.dip = row[14]
-        self.locking_depth = row[4]
+        self.dip = row[4]
+        self.locking_depth = row[14]
 
         lon3, lat3, lon4, lat4 = get_segment_bottom_lon_lat(
             self.start.lon,
             self.start.lat,
             self.end.lon,
             self.end.lat,
-            self.dip,
             self.locking_depth,
+            self.dip,
         )
 
         self.point_a.lon = lon3
