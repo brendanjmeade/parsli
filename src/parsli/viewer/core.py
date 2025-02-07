@@ -9,7 +9,7 @@ from trame.widgets import vtk as vtkw
 from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
 
-from parsli.io import VtkMeshReader, VtkSegmentReader
+from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
 from parsli.utils import expend_range
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
@@ -47,19 +47,26 @@ class Viewer:
         # load meshes
         mesh_reader = VtkMeshReader()
         mesh_reader.file_name = data_file
+        pipeline = self.scene_manager.add_geometry_with_contour(
+            "meshes", mesh_reader, True
+        )
+        pipeline.get("mapper").SetScalarModeToUsePointFieldData()
         self.state.fields = mesh_reader.available_fields
 
-        self.readers = [mesh_reader, seg_reader]
+        # Coast lines
+        self.coast_lines = VtkCoastLineSource()
+        self.state.coast_regions = self.coast_lines.available_regions
+        self.state.coast_active_regions = []
+        pipeline = self.scene_manager.add_geometry("coast", self.coast_lines, True)
+        coast_props = pipeline.get("actor").property
+        coast_props.line_width = 2
+        coast_props.color = (0, 0, 0)
 
         # writer = vtkXMLPartitionedDataSetWriter()
         # writer.SetInputData(mesh_reader())
         # writer.SetFileName("all_meshes.vtpd")
         # writer.Write()
-
-        pipeline = self.scene_manager.add_geometry_with_contour(
-            "meshes", mesh_reader, True
-        )
-        pipeline.get("mapper").SetScalarModeToUsePointFieldData()
+        self.readers = [mesh_reader, seg_reader]
 
     @property
     def ctrl(self):
@@ -94,7 +101,7 @@ class Viewer:
 
     @change("spherical")
     def _on_projection_change(self, spherical, **_):
-        for geo_name in ["segment", "meshes"]:
+        for geo_name in ["segment", "meshes", "coast"]:
             pipeline_item = self.scene_manager[geo_name]
             pipeline_item.get("source").spherical = spherical
             actors = pipeline_item.get("actors")

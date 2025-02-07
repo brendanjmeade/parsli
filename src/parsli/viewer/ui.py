@@ -265,6 +265,7 @@ class ControlPanel(v3.VCard):
                     density="compact",
                     flat=True,
                     variant="solo",
+                    classes="mx-n2",
                 )
 
                 v3.VDivider(classes="my-2 mx-n3")
@@ -288,7 +289,24 @@ class ControlPanel(v3.VCard):
                                 density="compact",
                                 flat=True,
                                 variant="solo",
+                                style="margin: 0 2px;",
                             )
+
+                # Coast line regions
+                v3.VDivider(classes="my-2 mx-n3")
+                v3.VSelect(
+                    prepend_inner_icon="mdi-map-outline",
+                    v_model=("coast_active_regions", []),
+                    items=("coast_regions", []),
+                    density="compact",
+                    hide_details=True,
+                    flat=True,
+                    variant="solo",
+                    chips=True,
+                    closable_chips=True,
+                    multiple=True,
+                    classes="mx-n2",
+                )
 
     async def _reset_bounds(self):
         self.state.latitude_bnds = [-90, 90]
@@ -299,6 +317,12 @@ class ControlPanel(v3.VCard):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = source.latitude_bounds
         self.state.longitude_bnds = source.longitude_bounds
+        self.ctrl.view_update()
+
+    @change("coast_active_regions")
+    def _on_regions(self, coast_active_regions, **_):
+        source = self._scene_manager["coast"].get("source")
+        source.active_regions = coast_active_regions
         self.ctrl.view_update()
 
     @change("show_segment", "show_surface")
