@@ -41,7 +41,8 @@ class Viewer:
         # load segments
         seg_reader = VtkSegmentReader()
         seg_reader.file_name = data_file
-        self.scene_manager.add_geometry("segment", seg_reader)
+        pipeline = self.scene_manager.add_geometry("segment", seg_reader)
+        pipeline.get("mapper").SetScalarModeToUseCellFieldData()
 
         # load meshes
         mesh_reader = VtkMeshReader()
@@ -55,8 +56,10 @@ class Viewer:
         # writer.SetFileName("all_meshes.vtpd")
         # writer.Write()
 
-        # print(mesh_reader())
-        self.scene_manager.add_geometry("meshes", mesh_reader, True)
+        pipeline = self.scene_manager.add_geometry_with_contour(
+            "meshes", mesh_reader, True
+        )
+        pipeline.get("mapper").SetScalarModeToUsePointFieldData()
 
     @property
     def ctrl(self):
@@ -127,7 +130,7 @@ class Viewer:
                 else:
                     with vtkw.VtkRemoteView(
                         self.scene_manager.render_window,
-                        interactive_ratio=1,
+                        interactive_ratio=2,
                         still_ratio=2,
                     ) as view:
                         self.ctrl.view_update = view.update
@@ -137,6 +140,8 @@ class Viewer:
                 ui.ControlPanel(
                     toggle="show_panel",
                     scene_manager=self.scene_manager,
+                    reset_camera=self.ctrl.view_reset_camera,
+                    reset_to_mesh=self.reset_to_mesh,
                 )
 
                 # 3D View controls

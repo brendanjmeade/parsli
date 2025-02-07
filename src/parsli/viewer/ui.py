@@ -10,7 +10,7 @@ from parsli.viewer.vtk import PRESETS, set_preset, to_image
 
 @TrameApp()
 class ControlPanel(v3.VCard):
-    def __init__(self, toggle, scene_manager):
+    def __init__(self, toggle, scene_manager, reset_camera, reset_to_mesh):
         self._scene_manager = scene_manager
 
         super().__init__(
@@ -24,7 +24,7 @@ class ControlPanel(v3.VCard):
         with self:
             with v3.VCardTitle(
                 classes=(
-                    f"`d-flex pa-1 position-fixed bg-white ${{ {toggle} ? 'controller-content rounded-t border-b-thin':'rounded-circle'}}`",
+                    f"`d-flex align-center pa-1 position-fixed bg-white ${{ {toggle} ? 'controller-content rounded-t border-b-thin':'rounded-circle'}}`",
                 ),
                 style="z-index: 1;",
             ):
@@ -65,16 +65,36 @@ class ControlPanel(v3.VCard):
                     v_show=toggle,
                     classes="text-h6 px-2",
                 )
+                v3.VSpacer()
+                v3.VCheckbox(
+                    v_show=toggle,
+                    v_model=("show_segment", True),
+                    true_icon="mdi-gesture",
+                    false_icon="mdi-gesture",
+                    hide_details=True,
+                    density="compact",
+                )
+                v3.VCheckbox(
+                    v_show=toggle,
+                    v_model=("show_surface", True),
+                    true_icon="mdi-texture-box",
+                    false_icon="mdi-texture-box",
+                    hide_details=True,
+                    density="compact",
+                    classes="mx-2",
+                )
 
             with v3.VCardText(
                 v_show=(toggle, True),
-                classes="controller-content py-1 mt-10",
+                classes="controller-content py-1 mt-10 mx-0",
             ):
                 # -------------------------------------------------------------
                 # Longitude / Latitude cropping
                 # -------------------------------------------------------------
 
-                with v3.VRow("Longitude", classes="text-subtitle-2 ma-0 align-center"):
+                with v3.VRow(
+                    "Longitude", classes="text-subtitle-2 ma-0 pt-2 align-center"
+                ):
                     v3.VSpacer()
                     html.Span(
                         "{{ longitude_bnds[0].toFixed(1) }}",
@@ -91,7 +111,7 @@ class ControlPanel(v3.VCard):
                     v_model=("longitude_bnds", [0, 360]),
                     min=0,
                     max=360,
-                    step=1,
+                    step=0.5,
                     density="compact",
                     hide_details=True,
                 )
@@ -113,15 +133,34 @@ class ControlPanel(v3.VCard):
                     v_model=("latitude_bnds", [-90, 90]),
                     min=-90,
                     max=90,
-                    step=1,
+                    step=0.5,
                     density="compact",
                     hide_details=True,
                 )
 
-                with v3.VRow(classes="ma-0"):
-                    v3.VSpacer()
+                with v3.VRow(classes="mx-n2 my-0"):
+                    v3.VBtn(
+                        icon="mdi-crop-free",
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click=reset_camera,
+                    )
                     v3.VBtn(
                         icon="mdi-magnify-scan",
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click=reset_to_mesh,
+                    )
+
+                    v3.VSpacer()
+                    v3.VBtn(
+                        icon="mdi-arrow-collapse-horizontal",
                         size="small",
                         flat=True,
                         density="compact",
@@ -130,13 +169,13 @@ class ControlPanel(v3.VCard):
                         click=self._crop_bounds_to_mesh,
                     )
                     v3.VBtn(
-                        icon="mdi-arrow-expand-all",
+                        icon="mdi-arrow-expand-horizontal",
                         size="small",
                         flat=True,
                         density="compact",
                         hide_details=True,
                         classes="mx-2",
-                        click="latitude_bnds = [-90, 90]; longitude_bnds = [0, 360]",
+                        click=self._reset_bounds,
                     )
 
                 # -------------------------------------------------------------
@@ -147,7 +186,7 @@ class ControlPanel(v3.VCard):
                 v3.VSelect(
                     placeholder="Color By",
                     prepend_inner_icon="mdi-format-color-fill",
-                    v_model=("color_by", None),
+                    v_model=("color_by", "dip_slip"),
                     items=("fields", []),
                     hide_details=True,
                     density="compact",
@@ -228,10 +267,50 @@ class ControlPanel(v3.VCard):
                     variant="solo",
                 )
 
-    def _crop_bounds_to_mesh(self):
+                v3.VDivider(classes="my-2 mx-n3")
+
+                # contours
+                with v3.VTooltip(
+                    text=("`Number of contours: ${nb_contours}`",),
+                ):
+                    with html.Template(v_slot_activator="{ props }"):
+                        with html.Div(
+                            classes="d-flex pr-2",
+                            v_bind="props",
+                        ):
+                            v3.VSlider(
+                                v_model=("nb_contours", 5),
+                                min=2,
+                                max=20,
+                                step=1,
+                                prepend_icon="mdi-fingerprint",
+                                hide_details=True,
+                                density="compact",
+                                flat=True,
+                                variant="solo",
+                            )
+
+    async def _reset_bounds(self):
+        self.state.latitude_bnds = [-90, 90]
+        self.state.longitude_bnds = [0, 360]
+        self.ctrl.view_update()
+
+    async def _crop_bounds_to_mesh(self):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = source.latitude_bounds
         self.state.longitude_bnds = source.longitude_bounds
+        self.ctrl.view_update()
+
+    @change("show_segment", "show_surface")
+    def _on_visibility(self, show_segment, show_surface, **_):
+        seg_actors = self._scene_manager["segment"].get("actors")
+        surf_actors = self._scene_manager["meshes"].get("actors")
+
+        for actor in seg_actors:
+            actor.SetVisibility(show_segment)
+        for actor in surf_actors:
+            actor.SetVisibility(show_surface)
+
         self.ctrl.view_update()
 
     @change("latitude_bnds", "longitude_bnds")
@@ -242,24 +321,30 @@ class ControlPanel(v3.VCard):
             reader.latitude_bnds = latitude_bnds
         self.ctrl.view_update()
 
-    @change("color_preset", "color_min", "color_max")
-    def _on_color_preset(self, color_preset, color_min, color_max, color_by, **_):
-        lut = None
+    @change("color_by", "color_preset", "color_min", "color_max", "nb_contours")
+    def _on_color_preset(
+        self, color_preset, color_min, color_max, color_by, nb_contours, **_
+    ):
+        lut = self._scene_manager.lut
         color_min = float(color_min)
         color_max = float(color_max)
-        for mesh_type in ["segment", "meshes"]:
-            lut = self._scene_manager.get_lut(mesh_type)
-            set_preset(lut, color_preset)
 
+        for mesh_type in ["segment", "meshes"]:
             if self._scene_manager[mesh_type]:
                 mapper = self._scene_manager[mesh_type].get("mapper")
                 mapper.SelectColorArray(color_by)
-                mapper.SetScalarModeToUseCellFieldData()
-                mapper.InterpolateScalarsBeforeMappingOn()
                 mapper.SetScalarVisibility(1)
                 mapper.SetScalarRange(color_min, color_max)
 
-        self.state.preset_img = to_image(lut, 255)
+        mesh_pipeline = self._scene_manager["meshes"]
+        contour = mesh_pipeline.get("contour")
+        contour.SetInputArray(color_by)
+        contour.GenerateValues(nb_contours, [color_min, color_max])
+
+        if "color_preset" in self.state.modified_keys:
+            set_preset(lut, color_preset)
+            self.state.preset_img = to_image(lut, 255)
+
         self.ctrl.view_update()
 
     def reset_color_range(self):

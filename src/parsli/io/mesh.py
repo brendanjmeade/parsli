@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import h5py
@@ -12,6 +13,9 @@ from vtkmodules.vtkCommonDataModel import (
 )
 
 from parsli.utils import earth
+
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 
 class VtkMeshReader(VTKPythonAlgorithmBase):
@@ -98,7 +102,9 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
 
         with h5py.File(self._file_name, "r") as hdf:
             meshes = hdf["meshes"]
-            all_meshes.SetNumberOfPartitions(len(meshes))
+            n_meshes = len(meshes)
+            logger.debug("n_meshes=%s", n_meshes)
+            all_meshes.SetNumberOfPartitions(n_meshes)
             for idx, mesh in enumerate(meshes):
                 vtk_mesh = vtkPolyData()
                 all_meshes.SetPartition(idx, vtk_mesh)
@@ -126,6 +132,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                 vtk_polys.Allocate(4 * n_cells)
                 assert hdf_ds.shape[1] == 3, "only triangles"
 
+                logger.debug(" %s. mesh %s cells", idx, n_cells)
+
                 for cell in hdf_ds:
                     vtk_polys.InsertNextCell(3)
                     vtk_polys.InsertCellPoint(cell[0])
@@ -137,7 +145,7 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                         continue
 
                     # This is a field
-                    # print(f"Field {name}: {meshes[mesh][name][:].ravel().shape}")
+                    logger.debug("Field %s: %s", name, meshes[mesh][name].shape)
                     vtk_mesh.cell_data[name] = meshes[mesh][name][:].ravel()
 
         output.ShallowCopy(all_meshes)

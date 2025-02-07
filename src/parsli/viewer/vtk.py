@@ -8,8 +8,15 @@ import numpy as np
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 from vtkmodules.vtkCommonCore import vtkLookupTable, vtkUnsignedCharArray
 from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkFiltersCore import (
+    vtkCellDataToPointData,
+    vtkContourFilter,
+)
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
+from vtkmodules.vtkFiltersModeling import vtkLoopSubdivisionFilter
 
+# Disable warning
+# vtkLoopSubdivisionFilter.GlobalWarningDisplayOff()
 # VTK factory initialization
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa: F401
 from vtkmodules.vtkInteractionWidgets import vtkOrientationMarkerWidget
@@ -114,6 +121,9 @@ class SceneManager:
     def __init__(self, server):
         self.server = server
 
+        self._lut = vtkLookupTable()
+        set_preset(self._lut, "Fast")
+
         self.geometries = {}
 
         self.renderer = vtkRenderer(background=(0.8, 0.8, 0.8))
@@ -144,32 +154,33 @@ class SceneManager:
     def reset_camera_to(self, bounds):
         self.renderer.ResetCamera(bounds)
 
-    def get_lut(self, name):
-        return self.geometries.get(name, {}).get("lut")
+    @property
+    def lut(self):
+        return self._lut
 
     def add_geometry(self, name, source, composite=False):
-        lut = vtkLookupTable()
-        set_preset(lut, "Fast")
-
-        item = {"name": name, "source": source, "composite": composite, "lut": lut}
+        item = {"name": name, "source": source, "composite": composite}
 
         if not composite:
             geometry = vtkDataSetSurfaceFilter(input_connection=source.output_port)
             mapper = vtkPolyDataMapper(
                 input_connection=geometry.output_port,
-                lookup_table=lut,
+                lookup_table=self.lut,
             )
+            mapper.InterpolateScalarsBeforeMappingOn()
             item["geometry"] = geometry
             item["mapper"] = mapper
         else:
             mapper = vtkCompositePolyDataMapper(
                 input_connection=source.output_port,
-                lookup_table=lut,
+                lookup_table=self.lut,
             )
+            mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
 
         actor = vtkActor(mapper=mapper)
         item["actor"] = actor
+        item["actors"] = [actor]
 
         self.geometries[name] = item
 
@@ -178,3 +189,77 @@ class SceneManager:
         self.render_window.Render()
 
         self.ctrl.view_update()
+
+        return item
+
+    def add_geometry_with_contour(self, name, source, composite=False):
+        # pipeline filters
+        cell2point = vtkCellDataToPointData()
+        refine = vtkLoopSubdivisionFilter()
+        contour = vtkContourFilter()
+
+        # connect pipeline
+        source >> cell2point >> refine >> contour
+        # source >> cell2point >> contour
+        for_surface = cell2point
+
+        item = {
+            "name": name,
+            "source": source,
+            "composite": composite,
+            "cell2point": cell2point,
+            "refine": refine,
+            "contour": contour,
+        }
+
+        if not composite:
+            # surface
+            mapper = vtkPolyDataMapper(
+                input_connection=for_surface.output_port,
+                lookup_table=self.lut,
+            )
+            mapper.InterpolateScalarsBeforeMappingOn()
+            item["mapper"] = mapper
+            # lines
+            mapper_lines = vtkPolyDataMapper(
+                input_connection=contour.output_port,
+            )
+            item["mapper_lines"] = mapper_lines
+        else:
+            # surface
+            mapper = vtkCompositePolyDataMapper(
+                input_connection=for_surface.output_port,
+                lookup_table=self.lut,
+            )
+            mapper.InterpolateScalarsBeforeMappingOn()
+            item["mapper"] = mapper
+            # lines
+            mapper_lines = vtkCompositePolyDataMapper(
+                input_connection=contour.output_port,
+                scalar_visibility=0,
+            )
+            item["mapper_lines"] = mapper_lines
+
+        # Surface actor
+        actor = vtkActor(mapper=mapper)
+        item["actor"] = actor
+
+        # Lines actor
+        actor_lines = vtkActor(mapper=mapper_lines)
+        actor_lines.property.color = [0, 0, 0]
+        actor_lines.property.line_width = 2
+        # actor_lines.property.render_line_as_tube = 1
+        item["actor_lines"] = actor_lines
+
+        item["actors"] = [actor, actor_lines]
+
+        self.geometries[name] = item
+
+        self.renderer.AddActor(actor)
+        self.renderer.AddActor(actor_lines)
+        self.renderer.ResetCamera()
+        self.render_window.Render()
+
+        self.ctrl.view_update()
+
+        return item
