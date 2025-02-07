@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.5.0 (2025-02-07)
+
+### Bug Fixes
+
+- **scale**: For lines in euclidean proj
+  ([`14e9e1b`](https://github.com/brendanjmeade/parsli/commit/14e9e1b3092865fa520e361454dd4e1a363ab783))
+
+### Features
+
+- **contours**: Add contour pipeline
+  ([`b03abdf`](https://github.com/brendanjmeade/parsli/commit/b03abdf839b8c4f761a5be053b65fefda52d3890))
+
+
 ## v0.4.0 (2025-02-07)
 
 ### Bug Fixes
