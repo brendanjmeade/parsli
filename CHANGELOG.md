@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.6.0 (2025-02-07)
+
+### Chores
+
+- Add asset files
+  ([`dbce589`](https://github.com/brendanjmeade/parsli/commit/dbce589079367d9ebb29b6d905bb4d434169d3fe))
+
+### Features
+
+- **coast**: Add coast line selection
+  ([`4175a91`](https://github.com/brendanjmeade/parsli/commit/4175a9193fcd814df554a2c5d7f26b2962a51273))
+
+
 ## v0.5.0 (2025-02-07)
 
 ### Bug Fixes
