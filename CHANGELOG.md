@@ -1,6 +1,29 @@
 # CHANGELOG
 
 
+## v0.4.0 (2025-02-07)
+
+### Bug Fixes
+
+- **wasm**: Reset to mesh (partially)
+  ([`72a4560`](https://github.com/brendanjmeade/parsli/commit/72a4560833eb0645e61b4a48a2a637461ec3b4ff))
+
+### Continuous Integration
+
+- Disable artifact attestation
+  ([`f16f42c`](https://github.com/brendanjmeade/parsli/commit/f16f42ca0869721b612c3d6ad4254f5a3209cb55))
+
+### Documentation
+
+- **README**: Update readme for simple install
+  ([`825702d`](https://github.com/brendanjmeade/parsli/commit/825702d43cca977e2c9d471c85d513e8dd541454))
+
+### Features
+
+- **crop**: Add lat/lon cropping
+  ([`88f8a19`](https://github.com/brendanjmeade/parsli/commit/88f8a19606deb4599bbdc7ed4b8801fc0d5507f7))
+
+
 ## v0.3.0 (2025-02-06)
 
 ### Features
