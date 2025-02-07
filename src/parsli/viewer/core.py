@@ -97,12 +97,11 @@ class Viewer:
         for geo_name in ["segment", "meshes"]:
             pipeline_item = self.scene_manager[geo_name]
             pipeline_item.get("source").spherical = spherical
-            actor = pipeline_item.get("actor")
+            actors = pipeline_item.get("actors")
 
-            if spherical:
-                actor.scale = (1, 1, 1)
-            else:
-                actor.scale = (1, 1, 0.01)
+            scale = (1, 1, 1) if spherical else (1, 1, 0.01)
+            for actor in actors:
+                actor.scale = scale
 
         self.ctrl.view_reset_camera()
 
