@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.0 (2025-02-08)
+
+### Features
+
+- **gui**: Major gui cleanup
+  ([`a77d3b2`](https://github.com/brendanjmeade/parsli/commit/a77d3b2ccee596987266ecae10054907ff97b80f))
+
+
 ## v0.7.2 (2025-02-08)
 
 ### Bug Fixes
