@@ -58,7 +58,8 @@ class ControlPanel(v3.VCard):
                     icon="mdi-menu",
                     v_else=True,
                     click=f"{toggle} = !{toggle}",
-                    classes="border-thin",
+                    # flat=True,
+                    variant="outlined",
                     size="sm",
                 )
 
@@ -199,22 +200,33 @@ class ControlPanel(v3.VCard):
                 # Projection: Spherical / Euclidean
                 # -------------------------------------------------------------
 
-                v3.VSelect(
-                    prepend_inner_icon=("spherical ? 'mdi-earth' : 'mdi-earth-box'",),
-                    v_model=("spherical", True),
-                    items=(
-                        "proj_modes",
-                        [
-                            {"title": "Spherical", "value": True},
-                            {"title": "Euclidean", "value": False},
-                        ],
-                    ),
-                    hide_details=True,
-                    density="compact",
-                    flat=True,
-                    variant="solo",
-                    classes="mx-n2",
-                )
+                with html.Div(classes="d-flex"):
+                    v3.VSelect(
+                        prepend_inner_icon=(
+                            "spherical ? 'mdi-earth' : 'mdi-earth-box'",
+                        ),
+                        v_model=("spherical", True),
+                        items=(
+                            "proj_modes",
+                            [
+                                {"title": "Spherical", "value": True},
+                                {"title": "Euclidean", "value": False},
+                            ],
+                        ),
+                        hide_details=True,
+                        density="compact",
+                        flat=True,
+                        variant="solo",
+                        classes="mx-n2",
+                    )
+                    v3.VCheckbox(
+                        disabled=("!spherical",),
+                        v_model=("show_earth_core", True),
+                        true_icon="mdi-google-earth",
+                        false_icon="mdi-google-earth",
+                        hide_details=True,
+                        density="compact",
+                    )
 
                 # -------------------------------------------------------------
                 # Coast line regions
@@ -372,15 +384,20 @@ class ControlPanel(v3.VCard):
         source.active_regions = coast_active_regions
         self.ctrl.view_update()
 
-    @change("show_segment", "show_surface")
-    def _on_visibility(self, show_segment, show_surface, **_):
+    @change("show_segment", "show_surface", "show_earth_core")
+    def _on_visibility(self, show_segment, show_surface, show_earth_core, **_):
         seg_actors = self._scene_manager["segment"].get("actors")
         surf_actors = self._scene_manager["meshes"].get("actors")
+        earth_actors = self._scene_manager["earth_core"].get("actors")
 
         for actor in seg_actors:
             actor.SetVisibility(show_segment)
+
         for actor in surf_actors:
             actor.SetVisibility(show_surface)
+
+        for actor in earth_actors:
+            actor.SetVisibility(show_earth_core)
 
         self.ctrl.view_update()
 

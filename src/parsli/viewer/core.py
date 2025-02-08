@@ -8,10 +8,12 @@ from trame.ui.vuetify3 import VAppLayout
 from trame.widgets import vtk as vtkw
 from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
+from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
 from parsli.utils import expend_range
+from parsli.utils.earth import EARTH_RADIUS
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
 
@@ -38,6 +40,18 @@ class Viewer:
         # Setup app
         self.scene_manager = SceneManager(self.server)
         self._build_ui()
+
+        # earth core
+        pipeline = self.scene_manager.add_geometry(
+            "earth_core",
+            vtkSphereSource(
+                radius=EARTH_RADIUS - 100,
+                theta_resolution=60,
+                phi_resolution=60,
+            ),
+        )
+        prop = pipeline.get("actor").property
+        prop.opacity = 0.85
 
         # load segments
         seg_reader = VtkSegmentReader()
@@ -104,6 +118,8 @@ class Viewer:
 
     @change("spherical")
     def _on_projection_change(self, spherical, **_):
+        self.state.show_earth_core = spherical
+
         for geo_name in ["segment", "meshes", "coast"]:
             pipeline_item = self.scene_manager[geo_name]
             pipeline_item.get("source").spherical = spherical
