@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.6.1 (2025-02-08)
+
+### Bug Fixes
+
+- **contour**: Use band contour
+  ([`d77a6e1`](https://github.com/brendanjmeade/parsli/commit/d77a6e1c08fd7245384dcfe4eaae1792f5077755))
+
+
 ## v0.6.0 (2025-02-07)
 
 ### Chores
