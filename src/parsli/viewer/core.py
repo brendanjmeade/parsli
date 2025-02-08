@@ -120,6 +120,14 @@ class Viewer:
         self.scene_manager.reset_camera_to(bounds)
         self.ctrl.view_update(push_camera=True)
 
+    def apply_zoom(self, scale):
+        self.scene_manager.apply_zoom(scale)
+        self.ctrl.view_update(push_camera=True)
+
+    def update_view_up(self, view_up):
+        self.scene_manager.update_view_up(view_up)
+        self.ctrl.view_update(push_camera=True)
+
     def _build_ui(self):
         self.state.trame__title = "Parsli"
         with VAppLayout(self.server, full_height=True) as layout:
@@ -157,4 +165,6 @@ class Viewer:
                 ui.ViewToolbar(
                     reset_camera=self.ctrl.view_reset_camera,
                     reset_to_mesh=self.reset_to_mesh,
+                    apply_zoom=self.apply_zoom,
+                    update_view_up=self.update_view_up,
                 )

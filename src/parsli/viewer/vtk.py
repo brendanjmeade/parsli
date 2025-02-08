@@ -24,10 +24,11 @@ from vtkmodules.vtkFiltersModeling import (
 )
 from vtkmodules.vtkFiltersVerdict import vtkMeshQuality
 
-# Disable warning
-# vtkLoopSubdivisionFilter.GlobalWarningDisplayOff()
 # VTK factory initialization
-from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa: F401
+from vtkmodules.vtkInteractionStyle import (
+    vtkInteractorStyleSwitch,  # noqa: F401
+    vtkInteractorStyleTerrain,
+)
 from vtkmodules.vtkInteractionWidgets import vtkOrientationMarkerWidget
 from vtkmodules.vtkIOImage import vtkPNGWriter
 from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
@@ -40,6 +41,10 @@ from vtkmodules.vtkRenderingCore import (
     vtkRenderWindow,
     vtkRenderWindowInteractor,
 )
+
+# Disable warning
+vtkLoopSubdivisionFilter.GlobalWarningDisplayOff()
+
 
 PRESETS = {
     item.get("Name"): item
@@ -139,9 +144,17 @@ class SceneManager:
         self.interactor = vtkRenderWindowInteractor()
         self.render_window = vtkRenderWindow(off_screen_rendering=1)
 
+        self.style = vtkInteractorStyleTerrain()
+
         self.render_window.AddRenderer(self.renderer)
         self.interactor.SetRenderWindow(self.render_window)
-        self.interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+        # self.interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+        self.interactor.SetInteractorStyle(self.style)
+
+        camera = self.renderer.active_camera
+        camera.position = (1, 0, 0)
+        camera.focal_point = (0, 0, 0)
+        camera.view_up = (0, 0, 1)
 
         self.interactor.Initialize()
 
@@ -162,6 +175,12 @@ class SceneManager:
 
     def reset_camera_to(self, bounds):
         self.renderer.ResetCamera(bounds)
+
+    def update_view_up(self, view_up):
+        self.renderer.active_camera.view_up = view_up
+
+    def apply_zoom(self, scale):
+        self.renderer.active_camera.Zoom(scale)
 
     @property
     def lut(self):

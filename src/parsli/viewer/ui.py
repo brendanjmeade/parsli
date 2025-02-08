@@ -405,7 +405,7 @@ class ControlPanel(v3.VCard):
 
 
 class ViewToolbar(v3.VCard):
-    def __init__(self, reset_camera, reset_to_mesh):
+    def __init__(self, reset_camera, reset_to_mesh, apply_zoom, update_view_up):  # noqa: ARG002
         super().__init__(
             classes="view-toolbar pa-1",
             rounded="lg",
@@ -431,3 +431,37 @@ class ViewToolbar(v3.VCard):
                         icon="mdi-magnify-scan",
                         click=reset_to_mesh,
                     )
+            v3.VDivider()
+            with v3.VTooltip(text="Zoom in"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-magnify-plus-outline",
+                        click=(apply_zoom, "[1.1]"),
+                    )
+            with v3.VTooltip(text="Zoom out"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-magnify-minus-outline",
+                        click=(apply_zoom, "[0.9]"),
+                    )
+
+            # --------------------------------------------
+            # Not needed if we use terrain style
+            # --------------------------------------------
+            # v3.VDivider()
+            # with v3.VTooltip(text="Z up"):
+            #     with html.Template(v_slot_activator="{ props }"):
+            #         v3.VBtn(
+            #             v_bind="props",
+            #             flat=True,
+            #             density="compact",
+            #             icon="mdi-axis-z-arrow",
+            #             click=(update_view_up, "[[0, 0, 1]]"),
+            #         )
+            # --------------------------------------------
