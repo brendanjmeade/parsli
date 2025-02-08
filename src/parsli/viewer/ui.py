@@ -16,6 +16,7 @@ class ControlPanel(v3.VCard):
 
         super().__init__(
             classes="controller",
+            elevation=5,
             rounded=(f"{toggle} || 'circle'",),
         )
 
@@ -57,7 +58,7 @@ class ControlPanel(v3.VCard):
                     icon="mdi-menu",
                     v_else=True,
                     click=f"{toggle} = !{toggle}",
-                    flat=True,
+                    classes="border-thin",
                     size="sm",
                 )
 
@@ -87,14 +88,14 @@ class ControlPanel(v3.VCard):
 
             with v3.VCardText(
                 v_show=(toggle, True),
-                classes="controller-content py-1 mt-10 mx-0",
+                classes="controller-content mt-12 mb-1 pb-1 mx-0 px-1",
             ):
                 # -------------------------------------------------------------
                 # Longitude / Latitude cropping
                 # -------------------------------------------------------------
 
                 with v3.VRow(
-                    "Longitude", classes="text-subtitle-2 ma-0 pt-2 align-center"
+                    "Longitude", classes="text-subtitle-2 ma-1 pt-2 align-center"
                 ):
                     v3.VSpacer()
                     html.Span(
@@ -115,9 +116,10 @@ class ControlPanel(v3.VCard):
                     step=0.5,
                     density="compact",
                     hide_details=True,
+                    classes="px-2",
                 )
 
-                with v3.VRow("Latitude", classes="text-subtitle-2 ma-0 align-center"):
+                with v3.VRow("Latitude", classes="text-subtitle-2 ma-1 align-center"):
                     v3.VSpacer()
                     html.Span(
                         "{{ latitude_bnds[0].toFixed(1) }}",
@@ -137,16 +139,16 @@ class ControlPanel(v3.VCard):
                     step=0.5,
                     density="compact",
                     hide_details=True,
+                    classes="px-2",
                 )
 
-                with v3.VRow(classes="mx-n2 my-0"):
+                with v3.VRow(classes="ma-1"):
                     v3.VBtn(
                         icon="mdi-crop-free",
                         size="small",
                         flat=True,
                         density="compact",
                         hide_details=True,
-                        classes="mx-2",
                         click=reset_camera,
                     )
                     v3.VBtn(
@@ -176,7 +178,6 @@ class ControlPanel(v3.VCard):
                         flat=True,
                         density="compact",
                         hide_details=True,
-                        classes="mx-2",
                         click=self._crop_bounds_to_mesh,
                     )
 
@@ -191,9 +192,55 @@ class ControlPanel(v3.VCard):
                     )
 
                 # -------------------------------------------------------------
+
+                v3.VDivider(classes="mt-2 mx-n3")
+
+                # -------------------------------------------------------------
+                # Projection: Spherical / Euclidean
+                # -------------------------------------------------------------
+
+                v3.VSelect(
+                    prepend_inner_icon=("spherical ? 'mdi-earth' : 'mdi-earth-box'",),
+                    v_model=("spherical", True),
+                    items=(
+                        "proj_modes",
+                        [
+                            {"title": "Spherical", "value": True},
+                            {"title": "Euclidean", "value": False},
+                        ],
+                    ),
+                    hide_details=True,
+                    density="compact",
+                    flat=True,
+                    variant="solo",
+                    classes="mx-n2",
+                )
+
+                # -------------------------------------------------------------
+                # Coast line regions
+                # -------------------------------------------------------------
+
+                v3.VSelect(
+                    prepend_inner_icon="mdi-map-outline",
+                    placeholder="Coast lines",
+                    v_model=("coast_active_regions", []),
+                    items=("coast_regions", []),
+                    density="compact",
+                    hide_details=True,
+                    flat=True,
+                    variant="solo",
+                    chips=True,
+                    closable_chips=True,
+                    multiple=True,
+                    classes="mx-n2",
+                )
+                # -------------------------------------------------------------
+
+                v3.VDivider(classes="mx-n3 mb-1")
+
+                # -------------------------------------------------------------
                 # Color mapping
                 # -------------------------------------------------------------
-                v3.VDivider(classes="my-2 mx-n3")
 
                 v3.VSelect(
                     placeholder="Color By",
@@ -207,9 +254,7 @@ class ControlPanel(v3.VCard):
                     classes="mx-n2",
                 )
 
-                v3.VDivider(classes="my-2 mx-n3")
-
-                with v3.VRow(no_gutters=True, classes="align-center mr-0"):
+                with v3.VRow(no_gutters=True, classes="align-center mx-n2 mt-n2"):
                     with v3.VCol():
                         v3.VTextField(
                             v_model_number=("color_min", 0),
@@ -218,10 +263,9 @@ class ControlPanel(v3.VCard):
                             density="compact",
                             flat=True,
                             variant="solo",
-                            classes="px-0",
                             hide_spin_buttons=True,
                         )
-                    with html.Div(classes="flex-0"):
+                    with html.Div(classes="flex-0 mx-n3", style="z-index: 1;"):
                         v3.VBtn(
                             icon="mdi-arrow-expand-horizontal",
                             size="sm",
@@ -256,7 +300,7 @@ class ControlPanel(v3.VCard):
                 html.Img(
                     src=("preset_img", None),
                     style="height: 1rem; width: 100%;",
-                    classes="rounded-lg border-thin",
+                    classes="rounded-lg border-thin mb-n1",
                 )
 
                 v3.VSelect(
@@ -268,30 +312,15 @@ class ControlPanel(v3.VCard):
                     density="compact",
                     flat=True,
                     variant="solo",
-                )
-
-                v3.VDivider(classes="my-2 mx-n3")
-
-                v3.VSelect(
-                    prepend_inner_icon=("spherical ? 'mdi-earth' : 'mdi-earth-box'",),
-                    v_model=("spherical", True),
-                    items=(
-                        "proj_modes",
-                        [
-                            {"title": "Spherical", "value": True},
-                            {"title": "Euclidean", "value": False},
-                        ],
-                    ),
-                    hide_details=True,
-                    density="compact",
-                    flat=True,
-                    variant="solo",
                     classes="mx-n2",
                 )
 
-                v3.VDivider(classes="my-2 mx-n3")
+                v3.VDivider(classes="mx-n3 pb-1")
 
-                # contours
+                # -------------------------------------------------------------
+                # Contours
+                # -------------------------------------------------------------
+
                 with v3.VTooltip(
                     text=("`Number of contours: ${nb_contours}`",),
                 ):
@@ -313,31 +342,22 @@ class ControlPanel(v3.VCard):
                                 style="margin: 0 2px;",
                             )
 
-                # Coast line regions
-                v3.VDivider(classes="my-2 mx-n3")
-                v3.VSelect(
-                    prepend_inner_icon="mdi-map-outline",
-                    v_model=("coast_active_regions", []),
-                    items=("coast_regions", []),
-                    density="compact",
-                    hide_details=True,
-                    flat=True,
-                    variant="solo",
-                    chips=True,
-                    closable_chips=True,
-                    multiple=True,
-                    classes="mx-n2",
-                )
-
     def _reset_bounds(self):
         self.state.latitude_bnds = [-90, 90]
         self.state.longitude_bnds = [0, 360]
         self.ctrl.view_update()
 
     def _expand_bounds(self):
-        self.state.latitude_bnds *= 1.2
-        self.state.longitude_bnds *= 1.2
-        self.state.dirty("latitude_bnds", "longitude_bnds")
+        delta = 0.5
+        self.state.latitude_bnds = [
+            max(self.state.latitude_bnds[0] - delta, -90),
+            min(self.state.latitude_bnds[1] + delta, 90),
+        ]
+        delta /= 2
+        self.state.longitude_bnds = [
+            max(self.state.longitude_bnds[0] - delta, 0),
+            min(self.state.longitude_bnds[1] + delta, 360),
+        ]
         self.ctrl.view_update()
 
     def _crop_bounds_to_mesh(self):

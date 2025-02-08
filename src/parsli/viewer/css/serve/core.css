@@ -1,19 +1,20 @@
+html,
+body {
+  overflow: hidden;
+}
+
 .controller {
   position: absolute !important;
   top: 1rem;
   left: 1rem;
   max-height: calc(100vh - 2rem);
-  overflow: auto;
+  padding: 2px 0;
   z-index: 2;
+  overflow: auto !important;
 }
 
 .controller-content {
   width: clamp(20rem, 25vw, 30rem);
-}
-
-html,
-body {
-  overflow: hidden;
 }
 
 .view-toolbar {

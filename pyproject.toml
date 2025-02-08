@@ -44,10 +44,14 @@ dependencies = [
 test = [
   "pytest >=6",
   "pytest-cov >=3",
+  "nox",
 ]
 dev = [
   "pytest >=6",
   "pytest-cov >=3",
+  "pre-commit",
+  "ruff",
+  "nox",
 ]
 docs = [
   "sphinx>=7.0",
