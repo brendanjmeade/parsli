@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.7.0 (2025-02-08)
+
+### Features
+
+- View toolbar, contours, color range
+  ([`3148245`](https://github.com/brendanjmeade/parsli/commit/3148245168f1208c8cf71567ade63c0a7d63ae1a))
+
+
 ## v0.6.1 (2025-02-08)
 
 ### Bug Fixes
