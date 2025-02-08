@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.9.0 (2025-02-08)
+
+### Features
+
+- **earth**: Add background earth core
+  ([`2dd6151`](https://github.com/brendanjmeade/parsli/commit/2dd61515fb11ea49cc8429ecabef20f6dea9f70d))
+
+
 ## v0.8.0 (2025-02-08)
 
 ### Features
