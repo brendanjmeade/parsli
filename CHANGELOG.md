@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.7.2 (2025-02-08)
+
+### Bug Fixes
+
+- **ui**: White bg, zoom bounds mock
+  ([`1a7f7dd`](https://github.com/brendanjmeade/parsli/commit/1a7f7ddc2f82b7bc30e0a635ddb51c516e6b49df))
+
+
 ## v0.7.1 (2025-02-08)
 
 ### Bug Fixes
