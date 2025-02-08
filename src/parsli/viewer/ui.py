@@ -3,6 +3,7 @@ from __future__ import annotations
 from trame.decorators import TrameApp, change
 from trame.widgets import html
 from trame.widgets import vuetify3 as v3
+from vtkmodules.vtkCommonDataModel import vtkDataObject, vtkDataSetAttributes
 
 from parsli.utils import expend_range
 from parsli.viewer.vtk import PRESETS, set_preset, to_image
@@ -211,13 +212,22 @@ class ControlPanel(v3.VCard):
                         )
                     with html.Div(classes="flex-0"):
                         v3.VBtn(
-                            icon="mdi-arrow-split-vertical",
+                            icon="mdi-arrow-expand-horizontal",
                             size="sm",
                             density="compact",
                             flat=True,
-                            variant="outlined",
-                            classes="mx-2",
+                            variant="solo",
+                            classes="ml-2",
                             click=self.reset_color_range,
+                        )
+                        v3.VBtn(
+                            icon="mdi-circle-half-full",
+                            size="sm",
+                            density="compact",
+                            flat=True,
+                            variant="solo",
+                            classes="mr-2",
+                            click=self.symetric_color_range,
                         )
                     with v3.VCol():
                         v3.VTextField(
@@ -361,15 +371,25 @@ class ControlPanel(v3.VCard):
                 mapper.SetScalarRange(color_min, color_max)
 
         mesh_pipeline = self._scene_manager["meshes"]
-        contour = mesh_pipeline.get("contour")
-        contour.SetInputArray(color_by)
-        contour.GenerateValues(nb_contours, [color_min, color_max])
+        assign = mesh_pipeline.get("assign")
+        assign.Assign(
+            color_by,
+            vtkDataSetAttributes.SCALARS,
+            vtkDataObject.FIELD_ASSOCIATION_POINTS,
+        )
+        bands = mesh_pipeline.get("bands")
+        bands.GenerateValues(nb_contours, [color_min, color_max])
 
         if "color_preset" in self.state.modified_keys:
             set_preset(lut, color_preset)
             self.state.preset_img = to_image(lut, 255)
 
         self.ctrl.view_update()
+
+    def symetric_color_range(self):
+        max_bound = max(abs(self.state.color_min), abs(self.state.color_max))
+        self.state.color_min = -max_bound
+        self.state.color_max = max_bound
 
     def reset_color_range(self):
         pipeline_item = self._scene_manager["meshes"]

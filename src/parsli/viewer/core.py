@@ -8,13 +8,14 @@ from trame.ui.vuetify3 import VAppLayout
 from trame.widgets import vtk as vtkw
 from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
+from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
 from parsli.utils import expend_range
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
 
-# from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
+DEBUG_WRITE_MESH = False
 
 
 @TrameApp()
@@ -62,10 +63,12 @@ class Viewer:
         coast_props.line_width = 2
         coast_props.color = (0, 0, 0)
 
-        # writer = vtkXMLPartitionedDataSetWriter()
-        # writer.SetInputData(mesh_reader())
-        # writer.SetFileName("all_meshes.vtpd")
-        # writer.Write()
+        if DEBUG_WRITE_MESH:
+            writer = vtkXMLPartitionedDataSetWriter()
+            writer.SetInputData(mesh_reader())
+            writer.SetFileName("all_meshes.vtpd")
+            writer.Write()
+
         self.readers = [mesh_reader, seg_reader]
 
     @property

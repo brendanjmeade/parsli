@@ -7,13 +7,22 @@ from pathlib import Path
 import numpy as np
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 from vtkmodules.vtkCommonCore import vtkLookupTable, vtkUnsignedCharArray
-from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkCommonDataModel import (
+    vtkDataObject,
+    vtkDataSetAttributes,
+    vtkImageData,
+)
 from vtkmodules.vtkFiltersCore import (
+    vtkAssignAttribute,
     vtkCellDataToPointData,
-    vtkContourFilter,
+    vtkThreshold,
 )
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
-from vtkmodules.vtkFiltersModeling import vtkLoopSubdivisionFilter
+from vtkmodules.vtkFiltersModeling import (
+    vtkBandedPolyDataContourFilter,
+    vtkLoopSubdivisionFilter,
+)
+from vtkmodules.vtkFiltersVerdict import vtkMeshQuality
 
 # Disable warning
 # vtkLoopSubdivisionFilter.GlobalWarningDisplayOff()
@@ -194,14 +203,44 @@ class SceneManager:
 
     def add_geometry_with_contour(self, name, source, composite=False):
         # pipeline filters
+        quality = vtkMeshQuality()
+        quality.SetTriangleQualityMeasureToEdgeRatio()
+        threshold = vtkThreshold(
+            threshold_function=vtkThreshold.THRESHOLD_LOWER,
+            lower_threshold=3.99,  # magic number for vtkLoopSubdivisionFilter
+        )
+        threshold.SetInputArrayToProcess(
+            0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_CELLS, "Quality"
+        )
+        geometry = vtkDataSetSurfaceFilter()
         cell2point = vtkCellDataToPointData()
-        refine = vtkLoopSubdivisionFilter()
-        contour = vtkContourFilter()
+        refine = vtkLoopSubdivisionFilter(
+            number_of_subdivisions=1
+        )  # Adjust subdivision quality
+        assign = vtkAssignAttribute()
+        assign.Assign(
+            "dip_slip",  # Will be overridden later
+            vtkDataSetAttributes.SCALARS,
+            vtkDataObject.FIELD_ASSOCIATION_POINTS,
+        )
+        bands = vtkBandedPolyDataContourFilter(generate_contour_edges=1)
+        # bands.SetScalarModeToIndex()
 
         # connect pipeline
-        source >> cell2point >> refine >> contour
-        # source >> cell2point >> contour
-        for_surface = cell2point
+        (
+            source
+            >> quality
+            >> threshold
+            >> geometry
+            >> cell2point
+            >> refine
+            >> assign
+            >> bands
+        )
+        for_surface = refine
+
+        # bands.Update()
+        # print(bands.GetOutputDataObject(0))
 
         item = {
             "name": name,
@@ -209,7 +248,8 @@ class SceneManager:
             "composite": composite,
             "cell2point": cell2point,
             "refine": refine,
-            "contour": contour,
+            "assign": assign,
+            "bands": bands,
         }
 
         if not composite:
@@ -222,8 +262,9 @@ class SceneManager:
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkPolyDataMapper(
-                input_connection=contour.output_port,
+                input_connection=bands.GetOutputPort(1),
             )
+            mapper_lines.SetResolveCoincidentTopologyToPolygonOffset()
             item["mapper_lines"] = mapper_lines
         else:
             # surface
@@ -235,9 +276,10 @@ class SceneManager:
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkCompositePolyDataMapper(
-                input_connection=contour.output_port,
+                input_connection=bands.GetOutputPort(1),
                 scalar_visibility=0,
             )
+            mapper_lines.SetResolveCoincidentTopologyToPolygonOffset()
             item["mapper_lines"] = mapper_lines
 
         # Surface actor
@@ -246,7 +288,7 @@ class SceneManager:
 
         # Lines actor
         actor_lines = vtkActor(mapper=mapper_lines)
-        actor_lines.property.color = [0, 0, 0]
+        actor_lines.property.color = (0, 0, 0)
         actor_lines.property.line_width = 2
         # actor_lines.property.render_line_as_tube = 1
         item["actor_lines"] = actor_lines
