@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.7.1 (2025-02-08)
+
+### Bug Fixes
+
+- **crop**: Fix latitude comparison
+  ([`ee71d26`](https://github.com/brendanjmeade/parsli/commit/ee71d261606244636a9032b0097ac8c90943e5e2))
+
+
 ## v0.7.0 (2025-02-08)
 
 ### Features
