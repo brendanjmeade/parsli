@@ -116,7 +116,7 @@ class QuadCell:
             self.start.lon < self.longitude_bnds[0]
             or self.end.lon > self.longitude_bnds[1]
             or self.start.lat < self.latitude_bnds[0]
-            or self.end.lat > self.longitude_bnds[1]
+            or self.end.lat > self.latitude_bnds[1]
         ):
             # print(f"skip {self.start} {self.end}")
             return False
