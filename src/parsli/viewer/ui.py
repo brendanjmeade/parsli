@@ -161,6 +161,16 @@ class ControlPanel(v3.VCard):
 
                     v3.VSpacer()
                     v3.VBtn(
+                        icon="mdi-map-plus",
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click=self._expand_bounds,
+                    )
+
+                    v3.VBtn(
                         icon="mdi-arrow-collapse-horizontal",
                         size="small",
                         flat=True,
@@ -169,6 +179,7 @@ class ControlPanel(v3.VCard):
                         classes="mx-2",
                         click=self._crop_bounds_to_mesh,
                     )
+
                     v3.VBtn(
                         icon="mdi-arrow-expand-horizontal",
                         size="small",
@@ -318,12 +329,18 @@ class ControlPanel(v3.VCard):
                     classes="mx-n2",
                 )
 
-    async def _reset_bounds(self):
+    def _reset_bounds(self):
         self.state.latitude_bnds = [-90, 90]
         self.state.longitude_bnds = [0, 360]
         self.ctrl.view_update()
 
-    async def _crop_bounds_to_mesh(self):
+    def _expand_bounds(self):
+        self.state.latitude_bnds *= 1.2
+        self.state.longitude_bnds *= 1.2
+        self.state.dirty("latitude_bnds", "longitude_bnds")
+        self.ctrl.view_update()
+
+    def _crop_bounds_to_mesh(self):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = source.latitude_bounds
         self.state.longitude_bnds = source.longitude_bounds

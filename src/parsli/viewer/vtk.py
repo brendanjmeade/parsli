@@ -140,7 +140,7 @@ class SceneManager:
 
         self.geometries = {}
 
-        self.renderer = vtkRenderer(background=(0.8, 0.8, 0.8))
+        self.renderer = vtkRenderer(background=(1.0, 1.0, 1.0))
         self.interactor = vtkRenderWindowInteractor()
         self.render_window = vtkRenderWindow(off_screen_rendering=1)
 

@@ -11,7 +11,8 @@
   width: clamp(20rem, 25vw, 30rem);
 }
 
-html {
+html,
+body {
   overflow: hidden;
 }
 
