@@ -9,3 +9,4 @@ src/parsli/assets/asia-cil-euclidean.vtp filter=lfs diff=lfs merge=lfs -text
 src/parsli/assets/asia-cil-spherical.vtp filter=lfs diff=lfs merge=lfs -text
 src/parsli/assets/europe-cil-spherical.vtp filter=lfs diff=lfs merge=lfs -text
 src/parsli/assets/namer-cil-euclidean.vtp filter=lfs diff=lfs merge=lfs -text
+*.hdf5 filter=lfs diff=lfs merge=lfs -text
