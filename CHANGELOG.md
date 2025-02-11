@@ -1,6 +1,47 @@
 # CHANGELOG
 
 
+## v0.9.1 (2025-02-11)
+
+### Bug Fixes
+
+- **bundle**: Properly add all python files
+  ([`9f3b048`](https://github.com/brendanjmeade/parsli/commit/9f3b04875e58573833849b4eeddb8d622b4d37ce))
+
+### Build System
+
+- **deps**: Bump python-semantic-release/python-semantic-release
+  ([`d54f03f`](https://github.com/brendanjmeade/parsli/commit/d54f03feb2e4997efaa51e4d9f1ba776e92f05f7))
+
+Bumps the actions group with 1 update:
+  [python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release).
+
+Updates `python-semantic-release/python-semantic-release` from 9.17.0 to 9.19.0 - [Release
+  notes](https://github.com/python-semantic-release/python-semantic-release/releases) -
+  [Changelog](https://github.com/python-semantic-release/python-semantic-release/blob/master/CHANGELOG.rst)
+  -
+  [Commits](https://github.com/python-semantic-release/python-semantic-release/compare/v9.17.0...v9.19.0)
+
+--- updated-dependencies: - dependency-name: python-semantic-release/python-semantic-release
+  dependency-type: direct:production
+
+update-type: version-update:semver-minor
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+### Continuous Integration
+
+- Don't publish if no release
+  ([`c2e5eab`](https://github.com/brendanjmeade/parsli/commit/c2e5eabdc4ed0708ae152a7763f2efce85abc396))
+
+### Documentation
+
+- **img**: Update app thumbnail
+  ([`1fb5bfa`](https://github.com/brendanjmeade/parsli/commit/1fb5bfaafdb8aa3725096f8a8f45802fd68aad62))
+
+
 ## v0.9.0 (2025-02-08)
 
 ### Features
@@ -223,7 +264,7 @@ dependency-group: actions
 
 - dependency-name: actions/attest-build-provenance dependency-type: direct:production
 
-...
+dependency-group: actions ...
 
 Signed-off-by: dependabot[bot] <support@github.com>
 
