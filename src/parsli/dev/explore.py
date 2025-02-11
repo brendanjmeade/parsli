@@ -5,7 +5,7 @@ from pathlib import Path
 import h5py
 
 BASE_DIRECTORY = Path(__file__).parent.parent.parent.parent
-INPUT = "data/model_0000000878.hdf5"
+INPUT = "data/model_0000000878_multi.hdf5"
 
 
 def explore_ds():
@@ -17,13 +17,6 @@ def explore_ds():
             print(name, "=", hdf[name])
 
         hdf.visit(print_info)
-
-        print("~" * 60)
-        print(hdf["earth_radius"][()])
-        print("+" * 60)
-        # 74 columns
-        # lon(0), lat(1), lon(2), lat(3),
-        print(hdf["segment"][0,])
 
 
 if __name__ == "__main__":
