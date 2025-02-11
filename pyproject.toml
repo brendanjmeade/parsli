@@ -69,6 +69,7 @@ Changelog = "https://github.com/brendanjmeade/parsli/releases"
 
 [tool.hatch.build]
 include = [
+  "/src/parsli/**/*.py",
   "/src/parsli/viewer/*.json",
   "/src/parsli/assets/*.vtp",
 ]
