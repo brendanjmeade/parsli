@@ -318,7 +318,7 @@ class ControlPanel(v3.VCard):
                 v3.VSelect(
                     placeholder="Color Preset",
                     prepend_inner_icon="mdi-palette",
-                    v_model=("color_preset", "Fast"),
+                    v_model=("color_preset", "Rycroft"),
                     items=("color_presets", list(PRESETS.keys())),
                     hide_details=True,
                     density="compact",
