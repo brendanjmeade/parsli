@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.9.2 (2025-02-11)
+
+### Bug Fixes
+
+- **Rycroft**: Enable new color preset
+  ([`a292056`](https://github.com/brendanjmeade/parsli/commit/a2920562f0315c1c9c4c45cda50b86cbeec38144))
+
+### Chores
+
+- Explore new file structure with time
+  ([`2e8af97`](https://github.com/brendanjmeade/parsli/commit/2e8af97f7a398c370eb2ab6591e1e57aae815dac))
+
+
 ## v0.9.1 (2025-02-11)
 
 ### Bug Fixes
