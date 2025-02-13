@@ -176,6 +176,10 @@ class SceneManager:
     def reset_camera_to(self, bounds):
         self.renderer.ResetCamera(bounds)
 
+    @property
+    def camera(self):
+        return self.renderer.active_camera
+
     def update_view_up(self, view_up):
         self.renderer.active_camera.view_up = view_up
 

@@ -19,6 +19,12 @@ from parsli.viewer.vtk import SceneManager
 
 DEBUG_WRITE_MESH = False
 
+CAMERA_PROP_MAPPING = {
+    "Position": "position",
+    "FocalPoint": "focal_point",
+    "ViewUp": "view_up",
+}
+
 
 @TrameApp()
 class Viewer:
@@ -131,6 +137,17 @@ class Viewer:
 
         self.ctrl.view_reset_camera()
 
+    @change("camera")
+    def _on_camera(self, camera, **_):
+        if camera is None:
+            return
+
+        vtk_camera = self.scene_manager.camera
+        for k, v in camera.items():
+            key = CAMERA_PROP_MAPPING.get(k)
+            if key:
+                setattr(vtk_camera, key, v)
+
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.reset_camera_to(bounds)
@@ -146,6 +163,7 @@ class Viewer:
 
     def _build_ui(self):
         self.state.trame__title = "Parsli"
+        self.state.setdefault("camera", None)
         with VAppLayout(self.server, full_height=True) as layout:
             self.ui = layout
 
@@ -156,6 +174,7 @@ class Viewer:
                     with vtklocal.LocalView(
                         self.scene_manager.render_window,
                         20,
+                        camera="camera = $event",
                     ) as view:
                         view.register_widget(self.scene_manager.widget)
                         self.ctrl.view_update = view.update
