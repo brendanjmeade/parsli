@@ -19,12 +19,6 @@ from parsli.viewer.vtk import SceneManager
 
 DEBUG_WRITE_MESH = False
 
-CAMERA_PROP_MAPPING = {
-    "Position": "position",
-    "FocalPoint": "focal_point",
-    "ViewUp": "view_up",
-}
-
 
 @TrameApp()
 class Viewer:
@@ -142,11 +136,7 @@ class Viewer:
         if camera is None:
             return
 
-        vtk_camera = self.scene_manager.camera
-        for k, v in camera.items():
-            key = CAMERA_PROP_MAPPING.get(k)
-            if key:
-                setattr(vtk_camera, key, v)
+        self.ctrl.vtk_update_from_state(camera)
 
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds
@@ -176,9 +166,10 @@ class Viewer:
                         20,
                         camera="camera = $event",
                     ) as view:
-                        view.register_widget(self.scene_manager.widget)
+                        view.register_vtk_object(self.scene_manager.widget)
                         self.ctrl.view_update = view.update
                         self.ctrl.view_reset_camera = view.reset_camera
+                        self.ctrl.vtk_update_from_state = view.vtk_update_from_state
                 else:
                     with vtkw.VtkRemoteView(
                         self.scene_manager.render_window,
