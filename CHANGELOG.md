@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.9.4 (2025-02-13)
+
+### Bug Fixes
+
+- **wasm**: Improve camera hanlding
+  ([`4a547e1`](https://github.com/brendanjmeade/parsli/commit/4a547e1a4cc378ff9b96ce9bc07e77f81cc1a502))
+
+
 ## v0.9.3 (2025-02-13)
 
 ### Bug Fixes
