@@ -67,6 +67,9 @@ Homepage = "https://github.com/brendanjmeade/parsli"
 Discussions = "https://github.com/brendanjmeade/parsli/discussions"
 Changelog = "https://github.com/brendanjmeade/parsli/releases"
 
+[project.scripts]
+parsli = "parsli.viewer.__main__:main"
+
 [tool.hatch.build]
 include = [
   "/src/parsli/**/*.py",

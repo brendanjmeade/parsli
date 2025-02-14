@@ -41,6 +41,9 @@ python -m parsli.viewer --data ./data/model_0000000881_multi.hdf5
 
 # use wasm for local rendering
 python -m parsli.viewer --data ./data/model_0000000881_multi.hdf5 --wasm
+
+# use shorthand executable
+parsli --data ./data/model_0000000881_multi.hdf5
 ```
 
 ![App](https://github.com/brendanjmeade/parsli/blob/main/parsli.png)
