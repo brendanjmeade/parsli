@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.10.1 (2025-02-14)
+
+### Bug Fixes
+
+- **exec**: Add shortcut executable
+  ([`aee18e6`](https://github.com/brendanjmeade/parsli/commit/aee18e64b651b4a3984ec1695aa045c959dc6c51))
+
+
 ## v0.10.0 (2025-02-14)
 
 ### Chores
