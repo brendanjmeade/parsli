@@ -5,7 +5,7 @@ from pathlib import Path
 import h5py
 
 BASE_DIRECTORY = Path(__file__).parent.parent.parent.parent
-INPUT = "data/model_0000000878_multi.hdf5"
+INPUT = "data/model_0000000881_multi.hdf5"
 
 
 def explore_ds():
