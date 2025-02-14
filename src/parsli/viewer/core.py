@@ -67,6 +67,8 @@ class Viewer:
         )
         pipeline.get("mapper").SetScalarModeToUsePointFieldData()
         self.state.fields = mesh_reader.available_fields
+        self.state.time_index = mesh_reader.time_index
+        self.state.nb_timesteps = mesh_reader.number_of_timesteps
 
         # Coast lines
         self.coast_lines = VtkCoastLineSource()

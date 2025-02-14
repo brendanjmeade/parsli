@@ -30,6 +30,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
         self._proj_spherical = True
         self._longitude_bnd = [0, 360]
         self._latitude_bnd = [-90, 90]
+        self._time_index = 0
+        self._n_times = -1
 
     @property
     def file_name(self):
@@ -42,6 +44,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
             msg = f"Invalid file path: {self._file_name.resolve()}"
             raise ValueError(msg)
 
+        self._n_times = -1
+        self._time_index = 0
         self.Modified()
 
     @property
@@ -77,6 +81,33 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
     @property
     def latitude_bounds(self):
         return self._latitude_bnd
+
+    @property
+    def time_index(self):
+        return self._time_index
+
+    @time_index.setter
+    def time_index(self, v):
+        if v == self._time_index:
+            return
+
+        if v == 0 or v < self.number_of_timesteps:
+            self._time_index = v
+            self.Modified()
+
+    @property
+    def number_of_timesteps(self):
+        if self._n_times < 0:
+            with h5py.File(self._file_name, "r") as hdf:
+                meshes = hdf["meshes"]
+                for mesh in meshes:
+                    n_times = len(meshes[mesh]["dip_slip"].keys())
+                    # !!! n_time_steps = 1 !!!
+                    # n_times = meshes[mesh]["n_time_steps"][()] # FIXME
+                    if n_times > self._n_times:
+                        self._n_times = int(n_times)
+
+        return self._n_times
 
     def _expend_bounds(self, longitude, latitude):
         self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
@@ -140,13 +171,17 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                     vtk_polys.InsertCellPoint(cell[1])
                     vtk_polys.InsertCellPoint(cell[2])
 
+                time_field_key = f"{self._time_index:012}"
                 for name in meshes[mesh]:
-                    if name in {"mesh_name", "coordinates", "verts"}:
-                        continue
-
-                    # This is a field
-                    logger.debug("Field %s: %s", name, meshes[mesh][name].shape)
-                    vtk_mesh.cell_data[name] = meshes[mesh][name][:].ravel()
+                    if isinstance(meshes[mesh][name], h5py.Group):
+                        logger.debug(
+                            "Field %s: %s",
+                            name,
+                            meshes[mesh][name][time_field_key].shape,
+                        )
+                        vtk_mesh.cell_data[name] = meshes[mesh][name][time_field_key][
+                            :
+                        ].ravel()
 
         output.ShallowCopy(all_meshes)
         return 1

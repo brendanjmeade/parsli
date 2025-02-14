@@ -354,6 +354,31 @@ class ControlPanel(v3.VCard):
                                 style="margin: 0 2px;",
                             )
 
+                # -------------------------------------------------------------
+                # Time
+                # -------------------------------------------------------------
+
+                with v3.VTooltip(
+                    text=("`Current timestep: ${time_index + 1} / ${nb_timesteps}`",),
+                ):
+                    with html.Template(v_slot_activator="{ props }"):
+                        with html.Div(
+                            classes="d-flex pr-2",
+                            v_bind="props",
+                        ):
+                            v3.VSlider(
+                                v_model=("time_index", 0),
+                                min=0,
+                                max=("nb_timesteps - 1",),
+                                step=1,
+                                prepend_icon="mdi-clock-outline",
+                                hide_details=True,
+                                density="compact",
+                                flat=True,
+                                variant="solo",
+                                style="margin: 0 2px;",
+                            )
+
     def _reset_bounds(self):
         self.state.latitude_bnds = [-90, 90]
         self.state.longitude_bnds = [0, 360]
@@ -376,6 +401,12 @@ class ControlPanel(v3.VCard):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = source.latitude_bounds
         self.state.longitude_bnds = source.longitude_bounds
+        self.ctrl.view_update()
+
+    @change("time_index")
+    def _time_change(self, time_index, **_):
+        source = self._scene_manager["meshes"].get("source")
+        source.time_index = time_index
         self.ctrl.view_update()
 
     @change("coast_active_regions")

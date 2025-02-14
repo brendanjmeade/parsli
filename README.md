@@ -37,10 +37,10 @@ following command:
 
 ```
 # use remote rendering
-python -m parsli.viewer --data ./data/model_0000000878.hdf5
+python -m parsli.viewer --data ./data/model_0000000881_multi.hdf5
 
 # use wasm for local rendering
-python -m parsli.viewer --data ./data/model_0000000878.hdf5 --wasm
+python -m parsli.viewer --data ./data/model_0000000881_multi.hdf5 --wasm
 ```
 
 ![App](https://github.com/brendanjmeade/parsli/blob/main/parsli.png)
