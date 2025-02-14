@@ -1,2 +1,2 @@
 [codespell]
-skip = *.vtp
+skip = *.vtp,CHANGELOG.md
