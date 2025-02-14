@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.10.0 (2025-02-14)
+
+### Chores
+
+- Update dev/explore path to check structure
+  ([`e46a35d`](https://github.com/brendanjmeade/parsli/commit/e46a35d809c2cb8cd4a83b5b30b76b6f8f02a5ea))
+
+### Continuous Integration
+
+- Prevent failure on changelog/commit typo
+  ([`909b2ee`](https://github.com/brendanjmeade/parsli/commit/909b2ee8103dafc3cd9a07253b2033d803f23793))
+
+### Features
+
+- **time**: Add time support
+  ([`848d7a2`](https://github.com/brendanjmeade/parsli/commit/848d7a25b046553b65def4d166a0f7ab7a4ed55f))
+
+
 ## v0.9.4 (2025-02-13)
 
 ### Bug Fixes
