@@ -5,7 +5,7 @@ from trame.widgets import html
 from trame.widgets import vuetify3 as v3
 from vtkmodules.vtkCommonDataModel import vtkDataObject, vtkDataSetAttributes
 
-from parsli.utils import expend_range
+from parsli.utils import expend_range, to_precision
 from parsli.viewer.vtk import PRESETS, set_preset, to_image
 
 
@@ -473,6 +473,7 @@ class ControlPanel(v3.VCard):
 
     def symetric_color_range(self):
         max_bound = max(abs(self.state.color_min), abs(self.state.color_max))
+        max_bound = to_precision(max_bound, 3)
         self.state.color_min = -max_bound
         self.state.color_max = max_bound
 
@@ -485,8 +486,8 @@ class ControlPanel(v3.VCard):
         for array in ds.cell_data[self.state.color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
 
-        self.state.color_min = total_range[0]
-        self.state.color_max = total_range[1]
+        self.state.color_min = to_precision(total_range[0], 3)
+        self.state.color_max = to_precision(total_range[1], 3)
 
 
 class ViewToolbar(v3.VCard):

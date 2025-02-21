@@ -12,7 +12,7 @@ from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
-from parsli.utils import expend_range
+from parsli.utils import expend_range, to_precision
 from parsli.utils.earth import EARTH_RADIUS
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
@@ -119,8 +119,8 @@ class Viewer:
         for array in ds.cell_data[color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
 
-        self.state.color_min = total_range[0]
-        self.state.color_max = total_range[1]
+        self.state.color_min = to_precision(total_range[0], 3)
+        self.state.color_max = to_precision(total_range[1], 3)
 
     @change("spherical")
     def _on_projection_change(self, spherical, **_):
