@@ -135,10 +135,18 @@ class Viewer:
             for actor in actors:
                 actor.scale = scale
 
-        if not spherical:
+        if spherical:
+            bounds = self.scene_manager["meshes"].get("actor").bounds
+            self.scene_manager.camera.focal_point = (0, 0, 0)
+            self.scene_manager.camera.view_up = (0, 0, 1)
+            self.scene_manager.focus_on(bounds)
+        else:
             self.state.interaction_style = "trackball"
+            self.scene_manager.camera.focal_point = (0, 0, 0)
+            self.scene_manager.camera.position = (0, 0, 1)
+            self.scene_manager.camera.view_up = (0, 1, 0)
 
-        self.ctrl.view_reset_camera()
+        self.reset_to_mesh()
 
     @change("camera")
     def _on_camera(self, camera, **_):
