@@ -68,9 +68,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
             meshes = hdf["meshes"]
             for mesh in meshes:
                 for name in meshes[mesh]:
-                    if name in {"mesh_name", "coordinates", "verts"}:
-                        continue
-                    result.add(name)
+                    if isinstance(meshes[mesh][name], h5py.Group):
+                        result.add(name)
 
         return list(result)
 
