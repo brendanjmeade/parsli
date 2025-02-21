@@ -279,7 +279,7 @@ class SceneManager:
             >> assign
             >> bands
         )
-        for_surface = refine
+        for_surface = bands
 
         # bands.Update()
         # print(bands.GetOutputDataObject(0))
@@ -287,6 +287,9 @@ class SceneManager:
         item = {
             "name": name,
             "source": source,
+            "quality": quality,
+            "threshold": threshold,
+            "geometry": geometry,
             "composite": composite,
             "cell2point": cell2point,
             "refine": refine,
@@ -300,6 +303,7 @@ class SceneManager:
                 input_connection=for_surface.output_port,
                 lookup_table=self.lut,
             )
+            mapper.SelectColorArray("Scalars")
             mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
             # lines
@@ -314,6 +318,7 @@ class SceneManager:
                 input_connection=for_surface.output_port,
                 lookup_table=self.lut,
             )
+            mapper.SelectColorArray("Scalars")
             mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
             # lines

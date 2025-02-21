@@ -65,7 +65,9 @@ class Viewer:
         pipeline = self.scene_manager.add_geometry_with_contour(
             "meshes", mesh_reader, True
         )
-        pipeline.get("mapper").SetScalarModeToUsePointFieldData()
+        pipeline.get(
+            "mapper"
+        ).SetScalarModeToUseCellFieldData()  # Bands: Scalars on Cell
         self.state.fields = mesh_reader.available_fields
         self.state.time_index = mesh_reader.time_index
         self.state.nb_timesteps = mesh_reader.number_of_timesteps
@@ -160,6 +162,30 @@ class Viewer:
         self.scene_manager.update_interaction_style(interaction_style)
         self.ctrl.view_update(push_camera=True)
 
+    @change("subdivide")
+    def _on_subdivide(self, subdivide, **_):
+        # source >> quality >> threshold >> geometry >> cell2point >> refine >> assign >> bands
+        pipeline = self.scene_manager["meshes"]
+
+        source = pipeline.get("source")
+        assign = pipeline.get("assign")
+        refine = pipeline.get("refine")
+        cell2point = pipeline.get("cell2point")
+        threshold = pipeline.get("threshold")
+        geometry = pipeline.get("geometry")
+
+        if subdivide:
+            geometry.input_connection = threshold.output_port
+            assign.input_connection = refine.output_port
+
+            # debug
+            # self.debug_check_quality()
+        else:
+            geometry.input_connection = source.output_port
+            assign.input_connection = cell2point.output_port
+
+        self.ctrl.view_update()
+
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.reset_camera_to(bounds)
@@ -172,6 +198,11 @@ class Viewer:
     def update_view_up(self, view_up):
         self.scene_manager.update_view_up(view_up)
         self.ctrl.view_update(push_camera=True)
+
+    # def debug_check_quality(self):
+    #     filter = self.scene_manager["meshes"].get("quality").GetOutputDataObject(0)
+    #     for array in filter.cell_data["Quality"].Arrays:
+    #         print("Quality range", array.GetRange())
 
     def _build_ui(self):
         self.state.trame__title = "Parsli"

@@ -22,6 +22,7 @@ class ControlPanel(v3.VCard):
 
         # allocate variable if does not exist
         self.state.setdefault(toggle, True)
+        self.state.setdefault("subdivide", True)
 
         with self:
             with v3.VCardTitle(
@@ -58,8 +59,7 @@ class ControlPanel(v3.VCard):
                     icon="mdi-menu",
                     v_else=True,
                     click=f"{toggle} = !{toggle}",
-                    # flat=True,
-                    variant="outlined",
+                    flat=True,
                     size="sm",
                 )
 
@@ -334,7 +334,9 @@ class ControlPanel(v3.VCard):
                 # -------------------------------------------------------------
 
                 with v3.VTooltip(
-                    text=("`Number of contours: ${nb_contours}`",),
+                    text=(
+                        "`Number of contours: ${nb_contours} (${subdivide ? 'refined' : 'original'} mesh)`",
+                    ),
                 ):
                     with html.Template(v_slot_activator="{ props }"):
                         with html.Div(
@@ -342,8 +344,9 @@ class ControlPanel(v3.VCard):
                             v_bind="props",
                         ):
                             v3.VSlider(
+                                click_prepend="subdivide = !subdivide",
                                 v_model=("nb_contours", 5),
-                                min=2,
+                                min=1,
                                 max=20,
                                 step=1,
                                 prepend_icon="mdi-fingerprint",
@@ -451,9 +454,18 @@ class ControlPanel(v3.VCard):
         for mesh_type in ["segment", "meshes"]:
             if self._scene_manager[mesh_type]:
                 mapper = self._scene_manager[mesh_type].get("mapper")
-                mapper.SelectColorArray(color_by)
                 mapper.SetScalarVisibility(1)
-                mapper.SetScalarRange(color_min, color_max)
+
+                if mesh_type == "segment":
+                    mapper.SelectColorArray(color_by)
+                    mapper.SetScalarRange(color_min, color_max)
+                else:
+                    bands = self._scene_manager[mesh_type].get("bands")
+
+                    # The scalar we color on is an int starting
+                    # at 0 for the first band.
+                    # => Sample color at the center of the band by 0.5 shift
+                    mapper.SetScalarRange(-0.5, nb_contours + 0.5)
 
         mesh_pipeline = self._scene_manager["meshes"]
         assign = mesh_pipeline.get("assign")
@@ -463,7 +475,9 @@ class ControlPanel(v3.VCard):
             vtkDataObject.FIELD_ASSOCIATION_POINTS,
         )
         bands = mesh_pipeline.get("bands")
-        bands.GenerateValues(nb_contours, [color_min, color_max])
+
+        # +2 because for 1 cut line we need 3 values [min, cut_line, max]
+        bands.GenerateValues(nb_contours + 2, [color_min, color_max])
 
         if "color_preset" in self.state.modified_keys:
             set_preset(lut, color_preset)
