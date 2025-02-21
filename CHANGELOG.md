@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## v0.11.0 (2025-02-21)
+
+### Bug Fixes
+
+- **projection**: Better camera handling across proj
+  ([`f2b9fa2`](https://github.com/brendanjmeade/parsli/commit/f2b9fa2be0585cdaf642d71100d89cfa1e0966b6))
+
+### Features
+
+- **bands**: Bands color respected
+  ([`b4fa373`](https://github.com/brendanjmeade/parsli/commit/b4fa3730fb11a505758d78631febe6f100f9eb8a))
+
+Added toggle for mesh refinement to fix #17 Now that we have a single band color it fix #16
+
+
 ## v0.10.3 (2025-02-21)
 
 ### Bug Fixes
