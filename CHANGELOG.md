@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.10.3 (2025-02-21)
+
+### Bug Fixes
+
+- **scalarbar**: Add scalarbar at bottom of view
+  ([`3db9f27`](https://github.com/brendanjmeade/parsli/commit/3db9f27fa92560cc3d97ce505aaa82ae9b8dbec2))
+
+fix #15
+
+- **viewUp**: Add button helper
+  ([`3e37e10`](https://github.com/brendanjmeade/parsli/commit/3e37e10039963a27e7442301686985bfe30e91a0))
+
+
 ## v0.10.2 (2025-02-21)
 
 ### Bug Fixes
