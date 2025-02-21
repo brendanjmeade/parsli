@@ -135,6 +135,9 @@ class Viewer:
             for actor in actors:
                 actor.scale = scale
 
+        if not spherical:
+            self.state.interaction_style = "trackball"
+
         self.ctrl.view_reset_camera()
 
     @change("camera")
@@ -143,6 +146,11 @@ class Viewer:
             return
 
         self.ctrl.vtk_update_from_state(camera)
+
+    @change("interaction_style")
+    def _on_style_change(self, interaction_style, **_):
+        self.scene_manager.update_interaction_style(interaction_style)
+        self.ctrl.view_update(push_camera=True)
 
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds

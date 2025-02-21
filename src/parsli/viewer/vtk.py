@@ -144,12 +144,12 @@ class SceneManager:
         self.interactor = vtkRenderWindowInteractor()
         self.render_window = vtkRenderWindow(off_screen_rendering=1)
 
-        self.style = vtkInteractorStyleTerrain()
-
         self.render_window.AddRenderer(self.renderer)
         self.interactor.SetRenderWindow(self.render_window)
-        # self.interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
-        self.interactor.SetInteractorStyle(self.style)
+        self.interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+
+        self.style_terrain = vtkInteractorStyleTerrain()
+        self.style_trackball = self.interactor.GetInteractorStyle()
 
         camera = self.renderer.active_camera
         camera.position = (1, 0, 0)
@@ -186,6 +186,14 @@ class SceneManager:
             0.5 * (bounds[4] + bounds[5]),
         )
         self.reset_camera_to(bounds)
+
+    def update_interaction_style(self, value):
+        if value == "trackball":
+            self.interactor.SetInteractorStyle(self.style_trackball)
+        elif value == "terrain":
+            camera = self.renderer.active_camera
+            camera.view_up = (0, 0, 1)
+            self.interactor.SetInteractorStyle(self.style_terrain)
 
     @property
     def camera(self):

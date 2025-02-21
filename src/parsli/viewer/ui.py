@@ -497,6 +497,8 @@ class ViewToolbar(v3.VCard):
             rounded="lg",
         )
 
+        self.state.setdefault("interaction_style", "trackball")
+
         with self:
             with v3.VTooltip(text="Reset camera"):
                 with html.Template(v_slot_activator="{ props }"):
@@ -551,3 +553,27 @@ class ViewToolbar(v3.VCard):
             #             click=(update_view_up, "[[0, 0, 1]]"),
             #         )
             # --------------------------------------------
+
+            v3.VDivider()
+            with v3.VTooltip(text="Trackball interaction"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_show="interaction_style == 'trackball'",
+                        disabled=("!spherical",),
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-rotate-orbit",
+                        click="interaction_style = 'terrain'",
+                    )
+
+            with v3.VTooltip(text="Terrain interaction"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_show="interaction_style == 'terrain'",
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-axis-z-rotate-counterclockwise",
+                        click="interaction_style = 'trackball'",
+                    )
