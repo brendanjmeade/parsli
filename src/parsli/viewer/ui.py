@@ -539,21 +539,6 @@ class ViewToolbar(v3.VCard):
                         click=(apply_zoom, "[0.9]"),
                     )
 
-            # --------------------------------------------
-            # Not needed if we use terrain style
-            # --------------------------------------------
-            # v3.VDivider()
-            # with v3.VTooltip(text="Z up"):
-            #     with html.Template(v_slot_activator="{ props }"):
-            #         v3.VBtn(
-            #             v_bind="props",
-            #             flat=True,
-            #             density="compact",
-            #             icon="mdi-axis-z-arrow",
-            #             click=(update_view_up, "[[0, 0, 1]]"),
-            #         )
-            # --------------------------------------------
-
             v3.VDivider()
             with v3.VTooltip(text="Trackball interaction"):
                 with html.Template(v_slot_activator="{ props }"):
@@ -577,3 +562,48 @@ class ViewToolbar(v3.VCard):
                         icon="mdi-axis-z-rotate-counterclockwise",
                         click="interaction_style = 'trackball'",
                     )
+
+
+class ScalarBar(v3.VTooltip):
+    def __init__(
+        self,
+        img_src="preset_img",
+        color_min="color_min",
+        color_max="color_max",
+        **kwargs,
+    ):
+        super().__init__(location="top")
+
+        self.state.setdefault("scalarbar_probe", [])
+        self.state.client_only("scalarbar_probe", "scalarbar_probe_available")
+
+        with self:
+            # Content
+            with html.Template(v_slot_activator="{ props }"):
+                with html.Div(
+                    classes="scalarbar",
+                    rounded="pill",
+                    v_bind="props",
+                    **kwargs,
+                ):
+                    html.Div(f"{{{{ {color_min} }}}}", classes="scalarbar-left")
+                    html.Img(
+                        src=(img_src, None),
+                        style="height: 100%; width: 100%;",
+                        classes="rounded-lg border-thin",
+                        mousemove="scalarbar_probe = [$event.x, $event.target.getBoundingClientRect()]",
+                        mouseenter="scalarbar_probe_available = 1",
+                        mouseleave="scalarbar_probe_available = 0",
+                        __events=["mousemove", "mouseenter", "mouseleave"],
+                    )
+                    html.Div(
+                        v_show=("scalarbar_probe_available", False),
+                        classes="scalar-cursor",
+                        style=(
+                            "`left: ${scalarbar_probe?.[0] - scalarbar_probe?.[1]?.left}px`",
+                        ),
+                    )
+                    html.Div(f"{{{{ {color_max} }}}}", classes="scalarbar-right")
+            html.Span(
+                f"{{{{ (({color_max} - {color_min}) * (scalarbar_probe?.[0] - scalarbar_probe?.[1]?.left) / scalarbar_probe?.[1]?.width + {color_min}).toFixed(3) }}}}"
+            )

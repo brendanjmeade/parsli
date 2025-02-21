@@ -208,3 +208,6 @@ class Viewer:
                     apply_zoom=self.apply_zoom,
                     update_view_up=self.update_view_up,
                 )
+
+                # ScalarBar
+                ui.ScalarBar()

@@ -26,3 +26,50 @@ body {
   flex-direction: column !important;
   z-index: 2;
 }
+
+.scalarbar {
+  position: absolute;
+  bottom: 1rem;
+  left: 15rem;
+  right: 15rem;
+  height: 2rem;
+  z-index: 2;
+}
+
+.scalarbar-left {
+  position: absolute;
+  left: 0;
+  z-index: 2;
+  top: 1rem;
+  transform: translateY(-50%) translateX(-110%);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+}
+
+.scalarbar-right {
+  position: absolute;
+  right: 0;
+  z-index: 2;
+  top: 1rem;
+  transform: translateY(-50%) translateX(110%);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+}
+
+.scalar-cursor {
+  position: absolute;
+  z-index: 1;
+  width: 3px;
+  background: rgb(255, 255, 255);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  top: -5px;
+  bottom: -5px;
+  pointer-events: none;
+}
