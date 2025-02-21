@@ -87,6 +87,10 @@ class Viewer:
 
         self.readers = [mesh_reader, seg_reader]
 
+        # setup camera to look at the data
+        bounds = self.scene_manager["meshes"].get("actor").bounds
+        self.scene_manager.focus_on(bounds)
+
     @property
     def ctrl(self):
         return self.server.controller

@@ -176,6 +176,17 @@ class SceneManager:
     def reset_camera_to(self, bounds):
         self.renderer.ResetCamera(bounds)
 
+    def reset_camera(self):
+        self.renderer.ResetCamera()
+
+    def focus_on(self, bounds):
+        self.camera.position = (
+            0.5 * (bounds[0] + bounds[1]),
+            0.5 * (bounds[2] + bounds[3]),
+            0.5 * (bounds[4] + bounds[5]),
+        )
+        self.reset_camera_to(bounds)
+
     @property
     def camera(self):
         return self.renderer.active_camera
