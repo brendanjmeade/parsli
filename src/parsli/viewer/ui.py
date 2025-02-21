@@ -491,7 +491,7 @@ class ControlPanel(v3.VCard):
 
 
 class ViewToolbar(v3.VCard):
-    def __init__(self, reset_camera, reset_to_mesh, apply_zoom, update_view_up):  # noqa: ARG002
+    def __init__(self, reset_camera, reset_to_mesh, apply_zoom, update_view_up):
         super().__init__(
             classes="view-toolbar pa-1",
             rounded="lg",
@@ -561,6 +561,27 @@ class ViewToolbar(v3.VCard):
                         density="compact",
                         icon="mdi-axis-z-rotate-counterclockwise",
                         click="interaction_style = 'trackball'",
+                    )
+
+            with v3.VTooltip(text="Z up"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_show="interaction_style == 'trackball' && spherical",
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-axis-z-arrow",
+                        click=(update_view_up, "[[0, 0, 1]]"),
+                    )
+            with v3.VTooltip(text="Y up"):
+                with html.Template(v_slot_activator="{ props }"):
+                    v3.VBtn(
+                        v_show="!spherical",
+                        v_bind="props",
+                        flat=True,
+                        density="compact",
+                        icon="mdi-axis-y-arrow",
+                        click=(update_view_up, "[[0, 1, 0]]"),
                     )
 
 
