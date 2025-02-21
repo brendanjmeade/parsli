@@ -1,6 +1,52 @@
 # CHANGELOG
 
 
+## v0.10.2 (2025-02-21)
+
+### Bug Fixes
+
+- **camera**: Allow to toggle between terrain and trackball style
+  ([`23e2300`](https://github.com/brendanjmeade/parsli/commit/23e2300a8c8e7bd69af4c39304c3f67fcd1ec11a))
+
+fix #20
+
+- **camera**: Zoom to mesh at startup
+  ([`9ef68b0`](https://github.com/brendanjmeade/parsli/commit/9ef68b0e67e6a1f5a3cfc13064cada43be424d85))
+
+fix #18
+
+- **ColorRange**: Use a 3 decimal precision
+  ([`9ccea2b`](https://github.com/brendanjmeade/parsli/commit/9ccea2be72cfd1e20e9798243dbc5ddb4aa65ee8))
+
+fix #19
+
+- **mesh**: Available_fields only use groups
+  ([`3119438`](https://github.com/brendanjmeade/parsli/commit/311943860aa5921cc4e971bec4e81762a701adaa))
+
+### Build System
+
+- **deps**: Bump python-semantic-release/python-semantic-release
+  ([`203120c`](https://github.com/brendanjmeade/parsli/commit/203120cfa20c8e42398cbe82d5faab6349958b1b))
+
+Bumps the actions group with 1 update:
+  [python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release).
+
+Updates `python-semantic-release/python-semantic-release` from 9.19.0 to 9.19.1 - [Release
+  notes](https://github.com/python-semantic-release/python-semantic-release/releases) -
+  [Changelog](https://github.com/python-semantic-release/python-semantic-release/blob/master/CHANGELOG.rst)
+  -
+  [Commits](https://github.com/python-semantic-release/python-semantic-release/compare/v9.19.0...v9.19.1)
+
+--- updated-dependencies: - dependency-name: python-semantic-release/python-semantic-release
+  dependency-type: direct:production
+
+update-type: version-update:semver-patch
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+
 ## v0.10.1 (2025-02-14)
 
 ### Bug Fixes
