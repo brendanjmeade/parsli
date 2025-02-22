@@ -27,7 +27,7 @@ def get_segment_bottom_lon_lat(lon1, lat1, lon2, lat2, locking_depth, dip):
     azimuth = Geod(ellps="WGS84").inv(lon1, lat1, lon2, lat2)[0]
 
     # Get segment length
-    length_km = locking_depth / np.tan(np.deg2rad(dip))
+    length_km = locking_depth / np.tan(np.deg2rad(-1.0 * dip))
 
     # Get longitude and latitude spans
     delta_lon_km = length_km * np.cos(np.deg2rad(azimuth))
