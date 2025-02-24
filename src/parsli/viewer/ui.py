@@ -23,6 +23,10 @@ class ControlPanel(v3.VCard):
         # allocate variable if does not exist
         self.state.setdefault(toggle, True)
         self.state.setdefault("subdivide", True)
+        self.state.setdefault("show_segment", True)
+        self.state.setdefault("show_surface", True)
+        self.state.setdefault("light_surface", False)
+        self.state.setdefault("light_segment", False)
 
         with self:
             with v3.VCardTitle(
@@ -68,24 +72,28 @@ class ControlPanel(v3.VCard):
                     v_show=toggle,
                     classes="text-h6 px-2",
                 )
-                v3.VSpacer()
-                v3.VCheckbox(
-                    v_show=toggle,
-                    v_model=("show_segment", True),
-                    true_icon="mdi-gesture",
-                    false_icon="mdi-gesture",
-                    hide_details=True,
-                    density="compact",
-                )
-                v3.VCheckbox(
-                    v_show=toggle,
-                    v_model=("show_surface", True),
-                    true_icon="mdi-texture-box",
-                    false_icon="mdi-texture-box",
-                    hide_details=True,
-                    density="compact",
-                    classes="mx-2",
-                )
+                # ------------------------------------------------
+                # We now have control below, so removing for now
+                # ------------------------------------------------
+                # v3.VSpacer()
+                # v3.VCheckbox(
+                #     v_show=toggle,
+                #     v_model=("show_segment", True),
+                #     true_icon="mdi-gesture",
+                #     false_icon="mdi-gesture",
+                #     hide_details=True,
+                #     density="compact",
+                # )
+                # v3.VCheckbox(
+                #     v_show=toggle,
+                #     v_model=("show_surface", True),
+                #     true_icon="mdi-texture-box",
+                #     false_icon="mdi-texture-box",
+                #     hide_details=True,
+                #     density="compact",
+                #     classes="mx-2",
+                # )
+                # ------------------------------------------------
 
             with v3.VCardText(
                 v_show=(toggle, True),
@@ -246,6 +254,52 @@ class ControlPanel(v3.VCard):
                     multiple=True,
                     classes="mx-n2",
                 )
+                # -------------------------------------------------------------
+
+                v3.VDivider(classes="mx-n3 mb-1")
+
+                # -------------------------------------------------------------
+                # Opacity / Shadow
+                # -------------------------------------------------------------
+
+                v3.VSlider(
+                    click_prepend="show_segment = !show_segment",
+                    click_append="light_segment = !light_segment",
+                    v_model=("segment_opacity", 100),
+                    min=0,
+                    max=1,
+                    step=0.05,
+                    prepend_icon="mdi-gesture",
+                    append_icon=(
+                        "light_segment ? 'mdi-lightbulb-outline' : 'mdi-lightbulb-off-outline'",
+                    ),
+                    hide_details=True,
+                    density="compact",
+                    flat=True,
+                    variant="solo",
+                    classes="mx-1",
+                    style=("show_segment ? '' : 'opacity: 0.25'",),
+                )
+
+                v3.VSlider(
+                    click_prepend="show_surface = !show_surface",
+                    click_append="light_surface = !light_surface",
+                    v_model=("surface_opacity", 100),
+                    min=0,
+                    max=1,
+                    step=0.05,
+                    prepend_icon="mdi-texture-box",
+                    append_icon=(
+                        "light_surface ? 'mdi-lightbulb-outline' : 'mdi-lightbulb-off-outline'",
+                    ),
+                    hide_details=True,
+                    density="compact",
+                    flat=True,
+                    variant="solo",
+                    classes="mx-1",
+                    style=("show_surface ? '' : 'opacity: 0.25'",),
+                )
+
                 # -------------------------------------------------------------
 
                 v3.VDivider(classes="mx-n3 mb-1")
@@ -418,17 +472,39 @@ class ControlPanel(v3.VCard):
         source.active_regions = coast_active_regions
         self.ctrl.view_update()
 
-    @change("show_segment", "show_surface", "show_earth_core")
-    def _on_visibility(self, show_segment, show_surface, show_earth_core, **_):
+    @change(
+        "show_segment",
+        "show_surface",
+        "show_earth_core",
+        "light_segment",
+        "light_surface",
+        "surface_opacity",
+        "segment_opacity",
+    )
+    def _on_visibility(
+        self,
+        show_segment,
+        show_surface,
+        show_earth_core,
+        light_segment,
+        light_surface,
+        surface_opacity,
+        segment_opacity,
+        **_,
+    ):
         seg_actors = self._scene_manager["segment"].get("actors")
         surf_actors = self._scene_manager["meshes"].get("actors")
         earth_actors = self._scene_manager["earth_core"].get("actors")
 
         for actor in seg_actors:
             actor.SetVisibility(show_segment)
+            actor.property.opacity = segment_opacity
+            actor.property.lighting = not light_segment
 
         for actor in surf_actors:
             actor.SetVisibility(show_surface)
+            actor.property.opacity = surface_opacity
+            actor.property.lighting = not light_surface
 
         for actor in earth_actors:
             actor.SetVisibility(show_earth_core)
