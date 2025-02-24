@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v0.11.1 (2025-02-24)
+
+### Bug Fixes
+
+- **bands**: Clip data based on range
+  ([`4cd8ee8`](https://github.com/brendanjmeade/parsli/commit/4cd8ee86cb8ddbadf911638cade2ade5aa7f85e9))
+
+- **rendering**: Opacity + lighting controls
+  ([`322066a`](https://github.com/brendanjmeade/parsli/commit/322066afc0c5905302a5ca33e2759c604145301a))
+
+fix #24, #25
+
+### Build System
+
+- **deps**: Bump python-semantic-release/python-semantic-release
+  ([`b099379`](https://github.com/brendanjmeade/parsli/commit/b0993791f5f06ac4c2328e3084639594e4217886))
+
+Bumps the actions group with 1 update:
+  [python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release).
+
+Updates `python-semantic-release/python-semantic-release` from 9.19.1 to 9.21.0 - [Release
+  notes](https://github.com/python-semantic-release/python-semantic-release/releases) -
+  [Changelog](https://github.com/python-semantic-release/python-semantic-release/blob/master/CHANGELOG.rst)
+  -
+  [Commits](https://github.com/python-semantic-release/python-semantic-release/compare/v9.19.1...v9.21.0)
+
+--- updated-dependencies: - dependency-name: python-semantic-release/python-semantic-release
+  dependency-type: direct:production
+
+update-type: version-update:semver-minor
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+
 ## v0.11.0 (2025-02-21)
 
 ### Bug Fixes
