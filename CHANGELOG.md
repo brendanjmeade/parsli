@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.12.1 (2025-02-24)
+
+### Bug Fixes
+
+- **scrollbar**: Remove controller scrollbar
+  ([`9b3b067`](https://github.com/brendanjmeade/parsli/commit/9b3b0678c0107b1d6dcd08a908b01901947f6819))
+
+
 ## v0.12.0 (2025-02-24)
 
 ### Features
