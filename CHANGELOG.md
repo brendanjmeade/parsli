@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.12.0 (2025-02-24)
+
+### Features
+
+- **movie**: Start working on export
+  ([`f76c00a`](https://github.com/brendanjmeade/parsli/commit/f76c00a00e3ddbbd38e1983b339f5f5bf381016b))
+
+
 ## v0.11.1 (2025-02-24)
 
 ### Bug Fixes
