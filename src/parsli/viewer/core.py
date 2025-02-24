@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import asyncio
+import time
+from datetime import date
 from pathlib import Path
 
-from trame.app import get_server
-from trame.decorators import TrameApp, change
+from trame.app import asynchronous, get_server
+from trame.decorators import TrameApp, change, controller
 from trame.ui.vuetify3 import VAppLayout
 from trame.widgets import vtk as vtkw
 from trame.widgets import vtklocal
@@ -203,6 +206,61 @@ class Viewer:
     #     filter = self.scene_manager["meshes"].get("quality").GetOutputDataObject(0)
     #     for array in filter.cell_data["Quality"].Arrays:
     #         print("Quality range", array.GetRange())
+
+    async def _export_movie(self):
+        t0 = time.time()
+        await asyncio.sleep(0.1)
+
+        # find export location
+        base = f"export-{date.today().isoformat()}"
+        current_directory_name = base
+        count = 1
+        while Path(current_directory_name).exists():
+            current_directory_name = f"{base}-{count}"
+            count += 1
+
+        base_directory = Path(current_directory_name)
+        base_directory.mkdir(parents=True)
+        print(  # noqa: T201
+            "\n----------------------------------------"
+            "\nExporting images:"
+            f"\n => location: {base_directory.resolve()}"
+            f"\n => number of frames: {self.state.nb_timesteps}"
+        )
+
+        source = self.scene_manager["meshes"].get("source")
+        futures = []
+        nb_timesteps = self.state.nb_timesteps
+        for t_idx in range(nb_timesteps):
+            source.time_index = t_idx % self.state.nb_timesteps
+            futures.append(
+                self.scene_manager.write_jpg_screenshot(
+                    base_directory / f"{t_idx:012}.jpg"
+                )
+            )
+            progress = int(100 * (t_idx + 1) / nb_timesteps)
+            if progress != self.state.export_progress:
+                with self.state:
+                    self.state.export_progress = progress
+                await asyncio.sleep(0.001)
+
+        # Ensure full completion
+        for future in futures:
+            future.result()
+
+        t2 = time.time()
+        print(f" => time: {t2 - t0:.1f}s")  # noqa: T201
+        print(f" => fps: {nb_timesteps / (t2 - t0):.1f}")  # noqa: T201
+
+        with self.state:
+            self.state.exporting_movie = False
+            self.state.export_progress = 100
+
+    @controller.set("export_movie")
+    def export_movie(self):
+        self.state.export_progress = 0
+        self.state.exporting_movie = True
+        asynchronous.create_task(self._export_movie())
 
     def _build_ui(self):
         self.state.trame__title = "Parsli"

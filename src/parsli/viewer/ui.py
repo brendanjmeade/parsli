@@ -72,10 +72,29 @@ class ControlPanel(v3.VCard):
                     v_show=toggle,
                     classes="text-h6 px-2",
                 )
+
+                v3.VSpacer()
+
+                v3.VProgressCircular(
+                    "{{ export_progress }}",
+                    v_if=("exporting_movie", False),
+                    model_value=("export_progress", 0),
+                    size=30,
+                    classes="text-caption",
+                )
+
+                v3.VBtn(
+                    v_else=True,
+                    icon="mdi-movie-open-settings-outline",
+                    density="compact",
+                    flat=True,
+                    click=self.ctrl.export_movie,
+                    loading=("exporting_movie",),
+                )
+
                 # ------------------------------------------------
                 # We now have control below, so removing for now
                 # ------------------------------------------------
-                # v3.VSpacer()
                 # v3.VCheckbox(
                 #     v_show=toggle,
                 #     v_model=("show_segment", True),

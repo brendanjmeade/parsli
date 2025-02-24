@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import base64
 import json
+import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -30,7 +32,7 @@ from vtkmodules.vtkInteractionStyle import (
     vtkInteractorStyleTerrain,
 )
 from vtkmodules.vtkInteractionWidgets import vtkOrientationMarkerWidget
-from vtkmodules.vtkIOImage import vtkPNGWriter
+from vtkmodules.vtkIOImage import vtkJPEGWriter, vtkPNGWriter
 from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -40,6 +42,7 @@ from vtkmodules.vtkRenderingCore import (
     vtkRenderer,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
+    vtkWindowToImageFilter,
 )
 
 # Disable warning
@@ -131,6 +134,13 @@ def to_image(lut, samples=255):
     return f"data:image/png;base64,{base64_img}"
 
 
+def encode_jpg(vtk_image, file_path, quality=90):
+    writer = vtkJPEGWriter(quality=quality)
+    writer.file_name = file_path
+    writer.input_data = vtk_image
+    writer.Write()
+
+
 class SceneManager:
     def __init__(self, server):
         self.server = server
@@ -166,9 +176,41 @@ class SceneManager:
         self.widget.EnabledOn()
         self.widget.InteractiveOff()
 
+        self.window_image_filter = vtkWindowToImageFilter()
+        self.window_image_filter.SetInput(self.render_window)
+        self.window_image_filter.SetInputBufferTypeToRGB()
+
+        print(f"Using {os.cpu_count()} thread for encoding")  # noqa: T201
+        self.encoder_pool = ThreadPoolExecutor(max_workers=os.cpu_count())
+
+        self.screenshot_png_writer = vtkPNGWriter(
+            input_connection=self.window_image_filter.output_port
+        )
+        self.screenshot_jpg_writer = vtkJPEGWriter(
+            input_connection=self.window_image_filter.output_port
+        )
+
     @property
     def ctrl(self):
         return self.server.controller
+
+    def screenshot(self):
+        self.window_image_filter.Update()
+        return self.window_image_filter.GetOutput()
+
+    def write_png_screenshot(self, output_path):
+        self.render_window.Render()
+        self.window_image_filter.Modified()
+        self.screenshot_png_writer.SetFileName(str(output_path))
+        self.screenshot_png_writer.Write()
+
+    def write_jpg_screenshot(self, output_path):
+        self.render_window.Render()
+        self.window_image_filter.Modified()
+        self.window_image_filter.Update()
+        return self.encoder_pool.submit(
+            encode_jpg, self.window_image_filter.output, str(output_path)
+        )
 
     def __getitem__(self, key):
         return self.geometries.get(key)
