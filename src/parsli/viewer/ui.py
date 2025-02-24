@@ -27,6 +27,8 @@ class ControlPanel(v3.VCard):
         self.state.setdefault("show_surface", True)
         self.state.setdefault("light_surface", False)
         self.state.setdefault("light_segment", False)
+        self.state.setdefault("color_min", 0)
+        self.state.setdefault("color_max", 1)
 
         with self:
             with v3.VCardTitle(
@@ -77,6 +79,7 @@ class ControlPanel(v3.VCard):
 
                 v3.VProgressCircular(
                     "{{ export_progress }}",
+                    v_show=toggle,
                     v_if=("exporting_movie", False),
                     model_value=("export_progress", 0),
                     size=30,
@@ -85,6 +88,7 @@ class ControlPanel(v3.VCard):
 
                 v3.VBtn(
                     v_else=True,
+                    v_show=toggle,
                     icon="mdi-movie-open-settings-outline",
                     density="compact",
                     flat=True,
@@ -122,53 +126,56 @@ class ControlPanel(v3.VCard):
                 # Longitude / Latitude cropping
                 # -------------------------------------------------------------
 
-                with v3.VRow(
-                    "Longitude", classes="text-subtitle-2 ma-1 pt-2 align-center"
-                ):
-                    v3.VSpacer()
-                    html.Span(
-                        "{{ longitude_bnds[0].toFixed(1) }}",
-                        classes="text-caption text-center",
-                        style="width: 2.5rem;",
-                    )
-                    html.Span(
-                        "{{ longitude_bnds[1].toFixed(1) }}",
-                        classes="text-caption text-center",
-                        style="width: 2.5rem;",
+                with v3.VCol(classes="py-0"):
+                    with v3.VRow(
+                        "Longitude", classes="text-subtitle-2 my-1 mx-n1 align-center"
+                    ):
+                        v3.VSpacer()
+                        html.Span(
+                            "{{ longitude_bnds[0].toFixed(1) }}",
+                            classes="text-caption text-center",
+                            style="width: 2.5rem;",
+                        )
+                        html.Span(
+                            "{{ longitude_bnds[1].toFixed(1) }}",
+                            classes="text-caption text-center",
+                            style="width: 2.5rem;",
+                        )
+
+                    v3.VRangeSlider(
+                        v_model=("longitude_bnds", [0, 360]),
+                        min=0,
+                        max=360,
+                        step=0.5,
+                        density="compact",
+                        hide_details=True,
+                        classes="px-0",
                     )
 
-                v3.VRangeSlider(
-                    v_model=("longitude_bnds", [0, 360]),
-                    min=0,
-                    max=360,
-                    step=0.5,
-                    density="compact",
-                    hide_details=True,
-                    classes="px-2",
-                )
+                    with v3.VRow(
+                        "Latitude", classes="text-subtitle-2 my-1 mx-n1 align-center"
+                    ):
+                        v3.VSpacer()
+                        html.Span(
+                            "{{ latitude_bnds[0].toFixed(1) }}",
+                            classes="text-caption text-center",
+                            style="width: 2.5rem;",
+                        )
+                        html.Span(
+                            "{{ latitude_bnds[1].toFixed(1) }}",
+                            classes="text-caption text-center",
+                            style="width: 2.5rem;",
+                        )
 
-                with v3.VRow("Latitude", classes="text-subtitle-2 ma-1 align-center"):
-                    v3.VSpacer()
-                    html.Span(
-                        "{{ latitude_bnds[0].toFixed(1) }}",
-                        classes="text-caption text-center",
-                        style="width: 2.5rem;",
+                    v3.VRangeSlider(
+                        v_model=("latitude_bnds", [-90, 90]),
+                        min=-90,
+                        max=90,
+                        step=0.5,
+                        density="compact",
+                        hide_details=True,
+                        classes="px-0",
                     )
-                    html.Span(
-                        "{{ latitude_bnds[1].toFixed(1) }}",
-                        classes="text-caption text-center",
-                        style="width: 2.5rem;",
-                    )
-
-                v3.VRangeSlider(
-                    v_model=("latitude_bnds", [-90, 90]),
-                    min=-90,
-                    max=90,
-                    step=0.5,
-                    density="compact",
-                    hide_details=True,
-                    classes="px-2",
-                )
 
                 with v3.VRow(classes="ma-1"):
                     v3.VBtn(
@@ -221,7 +228,7 @@ class ControlPanel(v3.VCard):
 
                 # -------------------------------------------------------------
 
-                v3.VDivider(classes="mt-2 mx-n3")
+                v3.VDivider(classes="mt-2 mx-n1")
 
                 # -------------------------------------------------------------
                 # Projection: Spherical / Euclidean
@@ -229,9 +236,7 @@ class ControlPanel(v3.VCard):
 
                 with html.Div(classes="d-flex"):
                     v3.VSelect(
-                        prepend_inner_icon=(
-                            "spherical ? 'mdi-earth' : 'mdi-earth-box'",
-                        ),
+                        prepend_icon=("spherical ? 'mdi-earth' : 'mdi-earth-box'",),
                         v_model=("spherical", True),
                         items=(
                             "proj_modes",
@@ -244,7 +249,7 @@ class ControlPanel(v3.VCard):
                         density="compact",
                         flat=True,
                         variant="solo",
-                        classes="mx-n2",
+                        style="margin-left: 0.15rem;",
                     )
                     v3.VCheckbox(
                         disabled=("!spherical",),
@@ -260,7 +265,7 @@ class ControlPanel(v3.VCard):
                 # -------------------------------------------------------------
 
                 v3.VSelect(
-                    prepend_inner_icon="mdi-map-outline",
+                    prepend_icon="mdi-map-outline",
                     placeholder="Coast lines",
                     v_model=("coast_active_regions", []),
                     items=("coast_regions", []),
@@ -271,11 +276,12 @@ class ControlPanel(v3.VCard):
                     chips=True,
                     closable_chips=True,
                     multiple=True,
-                    classes="mx-n2",
+                    style="margin-left: 0.15rem;",
                 )
+
                 # -------------------------------------------------------------
 
-                v3.VDivider(classes="mx-n3 mb-1")
+                v3.VDivider(classes="mx-n1 mb-1")
 
                 # -------------------------------------------------------------
                 # Opacity / Shadow
@@ -321,7 +327,7 @@ class ControlPanel(v3.VCard):
 
                 # -------------------------------------------------------------
 
-                v3.VDivider(classes="mx-n3 mb-1")
+                v3.VDivider(classes="mx-n1 mb-1")
 
                 # -------------------------------------------------------------
                 # Color mapping
@@ -329,17 +335,17 @@ class ControlPanel(v3.VCard):
 
                 v3.VSelect(
                     placeholder="Color By",
-                    prepend_inner_icon="mdi-format-color-fill",
+                    prepend_icon="mdi-format-color-fill",
                     v_model=("color_by", "dip_slip"),
                     items=("fields", []),
                     hide_details=True,
                     density="compact",
                     flat=True,
                     variant="solo",
-                    classes="mx-n2",
+                    style="margin-left: 0.15rem;",
                 )
 
-                with v3.VRow(no_gutters=True, classes="align-center mx-n2 mt-n2"):
+                with v3.VRow(no_gutters=True, classes="align-center mx-0 mt-n2"):
                     with v3.VCol():
                         v3.VTextField(
                             v_model_number=("color_min", 0),
@@ -390,17 +396,17 @@ class ControlPanel(v3.VCard):
 
                 v3.VSelect(
                     placeholder="Color Preset",
-                    prepend_inner_icon="mdi-palette",
+                    prepend_icon="mdi-palette",
                     v_model=("color_preset", "Rycroft"),
                     items=("color_presets", list(PRESETS.keys())),
                     hide_details=True,
                     density="compact",
                     flat=True,
                     variant="solo",
-                    classes="mx-n2",
+                    style="margin-left: 0.15rem;",
                 )
 
-                v3.VDivider(classes="mx-n3 pb-1")
+                v3.VDivider(classes="mx-n1 pb-1")
 
                 # -------------------------------------------------------------
                 # Contours
