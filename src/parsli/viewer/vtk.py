@@ -266,7 +266,6 @@ class SceneManager:
             vtkDataObject.FIELD_ASSOCIATION_POINTS,
         )
         bands = vtkBandedPolyDataContourFilter(generate_contour_edges=1)
-        # bands.SetScalarModeToIndex()
 
         # connect pipeline
         (

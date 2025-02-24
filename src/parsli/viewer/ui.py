@@ -478,6 +478,7 @@ class ControlPanel(v3.VCard):
 
         # +2 because for 1 cut line we need 3 values [min, cut_line, max]
         bands.GenerateValues(nb_contours + 2, [color_min, color_max])
+        bands.ClippingOn()
 
         if "color_preset" in self.state.modified_keys:
             set_preset(lut, color_preset)
