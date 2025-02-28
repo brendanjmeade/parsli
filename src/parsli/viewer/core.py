@@ -82,7 +82,7 @@ class Viewer:
         pipeline = self.scene_manager.add_geometry("coast", self.coast_lines, True)
         coast_props = pipeline.get("actor").property
         coast_props.line_width = 2
-        coast_props.color = (0, 0, 0)
+        coast_props.color = (0.5, 0.5, 0.5)
 
         if DEBUG_WRITE_MESH:
             writer = vtkXMLPartitionedDataSetWriter()
