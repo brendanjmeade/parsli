@@ -22,7 +22,7 @@ class ControlPanel(v3.VCard):
 
         # allocate variable if does not exist
         self.state.setdefault(toggle, True)
-        self.state.setdefault("subdivide", True)
+        self.state.setdefault("subdivide", False)
         self.state.setdefault("show_segment", True)
         self.state.setdefault("show_surface", True)
         self.state.setdefault("light_surface", False)
