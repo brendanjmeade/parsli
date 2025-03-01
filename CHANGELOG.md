@@ -1,6 +1,34 @@
 # CHANGELOG
 
 
+## v0.12.2 (2025-03-01)
+
+### Bug Fixes
+
+- **bands**: Remove clipping on bounds
+  ([`b941154`](https://github.com/brendanjmeade/parsli/commit/b94115468057a3eb44cdc15295b3091ae28a484f))
+
+fix #33
+
+- **coastline**: Use gray
+  ([`1c58e04`](https://github.com/brendanjmeade/parsli/commit/1c58e044621a78a166f3bd4f06735dbf141329a8))
+
+fix #30
+
+- **colormap**: Update default to be 'Blue Orange (divergent)'
+  ([`a8d7d6f`](https://github.com/brendanjmeade/parsli/commit/a8d7d6f4e60f510c645104f1e4e41710d49c38df))
+
+- **export**: Enable user options
+  ([`5095480`](https://github.com/brendanjmeade/parsli/commit/5095480e2a6bca394da07c5272af91353aee45c9))
+
+fix #31
+
+- **smooth**: Disable by default
+  ([`9d44317`](https://github.com/brendanjmeade/parsli/commit/9d443177a0fc0543151efcb16bc3b2531a0da386))
+
+fix #29
+
+
 ## v0.12.1 (2025-02-24)
 
 ### Bug Fixes
