@@ -92,7 +92,7 @@ class ControlPanel(v3.VCard):
                     icon="mdi-movie-open-settings-outline",
                     density="compact",
                     flat=True,
-                    click=self.ctrl.export_movie,
+                    click="configure_screenshot_export = !configure_screenshot_export",
                     loading=("exporting_movie",),
                 )
 

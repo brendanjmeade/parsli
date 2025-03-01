@@ -3,12 +3,17 @@ from __future__ import annotations
 import base64
 import json
 import os
+import queue
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
-from vtkmodules.vtkCommonCore import vtkLookupTable, vtkUnsignedCharArray
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkLookupTable,
+    vtkUnsignedCharArray,
+)
 from vtkmodules.vtkCommonDataModel import (
     vtkDataObject,
     vtkDataSetAttributes,
@@ -32,8 +37,8 @@ from vtkmodules.vtkInteractionStyle import (
     vtkInteractorStyleTerrain,
 )
 from vtkmodules.vtkInteractionWidgets import vtkOrientationMarkerWidget
-from vtkmodules.vtkIOImage import vtkJPEGWriter, vtkPNGWriter
-from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
+from vtkmodules.vtkIOImage import vtkPNGWriter
+from vtkmodules.vtkRenderingAnnotation import vtkAxesActor, vtkScalarBarActor
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkColorTransferFunction,
@@ -134,11 +139,11 @@ def to_image(lut, samples=255):
     return f"data:image/png;base64,{base64_img}"
 
 
-def encode_jpg(vtk_image, file_path, quality=90):
-    writer = vtkJPEGWriter(quality=quality)
+def encode(writer, vtk_image, file_path, writer_queue):
     writer.file_name = file_path
     writer.input_data = vtk_image
     writer.Write()
+    writer_queue.put(writer)
 
 
 class SceneManager:
@@ -161,6 +166,25 @@ class SceneManager:
         self.style_terrain = vtkInteractorStyleTerrain()
         self.style_trackball = self.interactor.GetInteractorStyle()
 
+        self.scalar_bar = vtkScalarBarActor()
+        self.scalar_bar.SetOrientationToHorizontal()
+        self.scalar_bar.SetLookupTable(self._lut)
+        # self.scalar_bar.SetBarRatio(0.01)
+        # self.scalar_bar.SetDisplayPosition(0, 0)
+        self.scalar_bar.SetNumberOfLabels(2)
+        # self.scalar_bar.SetWidth(0.8)
+        self.scalar_labels = vtkDoubleArray()
+        self.scalar_labels.InsertNextTuple1(0)
+        self.scalar_labels.InsertNextTuple1(1)
+        self.scalar_labels.InsertNextTuple1(3)
+        self.scalar_bar.SetPosition(0.1, 0.01)
+        self.scalar_bar.SetPosition2(0.8, 0.04)
+        self.scalar_bar.label_text_property.color = (0, 0, 0)
+        self.scalar_bar.SetUseCustomLabels(True)
+        self.scalar_bar.SetCustomLabels(self.scalar_labels)
+        self.renderer.AddActor2D(self.scalar_bar)
+        self.show_scalar_bar(False)
+
         camera = self.renderer.active_camera
         camera.position = (1, 0, 0)
         camera.focal_point = (0, 0, 0)
@@ -181,35 +205,45 @@ class SceneManager:
         self.window_image_filter.SetInputBufferTypeToRGB()
 
         print(f"Using {os.cpu_count()} thread for encoding")  # noqa: T201
-        self.encoder_pool = ThreadPoolExecutor(max_workers=os.cpu_count())
+        pool_size = os.cpu_count()
+        self.encoder_pool = ThreadPoolExecutor(max_workers=pool_size)
+        self.writer_queue = queue.Queue()
 
-        self.screenshot_png_writer = vtkPNGWriter(
-            input_connection=self.window_image_filter.output_port
-        )
-        self.screenshot_jpg_writer = vtkJPEGWriter(
-            input_connection=self.window_image_filter.output_port
-        )
+        # fill queue with writers
+        self.writer_ext = ".png"
+        for _ in range(pool_size):
+            writer = vtkPNGWriter(compression_level=6)
+            self.writer_queue.put(writer)
 
     @property
     def ctrl(self):
         return self.server.controller
 
+    def show_scalar_bar(self, show):
+        self.scalar_bar.visibility = show
+
+    def get_size(self):
+        return self.render_window.GetSize()
+
+    def set_size(self, width, height):
+        self.render_window.SetSize(width, height)
+
     def screenshot(self):
         self.window_image_filter.Update()
         return self.window_image_filter.GetOutput()
 
-    def write_png_screenshot(self, output_path):
-        self.render_window.Render()
-        self.window_image_filter.Modified()
-        self.screenshot_png_writer.SetFileName(str(output_path))
-        self.screenshot_png_writer.Write()
-
-    def write_jpg_screenshot(self, output_path):
+    def write_screenshot(self, output_path):
         self.render_window.Render()
         self.window_image_filter.Modified()
         self.window_image_filter.Update()
+
+        output = self.window_image_filter.output
+        img = output.NewInstance()
+        img.DeepCopy(output)
+
+        writer = self.writer_queue.get()
         return self.encoder_pool.submit(
-            encode_jpg, self.window_image_filter.output, str(output_path)
+            encode, writer, img, f"{output_path}{self.writer_ext}", self.writer_queue
         )
 
     def __getitem__(self, key):

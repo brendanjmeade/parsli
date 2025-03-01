@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import date
 from pathlib import Path
 
 from trame.app import asynchronous, get_server
@@ -189,6 +188,10 @@ class Viewer:
 
         self.ctrl.view_update()
 
+    @change("screenshot_export_path")
+    def _on_export_path(self, screenshot_export_path, **_):
+        self.state.screenshot_export_path_exits = Path(screenshot_export_path).exists()
+
     def reset_to_mesh(self):
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.reset_camera_to(bounds)
@@ -211,15 +214,8 @@ class Viewer:
         t0 = time.time()
         await asyncio.sleep(0.1)
 
-        # find export location
-        base = f"export-{date.today().isoformat()}"
-        current_directory_name = base
-        count = 1
-        while Path(current_directory_name).exists():
-            current_directory_name = f"{base}-{count}"
-            count += 1
-
-        base_directory = Path(current_directory_name)
+        # Export path handling
+        base_directory = Path(self.state.screenshot_export_path)
         base_directory.mkdir(parents=True)
         print(  # noqa: T201
             "\n----------------------------------------"
@@ -228,15 +224,20 @@ class Viewer:
             f"\n => number of frames: {self.state.nb_timesteps}"
         )
 
+        # Update Render Window size
+        original_size = self.scene_manager.get_size()
+        self.scene_manager.set_size(
+            self.state.screenshot_width, self.state.screenshot_height
+        )
+        self.scene_manager.show_scalar_bar(True)
+
         source = self.scene_manager["meshes"].get("source")
         futures = []
         nb_timesteps = self.state.nb_timesteps
         for t_idx in range(nb_timesteps):
             source.time_index = t_idx % self.state.nb_timesteps
             futures.append(
-                self.scene_manager.write_jpg_screenshot(
-                    base_directory / f"{t_idx:012}.jpg"
-                )
+                self.scene_manager.write_screenshot(base_directory / f"{t_idx:012}")
             )
             progress = int(100 * (t_idx + 1) / nb_timesteps)
             if progress != self.state.export_progress:
@@ -252,14 +253,20 @@ class Viewer:
         print(f" => time: {t2 - t0:.1f}s")  # noqa: T201
         print(f" => fps: {nb_timesteps / (t2 - t0):.1f}")  # noqa: T201
 
+        # Reset size to original
+        self.scene_manager.set_size(*original_size)
+        self.scene_manager.show_scalar_bar(False)
+
         with self.state:
             self.state.exporting_movie = False
             self.state.export_progress = 100
 
     @controller.set("export_movie")
     def export_movie(self):
+        self.state.configure_screenshot_export = False
         self.state.export_progress = 0
         self.state.exporting_movie = True
+        self.state.screenshot_export_path_exits = True
         asynchronous.create_task(self._export_movie())
 
     def _build_ui(self):
@@ -267,6 +274,89 @@ class Viewer:
         self.state.setdefault("camera", None)
         with VAppLayout(self.server, full_height=True) as layout:
             self.ui = layout
+
+            # Screenshot Export Dialog
+            with v3.VDialog(v_model=("configure_screenshot_export", False)):
+                with v3.VCard(style="max-width: 50rem;", classes="mx-auto"):
+                    with v3.VCardTitle("Export video", classes="d-flex align-center"):
+                        v3.VSpacer()
+                        v3.VBtn(
+                            icon="mdi-close",
+                            flat=True,
+                            density="compact",
+                            click="configure_screenshot_export = false",
+                        )
+                    v3.VDivider()
+                    with v3.VCardText():
+                        with v3.VRow(classes="my-1 align-center"):
+                            v3.VTextField(
+                                label="Width",
+                                v_model=("screenshot_width", 3840),
+                                type="number",
+                                hide_details=True,
+                                density="compact",
+                                variant="outlined",
+                                hide_spin_buttons=True,
+                            )
+                            v3.VTextField(
+                                label="Height",
+                                v_model=("screenshot_height", 2160),
+                                type="number",
+                                hide_details=True,
+                                density="compact",
+                                variant="outlined",
+                                hide_spin_buttons=True,
+                                classes="mx-2",
+                            )
+                            v3.VBtn(
+                                "4K",
+                                variant="flat",
+                                color="primary",
+                                click="screenshot_width=3840; screenshot_height=2160;",
+                            )
+                            v3.VBtn(
+                                "1080p",
+                                classes="mx-2",
+                                color="secondary",
+                                variant="flat",
+                                click="screenshot_width=1920; screenshot_height=1080;",
+                            )
+                            v3.VBtn(
+                                "x2",
+                                variant="outlined",
+                                classes="mx-2",
+                                click="screenshot_width=2*screenshot_width; screenshot_height=2*screenshot_height;",
+                            )
+                            v3.VBtn(
+                                "1/2",
+                                variant="outlined",
+                                click="screenshot_width=0.5*screenshot_width; screenshot_height=0.5*screenshot_height;",
+                            )
+                        with v3.VRow(classes="mt-3"):
+                            v3.VTextField(
+                                label="Export Path",
+                                v_model=(
+                                    "screenshot_export_path",
+                                    str(Path.cwd().resolve() / "export"),
+                                ),
+                                density="compact",
+                                variant="outlined",
+                                error=("screenshot_export_path_exits",),
+                                error_messages=(
+                                    "screenshot_export_path_exits ? 'Path already exists' : null",
+                                ),
+                            )
+
+                        with v3.VRow(classes=""):
+                            v3.VSpacer()
+
+                            v3.VBtn(
+                                "Export",
+                                color="primary",
+                                variant="flat",
+                                disabled=("screenshot_export_path_exits", False),
+                                click=self.ctrl.export_movie,
+                            )
 
             with v3.VContainer(
                 fluid=True, classes="fill-height pa-0 ma-0 position-relative"
