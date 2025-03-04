@@ -73,3 +73,8 @@ nox
 # run just the linting
 nox -s lint
 ```
+
+## Commit message convention
+
+Semantic release rely on [https://www.conventionalcommits.org/](conventional
+commits) to generate new releases and changelog.
