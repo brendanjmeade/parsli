@@ -1,6 +1,41 @@
 # CHANGELOG
 
 
+## v0.12.3 (2025-03-04)
+
+### Bug Fixes
+
+- **ci**: Test ci
+  ([`9c83c91`](https://github.com/brendanjmeade/parsli/commit/9c83c91e6daeff0fdd6a8461d5ba2e0babd1821a))
+
+### Build System
+
+- **deps**: Bump codecov/codecov-action in the actions group
+  ([`d37bf2e`](https://github.com/brendanjmeade/parsli/commit/d37bf2e1cf2f95002b16c67a3b3f28f69d047483))
+
+Bumps the actions group with 1 update:
+  [codecov/codecov-action](https://github.com/codecov/codecov-action).
+
+Updates `codecov/codecov-action` from 5.3.1 to 5.4.0 - [Release
+  notes](https://github.com/codecov/codecov-action/releases) -
+  [Changelog](https://github.com/codecov/codecov-action/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/codecov/codecov-action/compare/v5.3.1...v5.4.0)
+
+--- updated-dependencies: - dependency-name: codecov/codecov-action dependency-type:
+  direct:production
+
+update-type: version-update:semver-minor
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+### Continuous Integration
+
+- Add debug info for semantic release
+  ([`7ee3633`](https://github.com/brendanjmeade/parsli/commit/7ee36334cf0d18b5ff0fac73c40ea2bba1f566db))
+
+
 ## v0.12.2 (2025-03-01)
 
 ### Bug Fixes
