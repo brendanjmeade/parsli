@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.12.4 (2025-03-04)
+
+### Bug Fixes
+
+- **data**: Updated hdf file format for quads
+  ([`259220c`](https://github.com/brendanjmeade/parsli/commit/259220cbb64671f9f0244d0616129b782da2a7f6))
+
+### Continuous Integration
+
+- Add wheel provenance + remove debug
+  ([`5bc6389`](https://github.com/brendanjmeade/parsli/commit/5bc63894ca4a4d4ba77a6dedc17762cd1849c3c5))
+
+
 ## v0.12.3 (2025-03-04)
 
 ### Bug Fixes
