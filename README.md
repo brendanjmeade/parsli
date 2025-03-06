@@ -22,8 +22,6 @@
 
 ## Getting started
 
-Test text.
-
 First you should setup a virtual environment for this Python Application. You
 can use conda, uv or anything else for managing your Python runtime. For the
 following commands, we will be using `uv` with Python 3.10.
@@ -78,5 +76,6 @@ nox -s lint
 
 ## Commit message convention
 
-Semantic release rely on [https://www.conventionalcommits.org/](conventional
-commits) to generate new releases and changelog.
+Semantic release rely on
+[conventional commits](https://www.conventionalcommits.org/) to generate new
+releases and changelog.
