@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.13.0 (2025-03-07)
+
+### Documentation
+
+- **readme**: Update commit convention link
+  ([`8cd6f06`](https://github.com/brendanjmeade/parsli/commit/8cd6f067669467fa317abedb7d36e2ae238847c8))
+
+### Features
+
+- **bbox**: Show bbox and enable clipping
+  ([`971dc29`](https://github.com/brendanjmeade/parsli/commit/971dc29e61e0d369d333d0b920661549429659c9))
+
+
 ## v0.12.4 (2025-03-04)
 
 ### Bug Fixes
