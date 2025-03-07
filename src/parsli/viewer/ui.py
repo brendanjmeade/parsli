@@ -487,8 +487,12 @@ class ControlPanel(v3.VCard):
 
     @change("time_index")
     def _time_change(self, time_index, **_):
-        source = self._scene_manager["meshes"].get("source")
-        source.time_index = time_index
+        meshes = self._scene_manager["meshes"].get("source")
+        meshes.time_index = time_index
+
+        segment = self._scene_manager["segment"].get("source")
+        segment.time_index = time_index
+
         self.ctrl.view_update()
 
     @change("coast_active_regions")

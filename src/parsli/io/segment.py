@@ -87,9 +87,7 @@ class QuadCell:
         "start",
     )
 
-    def __init__(self, longitude_bnds, latitude_bnds):
-        self.longitude_bnds = longitude_bnds
-        self.latitude_bnds = latitude_bnds
+    def __init__(self):
         self.start = EarthLocation()
         self.point_a = EarthLocation()
         self.point_b = EarthLocation()
@@ -111,15 +109,6 @@ class QuadCell:
             self.end.lat = row[1]
             self.start.lon = row[2]
             self.start.lat = row[3]
-
-        if (
-            self.start.lon < self.longitude_bnds[0]
-            or self.end.lon > self.longitude_bnds[1]
-            or self.start.lat < self.latitude_bnds[0]
-            or self.end.lat > self.latitude_bnds[1]
-        ):
-            # print(f"skip {self.start} {self.end}")
-            return False
 
         self.dip = row[4]
         self.locking_depth = row[14]
@@ -151,11 +140,14 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         )
         self._file_name = None
         self._proj_spherical = True
-        self._longitude_bnds = [0, 360]
-        self._latitude_bnds = [-90, 90]
+        self._field_names = []
+        self._time_index = 0
+        self._n_times = -1
 
     @property
     def field_names(self):
+        if self.number_of_timesteps > 1:
+            return self._field_names
         return FIELD_NAMES
 
     @property
@@ -169,6 +161,8 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
             msg = f"Invalid file path: {self._file_name.resolve()}"
             raise ValueError(msg)
 
+        self._n_times = -1
+        self._time_index = 0
         self.Modified()
 
     @property
@@ -182,24 +176,33 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
             self.Modified()
 
     @property
-    def longitude_bnds(self):
-        return self._longitude_bnds
+    def time_index(self):
+        return self._time_index
 
-    @longitude_bnds.setter
-    def longitude_bnds(self, value):
-        if self._longitude_bnds != value:
-            self._longitude_bnds = value
+    @time_index.setter
+    def time_index(self, v):
+        if v == self._time_index:
+            return
+
+        if v == 0 or v < self.number_of_timesteps:
+            self._time_index = v
             self.Modified()
 
     @property
-    def latitude_bnds(self):
-        return self._latitude_bnds
+    def number_of_timesteps(self):
+        if self._n_times < 0:
+            with h5py.File(self._file_name, "r") as hdf:
+                if "segments" in hdf:
+                    segments = hdf["segments"]
+                    self._field_names = list(segments.keys())
+                    for field in segments:
+                        n_times = len(segments[field].keys())
+                        if n_times > self._n_times:
+                            self._n_times = int(n_times)
+                else:
+                    self._n_times = 1
 
-    @latitude_bnds.setter
-    def latitude_bnds(self, value):
-        if self._latitude_bnds != value:
-            self._latitude_bnds = value
-            self.Modified()
+        return self._n_times
 
     def RequestData(self, _request, _inInfo, outInfo):
         if self._file_name is None or not self._file_name.exists():
@@ -218,9 +221,18 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         insert_pt = earth.insert_spherical if self.spherical else earth.insert_euclidian
 
         with h5py.File(self._file_name, "r") as hdf:
-            cell = QuadCell(self.longitude_bnds, self.latitude_bnds)
+            cell = QuadCell()
             h5_ds = hdf["segment"]
             data_size = h5_ds.shape
+
+            # extract time dependent fields
+            hdf_field_arrays = None
+            if "segments" in hdf:
+                hdf_field_arrays = {}
+                segments = hdf["segments"]
+                time_field_key = f"{self._time_index:012}"
+                for field in segments:
+                    hdf_field_arrays[field] = segments[field][time_field_key]
 
             # making a line for now (should move to 4 once quad)
             vtk_points.Allocate(data_size[0] * 2)
@@ -235,7 +247,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                 vtk_mesh.cell_data.AddArray(array)
                 vtk_field_arrays[name] = array
 
-            for row in h5_ds:
+            for row_idx, row in enumerate(h5_ds):
                 if fields := cell.update(row):
                     vtk_polys.InsertNextCell(4)
                     vtk_polys.InsertCellPoint(
@@ -262,8 +274,12 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                     )
 
                     # Add fields values
-                    for k, v in fields:
-                        vtk_field_arrays[k].InsertNextTuple1(v)
+                    if hdf_field_arrays is None:
+                        for k, v in fields:
+                            vtk_field_arrays[k].InsertNextTuple1(v)
+                    else:
+                        for k, v in hdf_field_arrays.items():
+                            vtk_field_arrays[k].InsertNextTuple1(v[row_idx])
 
         output.ShallowCopy(vtk_mesh)
         return 1
