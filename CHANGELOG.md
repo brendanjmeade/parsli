@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.14.0 (2025-03-07)
+
+### Bug Fixes
+
+- **scalarbar**: Display proper range on export
+  ([`12ab2e2`](https://github.com/brendanjmeade/parsli/commit/12ab2e2f1609a8b3a73be107f790b2fad644b169))
+
+### Features
+
+- **quad**: Add time support
+  ([`413eabc`](https://github.com/brendanjmeade/parsli/commit/413eabc40c1f6c5987be99a126e434684ad467ae))
+
+
 ## v0.13.0 (2025-03-07)
 
 ### Documentation
