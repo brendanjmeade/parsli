@@ -233,6 +233,13 @@ class Viewer:
             f"\n => number of frames: {self.state.nb_timesteps}"
         )
 
+        # Update ScalarBar
+        self.scene_manager.update_scalar_bar(
+            self.state.color_preset,
+            self.state.color_min,
+            self.state.color_max,
+        )
+
         # Update Render Window size
         original_size = self.scene_manager.get_size()
         self.scene_manager.set_size(
@@ -269,6 +276,8 @@ class Viewer:
         with self.state:
             self.state.exporting_movie = False
             self.state.export_progress = 100
+
+        print("----------------------------------------")  # noqa: T201
 
     @controller.set("export_movie")
     def export_movie(self):

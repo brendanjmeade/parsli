@@ -9,11 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
-from vtkmodules.vtkCommonCore import (
-    vtkDoubleArray,
-    vtkLookupTable,
-    vtkUnsignedCharArray,
-)
+from vtkmodules.vtkCommonCore import vtkLookupTable, vtkUnsignedCharArray
 from vtkmodules.vtkCommonDataModel import (
     vtkDataObject,
     vtkDataSetAttributes,
@@ -146,11 +142,33 @@ def encode(writer, vtk_image, file_path, writer_queue):
     writer_queue.put(writer)
 
 
+def update_range(lut: vtkColorTransferFunction, data_range):
+    prev_min, prev_max = lut.GetRange()
+    prev_delta = prev_max - prev_min
+
+    if prev_delta < 0.001:
+        return
+
+    node = [0, 0, 0, 0, 0, 0]
+    next_delta = data_range[1] - data_range[0]
+    next_nodes = []
+
+    for i in range(lut.GetSize()):
+        lut.GetNodeValue(i, node)
+        node[0] = next_delta * (node[0] - prev_min) / prev_delta + data_range[0]
+        next_nodes.append(list(node))
+
+    lut.RemoveAllPoints()
+    for n in next_nodes:
+        lut.AddRGBPoint(*n)
+
+
 class SceneManager:
     def __init__(self, server):
         self.server = server
 
         self._lut = vtkLookupTable()
+        self._lut_for_bar = vtkColorTransferFunction()
         set_preset(self._lut, "Fast")
 
         self.geometries = {}
@@ -168,20 +186,11 @@ class SceneManager:
 
         self.scalar_bar = vtkScalarBarActor()
         self.scalar_bar.SetOrientationToHorizontal()
-        self.scalar_bar.SetLookupTable(self._lut)
-        # self.scalar_bar.SetBarRatio(0.01)
-        # self.scalar_bar.SetDisplayPosition(0, 0)
-        self.scalar_bar.SetNumberOfLabels(2)
-        # self.scalar_bar.SetWidth(0.8)
-        self.scalar_labels = vtkDoubleArray()
-        self.scalar_labels.InsertNextTuple1(0)
-        self.scalar_labels.InsertNextTuple1(1)
-        self.scalar_labels.InsertNextTuple1(3)
+        self.scalar_bar.SetLookupTable(self._lut_for_bar)
+        self.scalar_bar.SetNumberOfLabels(4)
         self.scalar_bar.SetPosition(0.1, 0.01)
         self.scalar_bar.SetPosition2(0.8, 0.04)
         self.scalar_bar.label_text_property.color = (0, 0, 0)
-        self.scalar_bar.SetUseCustomLabels(True)
-        self.scalar_bar.SetCustomLabels(self.scalar_labels)
         self.renderer.AddActor2D(self.scalar_bar)
         self.show_scalar_bar(False)
 
@@ -281,6 +290,10 @@ class SceneManager:
     def apply_zoom(self, scale):
         self.renderer.active_camera.Zoom(scale)
 
+    def update_scalar_bar(self, color_preset, color_min, color_max):
+        self._lut_for_bar.ShallowCopy(get_preset(color_preset))
+        update_range(self._lut_for_bar, [color_min, color_max])
+
     @property
     def lut(self):
         return self._lut
@@ -293,16 +306,16 @@ class SceneManager:
             mapper = vtkPolyDataMapper(
                 input_connection=geometry.output_port,
                 lookup_table=self.lut,
+                interpolate_scalars_before_mapping=1,
             )
-            mapper.InterpolateScalarsBeforeMappingOn()
             item["geometry"] = geometry
             item["mapper"] = mapper
         else:
             mapper = vtkCompositePolyDataMapper(
                 input_connection=source.output_port,
                 lookup_table=self.lut,
+                interpolate_scalars_before_mapping=1,
             )
-            mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
 
         actor = vtkActor(mapper=mapper)
@@ -384,9 +397,9 @@ class SceneManager:
             mapper = vtkPolyDataMapper(
                 input_connection=for_surface.output_port,
                 lookup_table=self.lut,
+                interpolate_scalars_before_mapping=1,
             )
             mapper.SelectColorArray("Scalars")
-            mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkPolyDataMapper(
@@ -399,9 +412,9 @@ class SceneManager:
             mapper = vtkCompositePolyDataMapper(
                 input_connection=for_surface.output_port,
                 lookup_table=self.lut,
+                interpolate_scalars_before_mapping=1,
             )
             mapper.SelectColorArray("Scalars")
-            mapper.InterpolateScalarsBeforeMappingOn()
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkCompositePolyDataMapper(
