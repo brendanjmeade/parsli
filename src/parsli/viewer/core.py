@@ -14,7 +14,7 @@ from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
-from parsli.utils import expend_range, to_precision
+from parsli.utils import expend_range, source, to_precision
 from parsli.utils.earth import EARTH_RADIUS
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
@@ -54,6 +54,15 @@ class Viewer:
         )
         prop = pipeline.get("actor").property
         prop.opacity = 0.85
+
+        # Latitude/Longitude bounding box
+        pipeline = self.scene_manager.add_geometry(
+            "bbox",
+            source.VtkLatLonBound(),
+        )
+        bbox_prop = pipeline.get("actor").property
+        bbox_prop.line_width = 2
+        bbox_prop.color = (0.5, 0.5, 0.5)
 
         # load segments
         seg_reader = VtkSegmentReader()
@@ -130,7 +139,7 @@ class Viewer:
     def _on_projection_change(self, spherical, **_):
         self.state.show_earth_core = spherical
 
-        for geo_name in ["segment", "meshes", "coast"]:
+        for geo_name in ["segment", "meshes", "coast", "bbox"]:
             pipeline_item = self.scene_manager[geo_name]
             pipeline_item.get("source").spherical = spherical
             actors = pipeline_item.get("actors")

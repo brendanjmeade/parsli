@@ -538,10 +538,23 @@ class ControlPanel(v3.VCard):
 
     @change("latitude_bnds", "longitude_bnds")
     def _on_lat_lon_bnd(self, longitude_bnds, latitude_bnds, **_):
-        if self._scene_manager["segment"]:
-            reader = self._scene_manager["segment"].get("source")
-            reader.longitude_bnds = longitude_bnds
-            reader.latitude_bnds = latitude_bnds
+        bbox_planes = None
+        for item_name in ["bbox"]:  # "segment"
+            if self._scene_manager[item_name]:
+                reader = self._scene_manager[item_name].get("source")
+                reader.longitude_bnds = longitude_bnds
+                reader.latitude_bnds = latitude_bnds
+                reader.Update()
+                bbox_planes = reader.cut_planes
+
+        # Apply cutting planes from bbox
+        nb_planes = bbox_planes.GetNumberOfPlanes()
+        for name in ["earth_core", "coast", "meshes", "segment"]:
+            for mapper in self._scene_manager[name].get("mappers"):
+                mapper.RemoveAllClippingPlanes()
+                if nb_planes:
+                    mapper.SetClippingPlanes(bbox_planes)
+
         self.ctrl.view_update()
 
     @change("color_by", "color_preset", "color_min", "color_max", "nb_contours")

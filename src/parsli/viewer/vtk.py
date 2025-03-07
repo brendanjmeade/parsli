@@ -307,7 +307,6 @@ class SceneManager:
 
         actor = vtkActor(mapper=mapper)
         item["actor"] = actor
-        item["actors"] = [actor]
 
         self.geometries[name] = item
 
@@ -316,6 +315,14 @@ class SceneManager:
         self.render_window.Render()
 
         self.ctrl.view_update()
+
+        # Gather actors/mappers
+        item["actors"] = [
+            actor,
+        ]
+        item["mappers"] = [
+            item["mapper"],
+        ]
 
         return item
 
@@ -415,8 +422,6 @@ class SceneManager:
         # actor_lines.property.render_line_as_tube = 1
         item["actor_lines"] = actor_lines
 
-        item["actors"] = [actor, actor_lines]
-
         self.geometries[name] = item
 
         self.renderer.AddActor(actor)
@@ -425,5 +430,15 @@ class SceneManager:
         self.render_window.Render()
 
         self.ctrl.view_update()
+
+        # Gather actors/mappers
+        item["actors"] = [
+            item["actor"],
+            item["actor_lines"],
+        ]
+        item["mappers"] = [
+            item["mapper"],
+            item["mapper_lines"],
+        ]
 
         return item
