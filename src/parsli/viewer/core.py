@@ -249,6 +249,7 @@ class Viewer:
             self.state.screenshot_width, self.state.screenshot_height
         )
         self.scene_manager.show_scalar_bar(True)
+        self.scene_manager.render_window.Render()
 
         source = self.scene_manager["meshes"].get("source")
         futures = []

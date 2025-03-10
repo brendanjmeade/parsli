@@ -190,7 +190,14 @@ class SceneManager:
         self.scalar_bar.SetNumberOfLabels(3)
         self.scalar_bar.SetPosition(0.375, 0.01)
         self.scalar_bar.SetPosition2(0.25, 0.04)
+
+        # labels
         self.scalar_bar.label_text_property.color = (0, 0, 0)
+        self.scalar_bar.label_text_property.BoldOff()
+        self.scalar_bar.label_text_property.ItalicOff()
+        self.scalar_bar.SetTextPositionToPrecedeScalarBar()
+        self.scalar_bar.SetTextPad(10)
+
         self.renderer.AddActor2D(self.scalar_bar)
         self.show_scalar_bar(False)
 
