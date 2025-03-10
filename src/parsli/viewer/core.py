@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import time
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
+from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
 from parsli.utils import expend_range, source, to_precision
@@ -251,11 +253,13 @@ class Viewer:
         self.scene_manager.show_scalar_bar(True)
         self.scene_manager.render_window.Render()
 
-        source = self.scene_manager["meshes"].get("source")
+        meshes = self.scene_manager["meshes"].get("source")
+        segment = self.scene_manager["segment"].get("source")
         futures = []
         nb_timesteps = self.state.nb_timesteps
         for t_idx in range(nb_timesteps):
-            source.time_index = t_idx % self.state.nb_timesteps
+            meshes.time_index = t_idx % self.state.nb_timesteps
+            segment.time_index = t_idx % self.state.nb_timesteps
             futures.append(
                 self.scene_manager.write_screenshot(base_directory / f"{t_idx:012}")
             )
@@ -291,6 +295,89 @@ class Viewer:
         self.state.screenshot_export_path_exits = True
         asynchronous.create_task(self._export_movie())
 
+    async def _export_data(self):
+        t0 = time.time()
+        await asyncio.sleep(0.1)
+
+        # Export path handling
+        base_directory = Path(self.state.screenshot_export_path)
+        base_directory.mkdir(parents=True)
+        print(  # noqa: T201
+            "\n----------------------------------------"
+            "\nExporting data:"
+            f"\n => location: {base_directory.resolve()}"
+            f"\n => number of timesteps: {self.state.nb_timesteps}"
+        )
+
+        meshes = self.scene_manager["meshes"].get("source")
+        segment = self.scene_manager["segment"].get("source")
+        bbox = self.scene_manager["bbox"].get("source")
+        coast = self.scene_manager["coast"].get("source")
+
+        # Time independent data
+        partition_writer = vtkXMLPartitionedDataSetWriter()
+        partition_writer.SetInputConnection(coast.output_port)
+        partition_writer.SetFileName(str(base_directory / "coast.vtpd"))
+        partition_writer.Write()
+
+        if bbox.valid:
+            polydata_writer = vtkXMLPolyDataWriter()
+            polydata_writer.SetInputConnection(bbox.output_port)
+            polydata_writer.SetFileName(str(base_directory / "bbox.vtp"))
+            polydata_writer.Write()
+
+            # Write cutting plane information
+            planes_file = base_directory / "planes.json"
+            planes_content = []
+            planes = bbox.cut_planes
+            for i in range(4):
+                planes_content.append(
+                    {
+                        "normal": planes.GetPlane(i).normal,
+                        "origin": planes.GetPlane(i).origin,
+                    }
+                )
+            planes_file.write_text(json.dumps(planes_content, indent=2))
+
+        # Time dependent data
+        partition_writer.SetInputConnection(meshes.output_port)
+        polydata_writer.SetInputConnection(segment.output_port)
+        nb_timesteps = self.state.nb_timesteps
+        for t_idx in range(nb_timesteps):
+            meshes.time_index = t_idx % self.state.nb_timesteps
+            segment.time_index = t_idx % self.state.nb_timesteps
+
+            partition_writer.SetFileName(str(base_directory / f"mesh_{t_idx:012}.vtpd"))
+            partition_writer.Write()
+
+            polydata_writer.SetFileName(
+                str(base_directory / f"segment_{t_idx:012}.vtp")
+            )
+            polydata_writer.Write()
+
+            progress = int(100 * (t_idx + 1) / nb_timesteps)
+            if progress != self.state.export_progress:
+                with self.state:
+                    self.state.export_progress = progress
+                await asyncio.sleep(0.001)
+
+        t2 = time.time()
+        print(f" => time: {t2 - t0:.1f}s")  # noqa: T201
+        print(f" => timestep per second: {nb_timesteps / (t2 - t0):.1f}")  # noqa: T201
+
+        with self.state:
+            self.state.exporting_movie = False
+            self.state.export_progress = 100
+        print("----------------------------------------")  # noqa: T201
+
+    @controller.set("export_data")
+    def export_data(self):
+        self.state.configure_screenshot_export = False
+        self.state.export_progress = 0
+        self.state.exporting_movie = True
+        self.state.screenshot_export_path_exits = True
+        asynchronous.create_task(self._export_data())
+
     def _build_ui(self):
         self.state.trame__title = "Parsli"
         self.state.setdefault("camera", None)
@@ -300,7 +387,9 @@ class Viewer:
             # Screenshot Export Dialog
             with v3.VDialog(v_model=("configure_screenshot_export", False)):
                 with v3.VCard(style="max-width: 50rem;", classes="mx-auto"):
-                    with v3.VCardTitle("Export video", classes="d-flex align-center"):
+                    with v3.VCardTitle(
+                        "Export Animation", classes="d-flex align-center"
+                    ):
                         v3.VSpacer()
                         v3.VBtn(
                             icon="mdi-close",
@@ -373,11 +462,21 @@ class Viewer:
                             v3.VSpacer()
 
                             v3.VBtn(
-                                "Export",
+                                "Images",
+                                prepend_icon="mdi-filmstrip",
                                 color="primary",
                                 variant="flat",
                                 disabled=("screenshot_export_path_exits", False),
                                 click=self.ctrl.export_movie,
+                                classes="mx-4",
+                            )
+                            v3.VBtn(
+                                "Data",
+                                prepend_icon="mdi-database-outline",
+                                color="secondary",
+                                variant="flat",
+                                disabled=("screenshot_export_path_exits", False),
+                                click=self.ctrl.export_data,
                             )
 
             with v3.VContainer(
