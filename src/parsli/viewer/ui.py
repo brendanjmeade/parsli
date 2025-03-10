@@ -123,7 +123,7 @@ class ControlPanel(v3.VCard):
                 classes="controller-content mt-12 mb-1 pb-1 mx-0 px-1",
             ):
                 # -------------------------------------------------------------
-                # Longitude / Latitude cropping
+                # Longitude / Latitude cropping + Vertical scaling
                 # -------------------------------------------------------------
 
                 with v3.VCol(classes="py-0"):
@@ -172,6 +172,26 @@ class ControlPanel(v3.VCard):
                         min=-90,
                         max=90,
                         step=0.5,
+                        density="compact",
+                        hide_details=True,
+                        classes="px-0",
+                    )
+
+                    with v3.VRow(
+                        "Vertical Scaling",
+                        classes="text-subtitle-2 my-1 mx-n1 align-center",
+                    ):
+                        v3.VSpacer()
+                        html.Span(
+                            "{{ vertical_scaling.toFixed(2) }}",
+                            classes="text-caption text-center",
+                            style="width: 2.5rem;",
+                        )
+                    v3.VSlider(
+                        v_model=("vertical_scaling", 1),
+                        min=0,
+                        max=10,
+                        step=0.01,
                         density="compact",
                         hide_details=True,
                         classes="px-0",
@@ -499,6 +519,21 @@ class ControlPanel(v3.VCard):
     def _on_regions(self, coast_active_regions, **_):
         source = self._scene_manager["coast"].get("source")
         source.active_regions = coast_active_regions
+        self.ctrl.view_update()
+
+    @change("vertical_scaling")
+    def _on_vertical_scaling(self, vertical_scaling, **_):
+        max_depth = 0
+        for mesh_type in ["meshes", "segment"]:
+            source = self._scene_manager[mesh_type].get("source")
+            source.vertical_scale = vertical_scaling
+            if mesh_type == "meshes":
+                source()
+                max_depth = source.maximum_depth
+
+        bbox = self._scene_manager["bbox"].get("source")
+        bbox.depth = max_depth
+
         self.ctrl.view_update()
 
     @change(

@@ -32,6 +32,8 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
         self._latitude_bnd = [-90, 90]
         self._time_index = 0
         self._n_times = -1
+        self._vertical_scale = 1
+        self._max_depth = 0
 
     @property
     def file_name(self):
@@ -57,6 +59,20 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
         if self._proj_spherical != value:
             self._proj_spherical = value
             self.Modified()
+
+    @property
+    def vertical_scale(self):
+        return self._vertical_scale
+
+    @vertical_scale.setter
+    def vertical_scale(self, value):
+        if self._vertical_scale != value:
+            self._vertical_scale = value
+            self.Modified()
+
+    @property
+    def maximum_depth(self):
+        return self._max_depth
 
     @property
     def available_fields(self):
@@ -108,12 +124,14 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
 
         return self._n_times
 
-    def _expend_bounds(self, longitude, latitude):
+    def _expend_bounds(self, longitude, latitude, depth):
         self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
         self._longitude_bnd[1] = max(longitude, self._longitude_bnd[1])
 
         self._latitude_bnd[0] = min(latitude, self._latitude_bnd[0])
         self._latitude_bnd[1] = max(latitude, self._latitude_bnd[1])
+
+        self._max_depth = max(depth, self._max_depth)
 
     def RequestData(self, _request, _inInfo, outInfo):
         if self._file_name is None or not self._file_name.exists():
@@ -122,6 +140,7 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
         # Reset bounds
         self._longitude_bnd = [360, 0]
         self._latitude_bnd = [90, -90]
+        self._max_depth = 0
 
         # Read file and generate mesh
         output = self.GetOutputData(outInfo, 0)
@@ -150,8 +169,10 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                 vtk_points.Allocate(n_points)
 
                 for xyz in hdf_ds:
-                    self._expend_bounds(xyz[0], xyz[1])
-                    insert_pt(vtk_points, xyz[0], xyz[1], -xyz[2])
+                    self._expend_bounds(xyz[0], xyz[1], -xyz[2] * self._vertical_scale)
+                    insert_pt(
+                        vtk_points, xyz[0], xyz[1], -xyz[2] * self._vertical_scale
+                    )
 
                 # - verts
                 vtk_polys = vtkCellArray()

@@ -143,6 +143,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         self._field_names = []
         self._time_index = 0
         self._n_times = -1
+        self._vertical_scale = 1
 
     @property
     def field_names(self):
@@ -173,6 +174,16 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
     def spherical(self, value):
         if self._proj_spherical != value:
             self._proj_spherical = value
+            self.Modified()
+
+    @property
+    def vertical_scale(self):
+        return self._vertical_scale
+
+    @vertical_scale.setter
+    def vertical_scale(self, value):
+        if self._vertical_scale != value:
+            self._vertical_scale = value
             self.Modified()
 
     @property
@@ -258,7 +269,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                             vtk_points,
                             cell.point_a.lon,
                             cell.point_a.lat,
-                            cell.locking_depth,
+                            cell.locking_depth * self._vertical_scale,
                         )
                     )
                     vtk_polys.InsertCellPoint(
@@ -266,7 +277,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
                             vtk_points,
                             cell.point_b.lon,
                             cell.point_b.lat,
-                            cell.locking_depth,
+                            cell.locking_depth * self._vertical_scale,
                         )
                     )
                     vtk_polys.InsertCellPoint(

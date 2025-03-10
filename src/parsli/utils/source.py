@@ -67,6 +67,16 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
             self.Modified()
 
     @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, new_depth):
+        if self._depth != new_depth:
+            self._depth = new_depth
+            self.Modified()
+
+    @property
     def valid(self):
         if self._proj_spherical:
             delta_lon = self._longitude_bnd[1] - self._longitude_bnd[0]
