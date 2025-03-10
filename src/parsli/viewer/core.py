@@ -132,8 +132,11 @@ class Viewer:
         for array in ds.cell_data[color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
 
-        self.state.color_min = to_precision(total_range[0], 3)
-        self.state.color_max = to_precision(total_range[1], 3)
+        # Use symmetric range by default
+        max_bound = max(abs(total_range[0]), abs(total_range[1]))
+        max_bound = to_precision(max_bound, 3)
+        self.state.color_min = -max_bound
+        self.state.color_max = max_bound
 
     @change("spherical")
     def _on_projection_change(self, spherical, **_):
