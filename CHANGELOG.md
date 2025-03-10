@@ -1,6 +1,47 @@
 # CHANGELOG
 
 
+## v0.15.0 (2025-03-10)
+
+### Bug Fixes
+
+- **scalarbar**: Text below with better font
+  ([`fb2869c`](https://github.com/brendanjmeade/parsli/commit/fb2869cbd11b98ad902428a239973e295aa22382))
+
+### Build System
+
+- **deps**: Bump actions/attest-build-provenance in the actions group
+  ([`a9ae8f8`](https://github.com/brendanjmeade/parsli/commit/a9ae8f8074ab4b8204d35602c2397db76605b720))
+
+Bumps the actions group with 1 update:
+  [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance).
+
+Updates `actions/attest-build-provenance` from 2.2.0 to 2.2.3 - [Release
+  notes](https://github.com/actions/attest-build-provenance/releases) -
+  [Changelog](https://github.com/actions/attest-build-provenance/blob/main/RELEASE.md) -
+  [Commits](https://github.com/actions/attest-build-provenance/compare/v2.2.0...v2.2.3)
+
+--- updated-dependencies: - dependency-name: actions/attest-build-provenance dependency-type:
+  direct:production
+
+update-type: version-update:semver-patch
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+### Features
+
+- **export**: Add data export option
+  ([`7df15b2`](https://github.com/brendanjmeade/parsli/commit/7df15b2725b8569b70b94a9ec2ae6bc75435639d))
+
+- **grid**: Add bottom grid on bbox
+  ([`0042ed4`](https://github.com/brendanjmeade/parsli/commit/0042ed4b6c17e22960356f95dd6cee47752af89d))
+
+- **VerticalScaling**: Add interactive vertical scaling
+  ([`7004ed9`](https://github.com/brendanjmeade/parsli/commit/7004ed968cf7fbc45c549d899e1899970ddbb31b))
+
+
 ## v0.14.1 (2025-03-10)
 
 ### Bug Fixes
