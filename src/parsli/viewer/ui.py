@@ -29,6 +29,8 @@ class ControlPanel(v3.VCard):
         self.state.setdefault("light_segment", False)
         self.state.setdefault("color_min", 0)
         self.state.setdefault("color_max", 1)
+        self.state.setdefault("show_grid", False)
+        self.state.setdefault("nb_grid_line_per_degree", 1)
 
         with self:
             with v3.VCardTitle(
@@ -217,6 +219,44 @@ class ControlPanel(v3.VCard):
                     )
 
                     v3.VSpacer()
+
+                    # Grid refinement control
+                    html.Span(
+                        "1/{{ nb_grid_line_per_degree }} &deg;",
+                        classes="text-subtitle-2 mx-2",
+                        v_show=("show_grid", False),
+                    )
+                    v3.VBtn(
+                        v_show=("show_grid", False),
+                        icon="mdi-web-minus",
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click="nb_grid_line_per_degree > 2 ? nb_grid_line_per_degree-- : nb_grid_line_per_degree = 1",
+                    )
+                    v3.VBtn(
+                        v_show=("show_grid", False),
+                        icon="mdi-web-plus",
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click="nb_grid_line_per_degree++",
+                    )
+
+                    v3.VBtn(
+                        icon=("show_grid ? 'mdi-grid' : 'mdi-grid-off'",),
+                        size="small",
+                        flat=True,
+                        density="compact",
+                        hide_details=True,
+                        classes="mx-2",
+                        click="show_grid = !show_grid",
+                    )
+
                     v3.VBtn(
                         icon="mdi-map-plus",
                         size="small",
@@ -503,6 +543,7 @@ class ControlPanel(v3.VCard):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = source.latitude_bounds
         self.state.longitude_bnds = source.longitude_bounds
+        self.state.show_earth_core = False
         self.ctrl.view_update()
 
     @change("time_index")
@@ -534,6 +575,13 @@ class ControlPanel(v3.VCard):
         bbox = self._scene_manager["bbox"].get("source")
         bbox.depth = max_depth
 
+        self.ctrl.view_update()
+
+    @change("show_grid", "nb_grid_line_per_degree")
+    def _on_show_grid(self, show_grid, nb_grid_line_per_degree, **_):
+        source = self._scene_manager["bbox"].get("source")
+        source.grid_lines = show_grid
+        source.grid_lines_per_degree = int(nb_grid_line_per_degree)
         self.ctrl.view_update()
 
     @change(

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 from vtkmodules.vtkCommonCore import vtkPoints, vtkTypeFloat32Array
 from vtkmodules.vtkCommonDataModel import (
@@ -31,6 +33,8 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
         self._cut_planes_normal.SetNumberOfComponents(3)
         self._cut_planes.SetPoints(self._cut_planes_origin)
         self._cut_planes.SetNormals(self._cut_planes_normal)
+        self._n_gridline_per_degree = 1
+        self._show_grid_lines = True
 
     @property
     def cut_planes(self):
@@ -44,6 +48,26 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
     def spherical(self, value):
         if self._proj_spherical != value:
             self._proj_spherical = value
+            self.Modified()
+
+    @property
+    def grid_lines(self):
+        return self._show_grid_lines
+
+    @grid_lines.setter
+    def grid_lines(self, value):
+        if self._show_grid_lines != value:
+            self._show_grid_lines = value
+            self.Modified()
+
+    @property
+    def grid_lines_per_degree(self):
+        return self._show_grid_lines
+
+    @grid_lines_per_degree.setter
+    def grid_lines_per_degree(self, value):
+        if self._n_gridline_per_degree != value:
+            self._n_gridline_per_degree = value
             self.Modified()
 
     @property
@@ -114,8 +138,26 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
             n_lon_pts = int(delta_lon * self._sampling_per_degree + 0.5)
             n_lat_pts = int(delta_lat * self._sampling_per_degree + 0.5)
 
-            vtk_points.Allocate(n_lon_pts * 4 + n_lat_pts * 4)
-            vtk_lines.Allocate((1 + n_lon_pts) * 4 + (1 + n_lat_pts) * 4 + 8)
+            if self.grid_lines:
+                n_vlines = int(delta_lon * self.grid_lines_per_degree)
+                n_hlines = int(delta_lat * self.grid_lines_per_degree)
+                vtk_points.Allocate(
+                    n_lon_pts * 4  # bbox horizontal lines pts
+                    + n_lat_pts * 4  # bbox vertical lines pts
+                    + n_lon_pts * n_hlines  # grid horizontal pts
+                    + n_lat_pts * n_vlines  # grid vertical pts
+                )
+                vtk_lines.Allocate(
+                    (1 + n_lon_pts) * 4  # horizontal bbox lines
+                    + (1 + n_lat_pts) * 4  # vertical bbox lines
+                    + 8  # depth lines
+                    + n_vlines * n_lat_pts  # vertical grid lines
+                    + n_hlines * n_lon_pts  # horizontal grid lines
+                )
+
+            else:
+                vtk_points.Allocate(n_lon_pts * 4 + n_lat_pts * 4)
+                vtk_lines.Allocate((1 + n_lon_pts) * 4 + (1 + n_lat_pts) * 4 + 8)
 
             # Compute cut planes
             self._cut_planes_origin.SetNumberOfPoints(4)
@@ -178,7 +220,7 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
                     lat = self._latitude_bnd[0] + lat_idx * delta_lat / (n_lat_pts - 1)
                     vtk_lines.InsertCellPoint(insert_pt(vtk_points, lon, lat, depth))
 
-            # Generate vertical lines
+            # Generate depth lines
             next_layer_offset = 2 * n_lon_pts + 2 * n_lat_pts
             steps = [0, n_lon_pts, n_lat_pts, n_lon_pts]
             offset = 0
@@ -187,6 +229,46 @@ class VtkLatLonBound(VTKPythonAlgorithmBase):
                 vtk_lines.InsertNextCell(2)
                 vtk_lines.InsertCellPoint(offset)
                 vtk_lines.InsertCellPoint(offset + next_layer_offset)
+
+            # Generate grid lines
+            if self.grid_lines:
+                # vertical lines
+                step = 1 / self._n_gridline_per_degree
+                lon = math.floor(self.longitude_bnds[0])
+                while lon < self.longitude_bnds[1]:
+                    if lon < self.longitude_bnds[0]:
+                        lon += step
+                        continue
+
+                    vtk_lines.InsertNextCell(n_lat_pts)
+                    for lat_idx in range(n_lat_pts):
+                        lat = self._latitude_bnd[0] + lat_idx * delta_lat / (
+                            n_lat_pts - 1
+                        )
+                        vtk_lines.InsertCellPoint(
+                            insert_pt(vtk_points, lon, lat, self._depth)
+                        )
+
+                    lon += step
+
+                # horizontal lines
+                step = 1 / self._n_gridline_per_degree
+                lat = math.floor(self._latitude_bnd[0])
+                while lat < self._latitude_bnd[1]:
+                    if lat < self._latitude_bnd[0]:
+                        lat += step
+                        continue
+
+                    vtk_lines.InsertNextCell(n_lon_pts)
+                    for lon_idx in range(n_lon_pts):
+                        lon = self._longitude_bnd[0] + lon_idx * delta_lon / (
+                            n_lon_pts - 1
+                        )
+                        vtk_lines.InsertCellPoint(
+                            insert_pt(vtk_points, lon, lat, self._depth)
+                        )
+
+                    lat += step
 
         else:
             vtk_points.Allocate(8)
