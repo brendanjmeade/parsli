@@ -95,7 +95,7 @@ jobs:
 
       - name: Generate artifact attestation for sdist and wheel
         if: steps.release.outputs.released == 'true'
-        uses: actions/attest-build-provenance@v2.2.0
+        uses: actions/attest-build-provenance@v2.2.3
         with:
           subject-path: "dist/*"
 
