@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.14.1 (2025-03-10)
+
+### Bug Fixes
+
+- **dataRange**: Start with symmetric range
+  ([`bc24fc6`](https://github.com/brendanjmeade/parsli/commit/bc24fc65d5aec013c222bda579298cc5d7904f5e))
+
+
 ## v0.14.0 (2025-03-07)
 
 ### Bug Fixes
