@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.15.1 (2025-03-11)
+
+### Bug Fixes
+
+- **data**: Updated hdf file with coupling
+  ([`66bda77`](https://github.com/brendanjmeade/parsli/commit/66bda774f0ce76bffbf5f3d06550364c55fece41))
+
+### Documentation
+
+- **readme**: Add download badge
+  ([`49eb078`](https://github.com/brendanjmeade/parsli/commit/49eb078a23409eb8c5181f80bb31a103cb53c7ae))
+
+
 ## v0.15.0 (2025-03-10)
 
 ### Bug Fixes
