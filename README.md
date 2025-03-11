@@ -4,6 +4,7 @@
 [![PyPI version][pypi-version]][pypi-link]
 [![PyPI platforms][pypi-platforms]][pypi-link]
 [![GitHub Discussion][github-discussions-badge]][github-discussions-link]
+![PyPI download][download-badge]
 
 <!-- SPHINX-START -->
 
@@ -17,6 +18,7 @@
 [pypi-version]:             https://img.shields.io/pypi/v/parsli
 [rtd-badge]:                https://readthedocs.org/projects/parsli/badge/?version=latest
 [rtd-link]:                 https://parsli.readthedocs.io/en/latest/?badge=latest
+[download-badge]:           https://img.shields.io/pypi/dm/parsli
 
 <!-- prettier-ignore-end -->
 
