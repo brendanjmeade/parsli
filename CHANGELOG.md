@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.15.2 (2025-03-12)
+
+### Bug Fixes
+
+- **CoincidentTopology**: Prevent grid line to appear above
+  ([`83660f0`](https://github.com/brendanjmeade/parsli/commit/83660f07a92554d72cfc007d8b875d51156f15d5))
+
+- **grid**: Allow n degree for grid lines
+  ([`b40d7c7`](https://github.com/brendanjmeade/parsli/commit/b40d7c72a4fc698e75339f4dbaa57356542a2457))
+
+
 ## v0.15.1 (2025-03-11)
 
 ### Bug Fixes
