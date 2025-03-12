@@ -573,7 +573,7 @@ class ControlPanel(v3.VCard):
                 max_depth = source.maximum_depth
 
         bbox = self._scene_manager["bbox"].get("source")
-        bbox.depth = max_depth
+        bbox.depth = max_depth * 1.01
 
         self.ctrl.view_update()
 

@@ -317,6 +317,7 @@ class SceneManager:
             )
             item["geometry"] = geometry
             item["mapper"] = mapper
+            mapper.SetResolveCoincidentTopologyToOff()
         else:
             mapper = vtkCompositePolyDataMapper(
                 input_connection=source.output_port,
@@ -324,6 +325,7 @@ class SceneManager:
                 interpolate_scalars_before_mapping=1,
             )
             item["mapper"] = mapper
+            mapper.SetResolveCoincidentTopologyToOff()
 
         actor = vtkActor(mapper=mapper)
         item["actor"] = actor
@@ -407,6 +409,7 @@ class SceneManager:
                 interpolate_scalars_before_mapping=1,
             )
             mapper.SelectColorArray("Scalars")
+            mapper.SetResolveCoincidentTopologyToOff()
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkPolyDataMapper(
@@ -422,6 +425,7 @@ class SceneManager:
                 interpolate_scalars_before_mapping=1,
             )
             mapper.SelectColorArray("Scalars")
+            mapper.SetResolveCoincidentTopologyToOff()
             item["mapper"] = mapper
             # lines
             mapper_lines = vtkCompositePolyDataMapper(
