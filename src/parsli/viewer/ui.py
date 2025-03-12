@@ -222,7 +222,7 @@ class ControlPanel(v3.VCard):
 
                     # Grid refinement control
                     html.Span(
-                        "1/{{ nb_grid_line_per_degree }} &deg;",
+                        "{{ nb_grid_line_per_degree < 2 ? `${Math.abs(nb_grid_line_per_degree)}` : `1/${nb_grid_line_per_degree}`  }} &deg;",
                         classes="text-subtitle-2 mx-2",
                         v_show=("show_grid", False),
                     )
@@ -234,7 +234,7 @@ class ControlPanel(v3.VCard):
                         density="compact",
                         hide_details=True,
                         classes="mx-2",
-                        click="nb_grid_line_per_degree > 2 ? nb_grid_line_per_degree-- : nb_grid_line_per_degree = 1",
+                        click="nb_grid_line_per_degree === 1 ? nb_grid_line_per_degree=-2 : nb_grid_line_per_degree = nb_grid_line_per_degree - ($event.altKey ? 5 : 1)",
                     )
                     v3.VBtn(
                         v_show=("show_grid", False),
@@ -244,7 +244,7 @@ class ControlPanel(v3.VCard):
                         density="compact",
                         hide_details=True,
                         classes="mx-2",
-                        click="nb_grid_line_per_degree++",
+                        click="nb_grid_line_per_degree === -1 ? nb_grid_line_per_degree=2 : nb_grid_line_per_degree = nb_grid_line_per_degree + ($event.altKey ? 5 : 1)",
                     )
 
                     v3.VBtn(
@@ -579,6 +579,10 @@ class ControlPanel(v3.VCard):
 
     @change("show_grid", "nb_grid_line_per_degree")
     def _on_show_grid(self, show_grid, nb_grid_line_per_degree, **_):
+        if nb_grid_line_per_degree == 0:
+            self.state.nb_grid_line_per_degree = 1
+            return
+
         source = self._scene_manager["bbox"].get("source")
         source.grid_lines = show_grid
         source.grid_lines_per_degree = int(nb_grid_line_per_degree)
