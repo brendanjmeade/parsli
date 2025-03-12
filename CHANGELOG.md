@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.15.3 (2025-03-12)
+
+### Bug Fixes
+
+- **quad**: Color for missing field mapped to 1
+  ([`9b60924`](https://github.com/brendanjmeade/parsli/commit/9b60924daa3c75c83d0db8f84ff7207639037a4f))
+
+
 ## v0.15.2 (2025-03-12)
 
 ### Bug Fixes
