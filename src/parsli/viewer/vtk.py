@@ -301,6 +301,12 @@ class SceneManager:
         self._lut_for_bar.ShallowCopy(get_preset(color_preset))
         update_range(self._lut_for_bar, [color_min, color_max])
 
+    def color_at(self, value, color_preset, color_min, color_max):
+        color = [0, 0, 0]
+        self.update_scalar_bar(color_preset, color_min, color_max)
+        self._lut_for_bar.GetColor(value, color)
+        return color
+
     @property
     def lut(self):
         return self._lut

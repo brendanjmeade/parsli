@@ -665,6 +665,10 @@ class ControlPanel(v3.VCard):
                 if mesh_type == "segment":
                     mapper.SelectColorArray(color_by)
                     mapper.SetScalarRange(color_min, color_max)
+                    property = self._scene_manager[mesh_type].get("actor").property
+                    property.color = self._scene_manager.color_at(
+                        1, color_preset, color_min, color_max
+                    )
                 else:
                     bands = self._scene_manager[mesh_type].get("bands")
 
