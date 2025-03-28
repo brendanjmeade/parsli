@@ -5,6 +5,7 @@ import datetime
 import json
 import os
 import time
+from functools import partial
 from pathlib import Path
 
 import yaml
@@ -66,6 +67,15 @@ class Viewer:
         args, _ = self.server.cli.parse_known_args()
         self.data_file = str(Path(args.data).resolve())
         self.local_rendering = args.wasm
+
+        # Handle meta file loading
+        input_data = Path(self.data_file)
+        input_data = (input_data / "info.yml") if input_data.is_dir() else input_data
+        if input_data.exists() and input_data.name == "info.yml":
+            meta = yaml.safe_load(input_data.read_text())
+            self.data_file = meta.get("info").get("data_path")
+            load_meta = partial(self.load_metadata, meta)
+            self.ctrl.on_server_ready.add(load_meta)
 
         # Setup app
         self.scene_manager = SceneManager(self.server)
@@ -408,12 +418,16 @@ class Viewer:
         self.state.screenshot_export_path_exits = True
         asynchronous.create_task(self._export_data())
 
-    def load_metadata(self, file):
+    def load_metadata_file(self, file):
         metadata = yaml.safe_load(file.get("content"))
-        self.state.update(metadata.get("state", {}))
-        self.scene_manager.update_camera(metadata.get("camera", {}))
-        self.ctrl.view_update()
-        self.state.configure_screenshot_export = False
+        self.load_metadata(metadata)
+
+    def load_metadata(self, metadata, **_):
+        with self.state:
+            self.state.update(metadata.get("state", {}))
+            self.scene_manager.update_camera(metadata.get("camera", {}))
+            self.ctrl.view_update()
+            self.state.configure_screenshot_export = False
 
     def export_metadata(self, base_path):
         metafile = Path(base_path) / "info.yml"
@@ -535,7 +549,7 @@ class Viewer:
                                     style="display: none",
                                     __events=["change"],
                                     change=(
-                                        self.load_metadata,
+                                        self.load_metadata_file,
                                         "[$event.target.files[0]]",
                                     ),
                                 )
