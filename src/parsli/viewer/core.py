@@ -298,6 +298,7 @@ class Viewer:
         for t_idx in range(nb_timesteps):
             meshes.time_index = t_idx % self.state.nb_timesteps
             segment.time_index = t_idx % self.state.nb_timesteps
+            self.scene_manager.set_time(t_idx)
             futures.append(
                 self.scene_manager.write_screenshot(base_directory / f"{t_idx:012}")
             )

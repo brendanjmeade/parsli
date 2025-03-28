@@ -37,12 +37,15 @@ from vtkmodules.vtkIOImage import vtkPNGWriter
 from vtkmodules.vtkRenderingAnnotation import vtkAxesActor, vtkScalarBarActor
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
+    vtkActor2D,
     vtkColorTransferFunction,
     vtkCompositePolyDataMapper,
     vtkPolyDataMapper,
     vtkRenderer,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
+    vtkTextMapper,
+    vtkTextProperty,
     vtkWindowToImageFilter,
 )
 
@@ -201,6 +204,16 @@ class SceneManager:
         self.renderer.AddActor2D(self.scalar_bar)
         self.show_scalar_bar(False)
 
+        # Time text
+        text_property = vtkTextProperty()
+        text_property.SetFontSize(16)
+        text_property.SetJustificationToLeft()
+        text_property.SetColor(0.2, 0.2, 0.2)
+
+        self.time_mapper = vtkTextMapper(input="0.0", text_property=text_property)
+        self.time_actor = vtkActor2D(mapper=self.time_mapper, position=(16, 16))
+        self.renderer.AddActor(self.time_actor)
+
         camera = self.renderer.active_camera
         camera.position = (1, 0, 0)
         camera.focal_point = (0, 0, 0)
@@ -234,6 +247,9 @@ class SceneManager:
     @property
     def ctrl(self):
         return self.server.controller
+
+    def set_time(self, time_value):
+        self.time_mapper.input = f"t: {time_value}"
 
     def show_scalar_bar(self, show):
         self.scalar_bar.visibility = show

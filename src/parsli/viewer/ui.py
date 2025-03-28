@@ -554,6 +554,8 @@ class ControlPanel(v3.VCard):
         segment = self._scene_manager["segment"].get("source")
         segment.time_index = time_index
 
+        self._scene_manager.set_time(time_index)
+
         self.ctrl.view_update()
 
     @change("coast_active_regions")
