@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.16.1 (2025-03-28)
+
+### Bug Fixes
+
+- **fields**: Better sorting
+  ([`176d1bd`](https://github.com/brendanjmeade/parsli/commit/176d1bd00edfd3777ed96ab70f736bd546e99dcf))
+
+- **meta**: Can load meta file as --data
+  ([`7be6fe6`](https://github.com/brendanjmeade/parsli/commit/7be6fe66bcd3922097ffd97928b7d657c35509d7))
+
+- **time**: Add time info as text
+  ([`5a97351`](https://github.com/brendanjmeade/parsli/commit/5a97351b03ce411e5ad51be397eb4f63164711ee))
+
+
 ## v0.16.0 (2025-03-28)
 
 ### Features
