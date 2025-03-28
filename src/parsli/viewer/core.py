@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
+import os
 import time
 from pathlib import Path
 
+import yaml
 from trame.app import asynchronous, get_server
 from trame.decorators import TrameApp, change, controller
 from trame.ui.vuetify3 import VAppLayout
+from trame.widgets import html, vtklocal
 from trame.widgets import vtk as vtkw
-from trame.widgets import vtklocal
 from trame.widgets import vuetify3 as v3
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
@@ -22,6 +25,29 @@ from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
 
 DEBUG_WRITE_MESH = False
+
+METADATA_STATE_KEYS = [
+    "spherical",
+    "longitude_bnds",
+    "latitude_bnds",
+    "vertical_scaling",
+    "nb_grid_line_per_degree",
+    "show_grid",
+    "show_earth_core",
+    "coast_active_regions",
+    "show_segment",
+    "show_surface",
+    "light_segment",
+    "light_surface",
+    "surface_opacity",
+    "segment_opacity",
+    "color_by",
+    "color_min",
+    "color_max",
+    "color_preset",
+    "subdivide",
+    "nb_contours",
+]
 
 
 @TrameApp()
@@ -38,7 +64,7 @@ class Viewer:
 
         # process cli
         args, _ = self.server.cli.parse_known_args()
-        data_file = str(Path(args.data).resolve())
+        self.data_file = str(Path(args.data).resolve())
         self.local_rendering = args.wasm
 
         # Setup app
@@ -68,13 +94,13 @@ class Viewer:
 
         # load segments
         seg_reader = VtkSegmentReader()
-        seg_reader.file_name = data_file
+        seg_reader.file_name = self.data_file
         pipeline = self.scene_manager.add_geometry("segment", seg_reader)
         pipeline.get("mapper").SetScalarModeToUseCellFieldData()
 
         # load meshes
         mesh_reader = VtkMeshReader()
-        mesh_reader.file_name = data_file
+        mesh_reader.file_name = self.data_file
         pipeline = self.scene_manager.add_geometry_with_contour(
             "meshes", mesh_reader, True
         )
@@ -231,6 +257,8 @@ class Viewer:
         # Export path handling
         base_directory = Path(self.state.screenshot_export_path)
         base_directory.mkdir(parents=True)
+        self.export_metadata(base_directory)
+
         print(  # noqa: T201
             "\n----------------------------------------"
             "\nExporting images:"
@@ -302,6 +330,8 @@ class Viewer:
         # Export path handling
         base_directory = Path(self.state.screenshot_export_path)
         base_directory.mkdir(parents=True)
+        self.export_metadata(base_directory)
+
         print(  # noqa: T201
             "\n----------------------------------------"
             "\nExporting data:"
@@ -378,6 +408,27 @@ class Viewer:
         self.state.screenshot_export_path_exits = True
         asynchronous.create_task(self._export_data())
 
+    def load_metadata(self, file):
+        metadata = yaml.safe_load(file.get("content"))
+        self.state.update(metadata.get("state", {}))
+        self.scene_manager.update_camera(metadata.get("camera", {}))
+        self.ctrl.view_update()
+        self.state.configure_screenshot_export = False
+
+    def export_metadata(self, base_path):
+        metafile = Path(base_path) / "info.yml"
+        data = {
+            "info": {
+                "user": os.environ.get("USER", os.environ.get("USERNAME")),
+                "created": f"{datetime.datetime.now()}",
+                "data_path": self.data_file,
+                "comment": self.state.export_comment,
+            },
+            "state": {k: self.state[k] for k in METADATA_STATE_KEYS},
+            "camera": self.scene_manager.camera_state,
+        }
+        metafile.write_text(yaml.dump(data))
+
     def _build_ui(self):
         self.state.trame__title = "Parsli"
         self.state.setdefault("camera", None)
@@ -388,7 +439,7 @@ class Viewer:
             with v3.VDialog(v_model=("configure_screenshot_export", False)):
                 with v3.VCard(style="max-width: 50rem;", classes="mx-auto"):
                     with v3.VCardTitle(
-                        "Export Animation", classes="d-flex align-center"
+                        "Import / Export", classes="d-flex align-center"
                     ):
                         v3.VSpacer()
                         v3.VBtn(
@@ -443,7 +494,7 @@ class Viewer:
                                 variant="outlined",
                                 click="screenshot_width=0.5*screenshot_width; screenshot_height=0.5*screenshot_height;",
                             )
-                        with v3.VRow(classes="mt-3"):
+                        with v3.VRow(classes="my-3"):
                             v3.VTextField(
                                 label="Export Path",
                                 v_model=(
@@ -456,9 +507,38 @@ class Viewer:
                                 error_messages=(
                                     "screenshot_export_path_exits ? 'Path already exists' : null",
                                 ),
+                                hide_details=True,
                             )
 
-                        with v3.VRow(classes=""):
+                        with v3.VRow(classes="my-0"):
+                            v3.VTextarea(
+                                label="Comments",
+                                v_model=("export_comment", ""),
+                                density="compact",
+                                variant="outlined",
+                                rows=5,
+                                hide_details=True,
+                            )
+
+                        with v3.VRow(classes="mt-2"):
+                            with v3.VBtn(
+                                "Import",
+                                prepend_icon="mdi-import",
+                                color="primary",
+                                variant="flat",
+                                click="utils.get('document').getElementById('import').click()",
+                            ):
+                                html.Input(
+                                    type="file",
+                                    id="import",
+                                    accept=".yml",
+                                    style="display: none",
+                                    __events=["change"],
+                                    change=(
+                                        self.load_metadata,
+                                        "[$event.target.files[0]]",
+                                    ),
+                                )
                             v3.VSpacer()
 
                             v3.VBtn(

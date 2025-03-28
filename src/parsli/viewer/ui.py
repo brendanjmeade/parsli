@@ -91,7 +91,7 @@ class ControlPanel(v3.VCard):
                 v3.VBtn(
                     v_else=True,
                     v_show=toggle,
-                    icon="mdi-movie-open-settings-outline",
+                    icon="mdi-swap-horizontal",
                     density="compact",
                     flat=True,
                     click="configure_screenshot_export = !configure_screenshot_export",
@@ -541,8 +541,8 @@ class ControlPanel(v3.VCard):
 
     def _crop_bounds_to_mesh(self):
         source = self._scene_manager["meshes"].get("source")
-        self.state.latitude_bnds = source.latitude_bounds
-        self.state.longitude_bnds = source.longitude_bounds
+        self.state.latitude_bnds = [float(v) for v in source.latitude_bounds]
+        self.state.longitude_bnds = [float(v) for v in source.longitude_bounds]
         self.state.show_earth_core = False
         self.ctrl.view_update()
 

@@ -291,6 +291,18 @@ class SceneManager:
     def camera(self):
         return self.renderer.active_camera
 
+    @property
+    def camera_state(self):
+        return {
+            "position": list(self.camera.position),
+            "focal_point": list(self.camera.focal_point),
+            "view_up": list(self.camera.view_up),
+        }
+
+    def update_camera(self, props):
+        for k, v in props.items():
+            setattr(self.renderer.active_camera, k, v)
+
     def update_view_up(self, view_up):
         self.renderer.active_camera.view_up = view_up
 
