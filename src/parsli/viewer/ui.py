@@ -393,17 +393,45 @@ class ControlPanel(v3.VCard):
                 # Color mapping
                 # -------------------------------------------------------------
 
-                v3.VSelect(
-                    placeholder="Color By",
-                    prepend_icon="mdi-format-color-fill",
-                    v_model=("color_by", "dip_slip"),
-                    items=("fields", []),
-                    hide_details=True,
-                    density="compact",
-                    flat=True,
-                    variant="solo",
-                    style="margin-left: 0.15rem;",
-                )
+                with v3.VRow(no_gutters=True, classes="align-center ma-0"):
+                    v3.VSelect(
+                        placeholder="Color By",
+                        prepend_icon="mdi-format-color-fill",
+                        v_model=("color_by", "dip_slip"),
+                        items=("fields", []),
+                        hide_details=True,
+                        density="compact",
+                        flat=True,
+                        variant="solo",
+                        style="margin-left: 0.15rem;",
+                    )
+                    v3.VCheckbox(
+                        v_model=("use_formula", False),
+                        true_icon="mdi-draw",
+                        false_icon="mdi-pencil",
+                        density="compact",
+                        hide_details=True,
+                    )
+
+                with v3.VRow(
+                    no_gutters=True,
+                    classes="align-center mx-0 mb-2",
+                    v_show="use_formula",
+                ):
+                    v3.VTextField(
+                        prepend_icon="mdi-sigma",
+                        v_model=("formula", ""),
+                        density="compact",
+                        hide_details=True,
+                        flat=True,
+                        variant="solo",
+                    )
+                    v3.VBtn(
+                        icon="mdi-water-check",
+                        density="compact",
+                        hide_details=True,
+                        flat=True,
+                    )
 
                 with v3.VRow(no_gutters=True, classes="align-center mx-0 mt-n2"):
                     with v3.VCol():
@@ -545,6 +573,11 @@ class ControlPanel(v3.VCard):
         self.state.longitude_bnds = [float(v) for v in source.longitude_bounds]
         self.state.show_earth_core = False
         self.ctrl.view_update()
+
+    @change("use_formula", "color_by")
+    def _use_formula(self, use_formula, color_by, **_):
+        if use_formula:
+            self.state.formula = f"sign({color_by}) * abs({color_by})**(0.2)"
 
     @change("time_index")
     def _time_change(self, time_index, **_):
