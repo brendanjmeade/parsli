@@ -19,7 +19,7 @@ from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
-from parsli.utils import expend_range, source, to_precision
+from parsli.utils import expend_range, sort_fields, source, to_precision
 from parsli.utils.earth import EARTH_RADIUS
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
@@ -107,7 +107,7 @@ class Viewer:
         pipeline.get(
             "mapper"
         ).SetScalarModeToUseCellFieldData()  # Bands: Scalars on Cell
-        self.state.fields = mesh_reader.available_fields
+        self.state.fields = sort_fields(mesh_reader.available_fields)
         self.state.time_index = mesh_reader.time_index
         self.state.nb_timesteps = mesh_reader.number_of_timesteps
 
