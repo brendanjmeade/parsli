@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.16.0 (2025-03-28)
+
+### Features
+
+- **metadata**: Add metadata file
+  ([`8cad551`](https://github.com/brendanjmeade/parsli/commit/8cad5511a65615f10a5683836359934667f6895f))
+
+
 ## v0.15.3 (2025-03-12)
 
 ### Bug Fixes
