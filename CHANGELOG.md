@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.17.0 (2025-03-30)
+
+### Bug Fixes
+
+- Enable formula in range compute
+  ([`5d4be8a`](https://github.com/brendanjmeade/parsli/commit/5d4be8a5b1f3b7b7a19d83e85ac56b7d9c89995a))
+
+### Features
+
+- **formula**: Add custom formula
+  ([`0b505e1`](https://github.com/brendanjmeade/parsli/commit/0b505e19ba9e78ca8a12678f6f1a3e6d785830bd))
+
+
 ## v0.16.1 (2025-03-28)
 
 ### Bug Fixes
