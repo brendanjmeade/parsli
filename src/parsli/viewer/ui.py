@@ -571,6 +571,8 @@ class ControlPanel(v3.VCard):
 
     def apply_formula(self):
         self._scene_manager.update_formula(self.state.fields, self.state.formula)
+        self.reset_color_range()
+        self.symetric_color_range()
         self.ctrl.view_update()
 
     @change("use_formula", "color_by")
