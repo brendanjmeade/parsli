@@ -425,12 +425,7 @@ class ControlPanel(v3.VCard):
                         hide_details=True,
                         flat=True,
                         variant="solo",
-                    )
-                    v3.VBtn(
-                        icon="mdi-water-check",
-                        density="compact",
-                        hide_details=True,
-                        flat=True,
+                        click_prepend=self.apply_formula,
                     )
 
                 with v3.VRow(no_gutters=True, classes="align-center mx-0 mt-n2"):
@@ -574,10 +569,22 @@ class ControlPanel(v3.VCard):
         self.state.show_earth_core = False
         self.ctrl.view_update()
 
+    def apply_formula(self):
+        self._scene_manager.update_formula(self.state.fields, self.state.formula)
+        self.ctrl.view_update()
+
     @change("use_formula", "color_by")
-    def _use_formula(self, use_formula, color_by, **_):
+    def _use_formula(self, fields, use_formula, color_by, **_):
         if use_formula:
-            self.state.formula = f"sign({color_by}) * abs({color_by})**(0.2)"
+            self.state.formula = f"sign({color_by}) * abs({color_by})^.5"
+            self._scene_manager.update_formula(fields, self.state.formula)
+            self.reset_color_range()
+            self.symetric_color_range()
+            self.ctrl.view_update()
+        else:
+            self.reset_color_range()
+            self.symetric_color_range()
+            self.ctrl.view_update()
 
     @change("time_index")
     def _time_change(self, time_index, **_):
@@ -683,13 +690,30 @@ class ControlPanel(v3.VCard):
 
         self.ctrl.view_update()
 
-    @change("color_by", "color_preset", "color_min", "color_max", "nb_contours")
+    @change(
+        "color_by",
+        "color_preset",
+        "color_min",
+        "color_max",
+        "use_formula",
+        "nb_contours",
+    )
     def _on_color_preset(
-        self, color_preset, color_min, color_max, color_by, nb_contours, **_
+        self,
+        color_preset,
+        color_min,
+        color_max,
+        color_by,
+        use_formula,
+        nb_contours,
+        **_,
     ):
         lut = self._scene_manager.lut
         color_min = float(color_min)
         color_max = float(color_max)
+
+        if use_formula:
+            color_by = "formula"
 
         # Scalar color mapping
         for mesh_type in ["segment", "meshes"]:
@@ -742,8 +766,15 @@ class ControlPanel(v3.VCard):
         source = pipeline_item.get("source")
         ds = source()
 
+        color_by = self.state.color_by
+        if self.state.use_formula:
+            color_by = "formula"
+            formulat_filter = pipeline_item.get("formula")
+            formulat_filter.Update()
+            ds = formulat_filter.GetOutput()
+
         total_range = None
-        for array in ds.cell_data[self.state.color_by].Arrays:
+        for array in ds.cell_data[color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
 
         self.state.color_min = to_precision(total_range[0], 3)

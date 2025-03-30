@@ -105,14 +105,16 @@ class Viewer:
         # load segments
         seg_reader = VtkSegmentReader()
         seg_reader.file_name = self.data_file
-        pipeline = self.scene_manager.add_geometry("segment", seg_reader)
+        pipeline = self.scene_manager.add_geometry(
+            "segment", seg_reader, need_formula=True
+        )
         pipeline.get("mapper").SetScalarModeToUseCellFieldData()
 
         # load meshes
         mesh_reader = VtkMeshReader()
         mesh_reader.file_name = self.data_file
         pipeline = self.scene_manager.add_geometry_with_contour(
-            "meshes", mesh_reader, True
+            "meshes", mesh_reader, True, need_formula=True
         )
         pipeline.get(
             "mapper"
@@ -151,9 +153,10 @@ class Viewer:
         return self.server.state
 
     @change("color_by")
-    def _on_color_by(self, color_by, **_):
+    def _on_color_by(self, color_by, use_formula, **_):
         pipeline_item = self.scene_manager["meshes"]
         source = pipeline_item.get("source")
+        formula = pipeline_item.get("formula")
         mapper_mesh = pipeline_item.get("mapper")
         mapper_seg = self.scene_manager["segment"].get("mapper")
 
@@ -165,6 +168,10 @@ class Viewer:
 
         # Extract data range
         ds = source()
+
+        if use_formula:
+            formula.Update()
+            ds = formula.GetOutput()
 
         total_range = None
         for array in ds.cell_data[color_by].Arrays:
@@ -220,6 +227,7 @@ class Viewer:
         pipeline = self.scene_manager["meshes"]
 
         source = pipeline.get("source")
+        formula = pipeline.get("formula")
         assign = pipeline.get("assign")
         refine = pipeline.get("refine")
         cell2point = pipeline.get("cell2point")
@@ -233,7 +241,9 @@ class Viewer:
             # debug
             # self.debug_check_quality()
         else:
-            geometry.input_connection = source.output_port
+            geometry.input_connection = (
+                formula.output_port if formula else source.output_port
+            )
             assign.input_connection = cell2point.output_port
 
         self.ctrl.view_update()
