@@ -16,6 +16,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkImageData,
 )
 from vtkmodules.vtkFiltersCore import (
+    vtkArrayCalculator,
     vtkAssignAttribute,
     vtkCellDataToPointData,
     vtkThreshold,
@@ -175,6 +176,7 @@ class SceneManager:
         set_preset(self._lut, "Fast")
 
         self.geometries = {}
+        self.formulaFilters = []
 
         self.renderer = vtkRenderer(background=(1.0, 1.0, 1.0))
         self.interactor = vtkRenderWindowInteractor()
@@ -295,6 +297,14 @@ class SceneManager:
         )
         self.reset_camera_to(bounds)
 
+    def update_formula(self, fields, formula_str):
+        for filter in self.formulaFilters:
+            filter.result_array_name = "formula"
+            filter.function = formula_str
+            filter.RemoveScalarVariables()
+            for field in fields:
+                filter.AddScalarArrayName(field)
+
     def update_interaction_style(self, value):
         if value == "trackball":
             self.interactor.SetInteractorStyle(self.style_trackball)
@@ -339,11 +349,19 @@ class SceneManager:
     def lut(self):
         return self._lut
 
-    def add_geometry(self, name, source, composite=False):
+    def add_geometry(self, name, source, composite=False, need_formula=False):
         item = {"name": name, "source": source, "composite": composite}
 
         if not composite:
             geometry = vtkDataSetSurfaceFilter(input_connection=source.output_port)
+
+            if need_formula:
+                formula = vtkArrayCalculator(input_connection=source.output_port)
+                formula.SetAttributeTypeToCellData()
+                geometry.input_connection = formula.output_port
+                self.formulaFilters.append(formula)
+                item["formula"] = formula
+
             mapper = vtkPolyDataMapper(
                 input_connection=geometry.output_port,
                 lookup_table=self.lut,
@@ -358,6 +376,14 @@ class SceneManager:
                 lookup_table=self.lut,
                 interpolate_scalars_before_mapping=1,
             )
+
+            if need_formula:
+                formula = vtkArrayCalculator(input_connection=source.output_port)
+                formula.SetAttributeTypeToCellData()
+                mapper.input_connection = formula.output_port
+                self.formulaFilters.append(formula)
+                item["formula"] = formula
+
             item["mapper"] = mapper
             mapper.SetResolveCoincidentTopologyToOff()
 
@@ -382,7 +408,9 @@ class SceneManager:
 
         return item
 
-    def add_geometry_with_contour(self, name, source, composite=False):
+    def add_geometry_with_contour(
+        self, name, source, composite=False, need_formula=False
+    ):
         # pipeline filters
         quality = vtkMeshQuality()
         quality.SetTriangleQualityMeasureToEdgeRatio()
@@ -434,6 +462,23 @@ class SceneManager:
             "assign": assign,
             "bands": bands,
         }
+
+        if need_formula:
+            formula = vtkArrayCalculator()
+            formula.SetAttributeTypeToCellData()
+            self.formulaFilters.append(formula)
+            (
+                source
+                >> formula
+                >> quality
+                >> threshold
+                >> geometry
+                >> cell2point
+                >> refine
+                >> assign
+                >> bands
+            )
+            item["formula"] = formula
 
         if not composite:
             # surface
