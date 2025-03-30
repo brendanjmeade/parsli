@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.17.1 (2025-03-30)
+
+### Bug Fixes
+
+- **formula**: Recompute range on apply
+  ([`fbc4a6d`](https://github.com/brendanjmeade/parsli/commit/fbc4a6d71bbff05531dd055029fff2ed03c010cd))
+
+
 ## v0.17.0 (2025-03-30)
 
 ### Bug Fixes
