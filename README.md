@@ -48,7 +48,7 @@ python -m parsli.viewer --data ./data/model_0000000881_multi.hdf5 --wasm
 parsli --data ./data/model_0000000881_multi.hdf5
 ```
 
-![App](https://github.com/brendanjmeade/parsli/blob/main/parsli.png)
+![App](https://raw.githubusercontent.com/brendanjmeade/parsli/refs/heads/main/parsli.png)
 
 ## Development setup
 
