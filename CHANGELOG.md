@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.17.2 (2025-04-01)
+
+### Bug Fixes
+
+- **formula**: Handle missing coupling field on quad
+  ([`0c6e87a`](https://github.com/brendanjmeade/parsli/commit/0c6e87a7c50c5c2e874cfb53610fd6bfb45aa917))
+
+- **meta**: Add formula to meta file
+  ([`a6d1a13`](https://github.com/brendanjmeade/parsli/commit/a6d1a132a572bea424d4ab44b252d721630df280))
+
+
 ## v0.17.1 (2025-03-30)
 
 ### Bug Fixes
