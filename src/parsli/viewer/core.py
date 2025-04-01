@@ -48,6 +48,8 @@ METADATA_STATE_KEYS = [
     "color_preset",
     "subdivide",
     "nb_contours",
+    "use_formula",
+    "formula",
 ]
 
 
