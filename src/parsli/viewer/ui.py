@@ -570,16 +570,16 @@ class ControlPanel(v3.VCard):
         self.ctrl.view_update()
 
     def apply_formula(self):
-        self._scene_manager.update_formula(self.state.fields, self.state.formula)
+        self._scene_manager.update_formula(self.state.formula)
         self.reset_color_range()
         self.symetric_color_range()
         self.ctrl.view_update()
 
     @change("use_formula", "color_by")
-    def _use_formula(self, fields, use_formula, color_by, **_):
+    def _use_formula(self, use_formula, color_by, **_):
         if use_formula:
             self.state.formula = f"sign({color_by}) * abs({color_by})^.5"
-            self._scene_manager.update_formula(fields, self.state.formula)
+            self._scene_manager.update_formula(self.state.formula)
             self.reset_color_range()
             self.symetric_color_range()
             self.ctrl.view_update()

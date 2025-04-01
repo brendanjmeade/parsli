@@ -297,13 +297,15 @@ class SceneManager:
         )
         self.reset_camera_to(bounds)
 
-    def update_formula(self, fields, formula_str):
+    def update_formula(self, formula_str):
         for filter in self.formulaFilters:
+            filter.Update()
+            ds = filter.GetInput()
+            filter.RemoveScalarVariables()
+            for field in ds.cell_data.keys():  # noqa: SIM118 (don't work on vtk new api)
+                filter.AddScalarArrayName(field)
             filter.result_array_name = "formula"
             filter.function = formula_str
-            filter.RemoveScalarVariables()
-            for field in fields:
-                filter.AddScalarArrayName(field)
 
     def update_interaction_style(self, value):
         if value == "trackball":
@@ -354,6 +356,13 @@ class SceneManager:
 
         if not composite:
             geometry = vtkDataSetSurfaceFilter(input_connection=source.output_port)
+            mapper = vtkPolyDataMapper(
+                input_connection=geometry.output_port,
+                lookup_table=self.lut,
+            )
+            mapper.SetResolveCoincidentTopologyToOff()
+            item["geometry"] = geometry
+            item["mapper"] = mapper
 
             if need_formula:
                 formula = vtkArrayCalculator(input_connection=source.output_port)
@@ -361,15 +370,6 @@ class SceneManager:
                 geometry.input_connection = formula.output_port
                 self.formulaFilters.append(formula)
                 item["formula"] = formula
-
-            mapper = vtkPolyDataMapper(
-                input_connection=geometry.output_port,
-                lookup_table=self.lut,
-                interpolate_scalars_before_mapping=1,
-            )
-            item["geometry"] = geometry
-            item["mapper"] = mapper
-            mapper.SetResolveCoincidentTopologyToOff()
         else:
             mapper = vtkCompositePolyDataMapper(
                 input_connection=source.output_port,
