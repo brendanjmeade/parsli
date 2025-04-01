@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.17.3 (2025-04-01)
+
+### Bug Fixes
+
+- **readme**: For pypi image
+  ([`1ed3d1a`](https://github.com/brendanjmeade/parsli/commit/1ed3d1afc03fac02986594dbb8d8fb6f711f4fc3))
+
+### Documentation
+
+- **thumbnail**: Update app image
+  ([`1f62151`](https://github.com/brendanjmeade/parsli/commit/1f6215179fc4eb654acb5240f3f6a2a855a1b2e1))
+
+
 ## v0.17.2 (2025-04-01)
 
 ### Bug Fixes
