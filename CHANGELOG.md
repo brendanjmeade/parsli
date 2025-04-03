@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.17.4 (2025-04-03)
+
+### Bug Fixes
+
+- **requirements**: Add pyyaml
+  ([`0744153`](https://github.com/brendanjmeade/parsli/commit/0744153522af86db64be2a296d775cc7f559d729))
+
+
 ## v0.17.3 (2025-04-01)
 
 ### Bug Fixes
