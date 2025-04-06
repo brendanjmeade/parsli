@@ -24,7 +24,7 @@
 
 ## Introduction
 
-Parsli is a VTK based viewer for fault system kinematics that enables fast
+Parsli is a VTK+trame based viewer for fault system kinematics that enables fast
 exploration and export of time animation.
 
 ## Getting started
