@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.18.0 (2025-04-06)
+
+### Bug Fixes
+
+- **dev**: Remove dev code
+  ([`451abe9`](https://github.com/brendanjmeade/parsli/commit/451abe918731e9178669e86a9a23f0b528d97cd5))
+
+### Features
+
+- **player**: Add player for multi-export viewer
+  ([`636340e`](https://github.com/brendanjmeade/parsli/commit/636340eb062161a02b1837f99fdd458994ae75c8))
+
+
 ## v0.17.4 (2025-04-03)
 
 ### Bug Fixes
