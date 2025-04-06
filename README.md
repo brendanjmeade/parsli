@@ -22,6 +22,11 @@
 
 <!-- prettier-ignore-end -->
 
+## Introduction
+
+Parsli is a VTK based viewer for fault system kinematics that enables fast
+exploration and export of time animation.
+
 ## Getting started
 
 First you should setup a virtual environment for this Python Application. You
