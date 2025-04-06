@@ -50,6 +50,23 @@ parsli --data ./data/model_0000000881_multi.hdf5
 
 ![App](https://raw.githubusercontent.com/brendanjmeade/parsli/refs/heads/main/parsli.png)
 
+Once you've exported a couple of time animations, you can play them back using
+the player. Just add all the paths you want to see after the `--data` argument.
+
+```
+parsli-player --data ./export/dip_slip ./export/strike_slip ./export/dip_slip_formula ./export/strike_slip_formula
+```
+
+![Player](https://raw.githubusercontent.com/brendanjmeade/parsli/refs/heads/main/parsli-player.png)
+
+**Keyboard binding**
+
+- **right arrow**: Go to next timestep
+- **left arrow**: Go to previous timestep
+- **home**: Go to first timestep
+- **end**: Go to last timestep
+- **space**: Toggle play/stop animation
+
 ## Development setup
 
 We assume your virtual environment is activated

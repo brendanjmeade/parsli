@@ -14,7 +14,7 @@ description = "Earth data viewers"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-  "Development Status :: 1 - Planning",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
@@ -28,7 +28,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
-  "Typing :: Typed",
 ]
 dependencies = [
   "pyproj",
@@ -39,6 +38,7 @@ dependencies = [
   "trame-vuetify",
   "trame-vtk",
   "trame-vtklocal >=0.7",
+  "trame-components",
 ]
 
 [project.optional-dependencies]
@@ -70,6 +70,7 @@ Changelog = "https://github.com/brendanjmeade/parsli/releases"
 
 [project.scripts]
 parsli = "parsli.viewer.__main__:main"
+parsli-player = "parsli.player.app:main"
 
 [tool.hatch.build]
 include = [
@@ -167,7 +168,7 @@ isort.required-imports = ["from __future__ import annotations"]
 "tests/**" = ["T20"]
 "src/parsli/dev/**" = ["T201"]
 "noxfile.py" = ["T20"]
-"src/parsli/viewer/**" = ["SIM117"]
+"src/parsli/**" = ["SIM117"]
 
 
 [tool.pylint]
