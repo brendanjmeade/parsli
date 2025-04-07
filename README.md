@@ -2,17 +2,13 @@
 
 [![Actions Status][actions-badge]][actions-link]
 [![PyPI version][pypi-version]][pypi-link]
-[![PyPI platforms][pypi-platforms]][pypi-link]
-[![GitHub Discussion][github-discussions-badge]][github-discussions-link]
-![PyPI download][download-badge]
+[![PyPI platforms][pypi-platforms]][pypi-link] ![PyPI download][download-badge]
 
 <!-- SPHINX-START -->
 
 <!-- prettier-ignore-start -->
 [actions-badge]:            https://github.com/brendanjmeade/parsli/workflows/Test%20and%20Release/badge.svg
 [actions-link]:             https://github.com/brendanjmeade/parsli/actions
-[github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
-[github-discussions-link]:  https://github.com/brendanjmeade/parsli/discussions
 [pypi-link]:                https://pypi.org/project/parsli/
 [pypi-platforms]:           https://img.shields.io/pypi/pyversions/parsli
 [pypi-version]:             https://img.shields.io/pypi/v/parsli
