@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v1.0.0 (2025-04-07)
+
+### Documentation
+
+- Update README.md
+  ([`7c1e889`](https://github.com/brendanjmeade/parsli/commit/7c1e889e4eae850af40eb8cf3fda37752aea63d3))
+
+- **readme**: Add intro
+  ([`dcc594a`](https://github.com/brendanjmeade/parsli/commit/dcc594afcc018fca87977a7f7c451e9efc87a268))
+
+### Features
+
+- V1
+  ([`b17c4d1`](https://github.com/brendanjmeade/parsli/commit/b17c4d185fa6a864111735b56c760499153d297a))
+
+
 ## v0.18.0 (2025-04-06)
 
 ### Bug Fixes
