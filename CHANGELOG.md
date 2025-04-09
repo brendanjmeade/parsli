@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v1.0.1 (2025-04-09)
+
+### Bug Fixes
+
+- **data**: Working example hdf file produced from celeri
+  ([`d9ab5ed`](https://github.com/brendanjmeade/parsli/commit/d9ab5eddb39db31d65f5c3e79d2ccc4bfa5d1186))
+
+### Documentation
+
+- Update badges in readme
+  ([`7fbaf56`](https://github.com/brendanjmeade/parsli/commit/7fbaf5655e1ca0ad5721520f66835bff1b907a04))
+
+
 ## v1.0.0 (2025-04-07)
 
 ### Documentation
