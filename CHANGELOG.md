@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.0.3 (2025-04-16)
+
+### Bug Fixes
+
+- **data**: New hdf file with n_time_steps
+  ([`9a19c10`](https://github.com/brendanjmeade/parsli/commit/9a19c109fef2d5e059941537a0c9b35d56f98cdf))
+
+
 ## v1.0.2 (2025-04-16)
 
 ### Bug Fixes
