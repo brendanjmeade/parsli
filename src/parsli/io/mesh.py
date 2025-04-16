@@ -116,9 +116,9 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
             with h5py.File(self._file_name, "r") as hdf:
                 meshes = hdf["meshes"]
                 for mesh in meshes:
-                    n_times = len(meshes[mesh]["dip_slip"].keys())
+                    # n_times = len(meshes[mesh]["dip_slip"].keys())
                     # !!! n_time_steps = 1 !!!
-                    # n_times = meshes[mesh]["n_time_steps"][()] # FIXME
+                    n_times = meshes[mesh]["n_time_steps"][()]
                     if n_times > self._n_times:
                         self._n_times = int(n_times)
 
