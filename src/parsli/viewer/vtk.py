@@ -545,3 +545,6 @@ class SceneManager:
         ]
 
         return item
+
+    def __contains__(self, name):
+        return name in self.geometries

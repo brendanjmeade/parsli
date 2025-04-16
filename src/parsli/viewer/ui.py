@@ -348,6 +348,7 @@ class ControlPanel(v3.VCard):
                 # -------------------------------------------------------------
 
                 v3.VSlider(
+                    v_if="quad_ui",
                     click_prepend="show_segment = !show_segment",
                     click_append="light_segment = !light_segment",
                     v_model=("segment_opacity", 100),
@@ -593,8 +594,9 @@ class ControlPanel(v3.VCard):
         meshes = self._scene_manager["meshes"].get("source")
         meshes.time_index = time_index
 
-        segment = self._scene_manager["segment"].get("source")
-        segment.time_index = time_index
+        if "segment" in self._scene_manager:
+            segment = self._scene_manager["segment"].get("source")
+            segment.time_index = time_index
 
         self._scene_manager.set_time(time_index)
 
@@ -610,11 +612,12 @@ class ControlPanel(v3.VCard):
     def _on_vertical_scaling(self, vertical_scaling, **_):
         max_depth = 0
         for mesh_type in ["meshes", "segment"]:
-            source = self._scene_manager[mesh_type].get("source")
-            source.vertical_scale = vertical_scaling
-            if mesh_type == "meshes":
-                source()
-                max_depth = source.maximum_depth
+            if mesh_type in self._scene_manager:
+                source = self._scene_manager[mesh_type].get("source")
+                source.vertical_scale = vertical_scaling
+                if mesh_type == "meshes":
+                    source()
+                    max_depth = source.maximum_depth
 
         bbox = self._scene_manager["bbox"].get("source")
         bbox.depth = max_depth * 1.01
@@ -652,7 +655,10 @@ class ControlPanel(v3.VCard):
         segment_opacity,
         **_,
     ):
-        seg_actors = self._scene_manager["segment"].get("actors")
+        seg_actors = []
+        if "segment" in self._scene_manager:
+            seg_actors = self._scene_manager["segment"].get("actors")
+
         surf_actors = self._scene_manager["meshes"].get("actors")
         earth_actors = self._scene_manager["earth_core"].get("actors")
 
@@ -685,10 +691,11 @@ class ControlPanel(v3.VCard):
         # Apply cutting planes from bbox
         nb_planes = bbox_planes.GetNumberOfPlanes()
         for name in ["earth_core", "coast", "meshes", "segment"]:
-            for mapper in self._scene_manager[name].get("mappers"):
-                mapper.RemoveAllClippingPlanes()
-                if nb_planes:
-                    mapper.SetClippingPlanes(bbox_planes)
+            if name in self._scene_manager:
+                for mapper in self._scene_manager[name].get("mappers"):
+                    mapper.RemoveAllClippingPlanes()
+                    if nb_planes:
+                        mapper.SetClippingPlanes(bbox_planes)
 
         self.ctrl.view_update()
 

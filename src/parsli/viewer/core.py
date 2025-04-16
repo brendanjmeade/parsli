@@ -107,10 +107,12 @@ class Viewer:
         # load segments
         seg_reader = VtkSegmentReader()
         seg_reader.file_name = self.data_file
-        pipeline = self.scene_manager.add_geometry(
-            "segment", seg_reader, need_formula=True
-        )
-        pipeline.get("mapper").SetScalarModeToUseCellFieldData()
+        self.state.quad_ui = seg_reader.has_segments
+        if seg_reader.has_segments:
+            pipeline = self.scene_manager.add_geometry(
+                "segment", seg_reader, need_formula=True
+            )
+            pipeline.get("mapper").SetScalarModeToUseCellFieldData()
 
         # load meshes
         mesh_reader = VtkMeshReader()
@@ -124,6 +126,7 @@ class Viewer:
         self.state.fields = sort_fields(mesh_reader.available_fields)
         self.state.time_index = mesh_reader.time_index
         self.state.nb_timesteps = mesh_reader.number_of_timesteps
+        self.state.color_by = self.state.fields[0]
 
         # Coast lines
         self.coast_lines = VtkCoastLineSource()
@@ -160,11 +163,14 @@ class Viewer:
         source = pipeline_item.get("source")
         formula = pipeline_item.get("formula")
         mapper_mesh = pipeline_item.get("mapper")
-        mapper_seg = self.scene_manager["segment"].get("mapper")
 
         if color_by is None:
             mapper_mesh.SetScalarVisibility(0)
-            mapper_seg.SetScalarVisibility(0)
+
+            if "segment" in self.scene_manager:
+                mapper_seg = self.scene_manager["segment"].get("mapper")
+                mapper_seg.SetScalarVisibility(0)
+
             self.ctrl.view_update()
             return
 
@@ -190,6 +196,9 @@ class Viewer:
         self.state.show_earth_core = spherical
 
         for geo_name in ["segment", "meshes", "coast", "bbox"]:
+            if geo_name not in self.scene_manager:
+                continue
+
             pipeline_item = self.scene_manager[geo_name]
             pipeline_item.get("source").spherical = spherical
             actors = pipeline_item.get("actors")
@@ -304,12 +313,15 @@ class Viewer:
         self.scene_manager.render_window.Render()
 
         meshes = self.scene_manager["meshes"].get("source")
-        segment = self.scene_manager["segment"].get("source")
+        segment = None
+        if "segment" in self.scene_manager:
+            segment = self.scene_manager["segment"].get("source")
         futures = []
         nb_timesteps = self.state.nb_timesteps
         for t_idx in range(nb_timesteps):
             meshes.time_index = t_idx % self.state.nb_timesteps
-            segment.time_index = t_idx % self.state.nb_timesteps
+            if segment:
+                segment.time_index = t_idx % self.state.nb_timesteps
             self.scene_manager.set_time(t_idx)
             futures.append(
                 self.scene_manager.write_screenshot(base_directory / f"{t_idx:012}")

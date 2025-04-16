@@ -144,6 +144,14 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         self._time_index = 0
         self._n_times = -1
         self._vertical_scale = 1
+        self._valid = None
+
+    @property
+    def has_segments(self):
+        if self._valid is None:
+            self.Update()
+
+        return self._valid
 
     @property
     def field_names(self):
@@ -162,6 +170,7 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
             msg = f"Invalid file path: {self._file_name.resolve()}"
             raise ValueError(msg)
 
+        self._valid = None
         self._n_times = -1
         self._time_index = 0
         self.Modified()
@@ -232,6 +241,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
         insert_pt = earth.insert_spherical if self.spherical else earth.insert_euclidian
 
         with h5py.File(self._file_name, "r") as hdf:
+            self._valid = "segment" in hdf
+            if not self._valid:
+                return 1
+
             cell = QuadCell()
             h5_ds = hdf["segment"]
             data_size = h5_ds.shape

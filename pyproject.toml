@@ -36,6 +36,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+app = [
+    "pywebview",
+]
 test = [
   "pytest >=6",
   "pytest-cov >=3",
