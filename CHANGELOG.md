@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.0.4 (2025-04-16)
+
+### Bug Fixes
+
+- Make quad data optional
+  ([`bf22b8a`](https://github.com/brendanjmeade/parsli/commit/bf22b8a077b145e9266e7c5e1f34f1ef2f4c53ff))
+
+
 ## v1.0.3 (2025-04-16)
 
 ### Bug Fixes
