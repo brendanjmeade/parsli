@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.0.2 (2025-04-16)
+
+### Bug Fixes
+
+- **data**: Implementing Sebs n_time_steps correction
+  ([`08f0ee8`](https://github.com/brendanjmeade/parsli/commit/08f0ee877c50f490c43454d609d5cdb026ebfaf8))
+
+
 ## v1.0.1 (2025-04-09)
 
 ### Bug Fixes
