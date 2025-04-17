@@ -786,6 +786,13 @@ class ControlPanel(v3.VCard):
         for array in ds.cell_data[color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
 
+        # prevent min=max
+        if total_range[0] == total_range[1]:
+            total_range = [
+                total_range[0],
+                total_range[1] + 1,
+            ]
+
         self.state.color_min = to_precision(total_range[0], 3)
         self.state.color_max = to_precision(total_range[1], 3)
 

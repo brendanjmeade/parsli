@@ -117,16 +117,22 @@ class Viewer:
         # load meshes
         mesh_reader = VtkMeshReader()
         mesh_reader.file_name = self.data_file
-        pipeline = self.scene_manager.add_geometry_with_contour(
-            "meshes", mesh_reader, True, need_formula=True
-        )
-        pipeline.get(
-            "mapper"
-        ).SetScalarModeToUseCellFieldData()  # Bands: Scalars on Cell
+
         self.state.fields = sort_fields(mesh_reader.available_fields)
         self.state.time_index = mesh_reader.time_index
         self.state.nb_timesteps = mesh_reader.number_of_timesteps
         self.state.color_by = self.state.fields[0]
+
+        pipeline = self.scene_manager.add_geometry_with_contour(
+            "meshes",
+            mesh_reader,
+            True,
+            need_formula=True,
+            field_name=self.state.color_by,
+        )
+        pipeline.get(
+            "mapper"
+        ).SetScalarModeToUseCellFieldData()  # Bands: Scalars on Cell
 
         # Coast lines
         self.coast_lines = VtkCoastLineSource()
@@ -184,6 +190,13 @@ class Viewer:
         total_range = None
         for array in ds.cell_data[color_by].Arrays:
             total_range = expend_range(total_range, array.GetRange())
+
+        # prevent min=max
+        if total_range[0] == total_range[1]:
+            total_range = [
+                total_range[0],
+                total_range[1] + 1,
+            ]
 
         # Use symmetric range by default
         max_bound = max(abs(total_range[0]), abs(total_range[1]))

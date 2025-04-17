@@ -409,7 +409,7 @@ class SceneManager:
         return item
 
     def add_geometry_with_contour(
-        self, name, source, composite=False, need_formula=False
+        self, name, source, composite=False, need_formula=False, field_name="dip_slip"
     ):
         # pipeline filters
         quality = vtkMeshQuality()
@@ -428,7 +428,7 @@ class SceneManager:
         )  # Adjust subdivision quality
         assign = vtkAssignAttribute()
         assign.Assign(
-            "dip_slip",  # Will be overridden later
+            field_name,
             vtkDataSetAttributes.SCALARS,
             vtkDataObject.FIELD_ASSOCIATION_POINTS,
         )
