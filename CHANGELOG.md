@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.0.5 (2025-04-17)
+
+### Bug Fixes
+
+- **mesh**: Use color_by field for band computation
+  ([`a1b1b87`](https://github.com/brendanjmeade/parsli/commit/a1b1b872a18015431a8bc9c32b9b13a061a071a6))
+
+
 ## v1.0.4 (2025-04-16)
 
 ### Bug Fixes
