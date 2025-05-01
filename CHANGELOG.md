@@ -1,6 +1,37 @@
 # CHANGELOG
 
 
+## v1.0.6 (2025-05-01)
+
+### Bug Fixes
+
+- **pypi**: Add missing css
+  ([`aaa0080`](https://github.com/brendanjmeade/parsli/commit/aaa0080a2d2f91ef8f8a088824174c127c0f1112))
+
+### Build System
+
+- **deps**: Bump codecov/codecov-action in the actions group
+  ([`54fd9e5`](https://github.com/brendanjmeade/parsli/commit/54fd9e5c2531ad20091374ef526fe5a28c407a79))
+
+Bumps the actions group with 1 update:
+  [codecov/codecov-action](https://github.com/codecov/codecov-action).
+
+Updates `codecov/codecov-action` from 5.4.0 to 5.4.2 - [Release
+  notes](https://github.com/codecov/codecov-action/releases) -
+  [Changelog](https://github.com/codecov/codecov-action/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/codecov/codecov-action/compare/v5.4.0...v5.4.2)
+
+--- updated-dependencies: - dependency-name: codecov/codecov-action dependency-version: 5.4.2
+
+dependency-type: direct:production
+
+update-type: version-update:semver-patch
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+
 ## v1.0.5 (2025-04-17)
 
 ### Bug Fixes
