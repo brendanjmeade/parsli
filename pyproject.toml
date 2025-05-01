@@ -73,6 +73,7 @@ parsli-player = "parsli.player.app:main"
 include = [
   "/src/parsli/**/*.py",
   "/src/parsli/viewer/*.json",
+  "/src/parsli/viewer/*.css",
   "/src/parsli/assets/*.vtp",
 ]
 
