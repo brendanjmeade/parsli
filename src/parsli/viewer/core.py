@@ -638,6 +638,10 @@ class Viewer:
                         self.ctrl.view_reset_camera = view.reset_camera
                         self.ctrl.vtk_update_from_state = view.vtk_update_from_state
                 else:
+                    html.Div(
+                        v_show="exporting_movie",
+                        style="z-index: 1000; position: absolute; width: 100%; height: 100%; top:0; left: 0; background: rgba(0,0,0,0.5); cursor: wait;",
+                    )
                     with vtkw.VtkRemoteView(
                         self.scene_manager.render_window,
                         interactive_ratio=2,
