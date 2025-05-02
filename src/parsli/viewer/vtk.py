@@ -201,7 +201,6 @@ class SceneManager:
         self.scalar_bar.label_text_property.BoldOff()
         self.scalar_bar.label_text_property.ItalicOff()
         self.scalar_bar.SetTextPositionToPrecedeScalarBar()
-        self.scalar_bar.SetTextPad(10)
 
         self.renderer.AddActor2D(self.scalar_bar)
         self.show_scalar_bar(False)

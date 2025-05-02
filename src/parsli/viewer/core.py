@@ -322,6 +322,17 @@ class Viewer:
         self.scene_manager.set_size(
             self.state.screenshot_width, self.state.screenshot_height
         )
+
+        # Adjust padding which affect scalarbar font size
+        if self.state.screenshot_height >= 2160:
+            self.scene_manager.scalar_bar.SetTextPad(10)
+        elif self.state.screenshot_height >= 1080:
+            self.scene_manager.scalar_bar.SetTextPad(5)
+        elif self.state.screenshot_height >= 540:
+            self.scene_manager.scalar_bar.SetTextPad(2)
+        else:
+            self.scene_manager.scalar_bar.SetTextPad(1)
+
         self.scene_manager.show_scalar_bar(True)
         self.scene_manager.render_window.Render()
         self.scene_manager.render_window.SetMultiSamples(4)
