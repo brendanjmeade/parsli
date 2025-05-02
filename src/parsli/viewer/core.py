@@ -324,6 +324,7 @@ class Viewer:
         )
         self.scene_manager.show_scalar_bar(True)
         self.scene_manager.render_window.Render()
+        self.scene_manager.render_window.SetMultiSamples(4)
 
         meshes = self.scene_manager["meshes"].get("source")
         segment = None
@@ -356,6 +357,7 @@ class Viewer:
         # Reset size to original
         self.scene_manager.set_size(*original_size)
         self.scene_manager.show_scalar_bar(False)
+        self.scene_manager.render_window.SetMultiSamples(1)
 
         with self.state:
             self.state.exporting_movie = False
