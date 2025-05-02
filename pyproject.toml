@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "parsli"
-version = "1.0.7"
+version = "1.0.8"
 authors = [
   { name = "Brendan Meade", email = "brendanjmeade@gmail.com" },
   { name = "Sebastien Jourdain", email = "sebastien.jourdain@kitware.com" },

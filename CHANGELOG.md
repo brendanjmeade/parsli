@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v1.0.8 (2025-05-02)
+
+### Bug Fixes
+
+- **antialiasing**: Enable during export
+  ([`a244e93`](https://github.com/brendanjmeade/parsli/commit/a244e93df8bc6991616da4cdd52d0da67847a92d))
+
+- **export**: Prevent rotation during export
+  ([`79ce395`](https://github.com/brendanjmeade/parsli/commit/79ce39507c28f52086b8e99cd269737e9f764e27))
+
+- **scalarbar**: Adjust font size based on export size
+  ([`26e0d80`](https://github.com/brendanjmeade/parsli/commit/26e0d80596ba828432e97f1f2cc790f10c23e361))
+
+
 ## v1.0.7 (2025-05-02)
 
 ### Bug Fixes

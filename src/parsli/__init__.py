@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __all__ = ["__version__"]
 
 # Set global config
