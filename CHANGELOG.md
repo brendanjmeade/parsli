@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.0.7 (2025-05-02)
+
+### Bug Fixes
+
+- **pypi**: Add missing css
+  ([`1dfbf85`](https://github.com/brendanjmeade/parsli/commit/1dfbf85cf19347e9daac4d9a228a2c5e5d2bcfe9))
+
+
 ## v1.0.6 (2025-05-01)
 
 ### Bug Fixes
