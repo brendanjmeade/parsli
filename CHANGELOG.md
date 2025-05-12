@@ -1,6 +1,51 @@
 # CHANGELOG
 
 
+## v1.1.0 (2025-05-12)
+
+### Build System
+
+- **deps**: Bump the actions group with 2 updates
+  ([`73ace47`](https://github.com/brendanjmeade/parsli/commit/73ace472dc2fc7e73e69b4754986d785dbd8af6d))
+
+Bumps the actions group with 2 updates:
+  [python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release)
+  and [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance).
+
+Updates `python-semantic-release/python-semantic-release` from 9.21.0 to 9.21.1 - [Release
+  notes](https://github.com/python-semantic-release/python-semantic-release/releases) -
+  [Changelog](https://github.com/python-semantic-release/python-semantic-release/blob/master/CHANGELOG.rst)
+  -
+  [Commits](https://github.com/python-semantic-release/python-semantic-release/compare/v9.21.0...v9.21.1)
+
+Updates `actions/attest-build-provenance` from 2.2.3 to 2.3.0 - [Release
+  notes](https://github.com/actions/attest-build-provenance/releases) -
+  [Changelog](https://github.com/actions/attest-build-provenance/blob/main/RELEASE.md) -
+  [Commits](https://github.com/actions/attest-build-provenance/compare/v2.2.3...v2.3.0)
+
+--- updated-dependencies: - dependency-name: python-semantic-release/python-semantic-release
+  dependency-version: 9.21.1
+
+dependency-type: direct:production
+
+update-type: version-update:semver-patch
+
+dependency-group: actions
+
+- dependency-name: actions/attest-build-provenance dependency-version: 2.3.0
+
+update-type: version-update:semver-minor
+
+dependency-group: actions ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+### Features
+
+- **keybinding**: Add key binding to parsli
+  ([`e706bbf`](https://github.com/brendanjmeade/parsli/commit/e706bbf1c8e8af20bf509c594b2bd973b5e8d5a7))
+
+
 ## v1.0.8 (2025-05-02)
 
 ### Bug Fixes
