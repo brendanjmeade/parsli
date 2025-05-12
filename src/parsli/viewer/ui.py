@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from trame.decorators import TrameApp, change
+from trame.decorators import change, controller
 from trame.widgets import html
 from trame.widgets import vuetify3 as v3
 from vtkmodules.vtkCommonDataModel import vtkDataObject, vtkDataSetAttributes
@@ -9,7 +9,6 @@ from parsli.utils import expend_range, to_precision
 from parsli.viewer.vtk import PRESETS, set_preset, to_image
 
 
-@TrameApp()
 class ControlPanel(v3.VCard):
     def __init__(self, toggle, scene_manager, reset_camera, reset_to_mesh):
         self._scene_manager = scene_manager
@@ -537,12 +536,15 @@ class ControlPanel(v3.VCard):
                                 min=0,
                                 max=("nb_timesteps - 1",),
                                 step=1,
-                                prepend_icon="mdi-clock-outline",
+                                prepend_icon=(
+                                    "playing_time ? 'mdi-timer-play-outline' : 'mdi-clock-outline'",
+                                ),
                                 hide_details=True,
                                 density="compact",
                                 flat=True,
                                 variant="solo",
                                 style="margin: 0 2px;",
+                                click_prepend="playing_time=!playing_time",
                             )
 
     def _reset_bounds(self):
@@ -563,6 +565,7 @@ class ControlPanel(v3.VCard):
         ]
         self.ctrl.view_update()
 
+    @controller.set("crop_bound_to_mesh")
     def _crop_bounds_to_mesh(self):
         source = self._scene_manager["meshes"].get("source")
         self.state.latitude_bnds = [float(v) for v in source.latitude_bounds]

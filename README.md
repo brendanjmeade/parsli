@@ -51,6 +51,19 @@ parsli --data ./data/model_0000000881_multi.hdf5
 
 ![App](https://raw.githubusercontent.com/brendanjmeade/parsli/refs/heads/main/parsli.png)
 
+**Keyboard binding**
+
+- **left/right/up/down arrow**: Rotate camera by 1°. Modifier x5 `<alt>`.
+- **-/+**: Zoom out / Zoom in.
+- **r**: Reset camera to data
+- **t**: Snap view up to true vertical.
+- **f**: Focus to the mesh bounds
+- **home**: Go to first timestep
+- **end**: Go to last timestep
+- **space**: Toggle play/stop animation
+- **</>**: Previous/Next timestep. Modifiers x10 `alt` or `shift`, x100
+  `alt`+`shift`.
+
 Once you've exported a couple of time animations, you can play them back using
 the player. Just add all the paths you want to see after the `--data` argument.
 

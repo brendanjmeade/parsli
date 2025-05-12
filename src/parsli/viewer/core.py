@@ -9,12 +9,13 @@ from functools import partial
 from pathlib import Path
 
 import yaml
-from trame.app import asynchronous, get_server
-from trame.decorators import TrameApp, change, controller
+from trame.app import TrameApp, asynchronous
+from trame.decorators import change, controller
 from trame.ui.vuetify3 import VAppLayout
 from trame.widgets import html, vtklocal
 from trame.widgets import vtk as vtkw
 from trame.widgets import vuetify3 as v3
+from trame.widgets.trame import MouseTrap
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
@@ -53,10 +54,9 @@ METADATA_STATE_KEYS = [
 ]
 
 
-@TrameApp()
-class Viewer:
+class Viewer(TrameApp):
     def __init__(self, server=None):
-        self.server = get_server(server, client_type="vue3")
+        super().__init__(server)
         self.server.enable_module(css)
         self.server.cli.add_argument(
             "--data", help="Path of hdf5 file to load", required=True
@@ -154,14 +154,6 @@ class Viewer:
         # setup camera to look at the data
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.focus_on(bounds)
-
-    @property
-    def ctrl(self):
-        return self.server.controller
-
-    @property
-    def state(self):
-        return self.server.state
 
     @change("color_by")
     def _on_color_by(self, color_by, use_formula, **_):
@@ -494,11 +486,94 @@ class Viewer:
         }
         metafile.write_text(yaml.dump(data))
 
+    def camera_rotate(self, azimuth, elevation):
+        self.scene_manager.camera.Azimuth(azimuth)
+        self.scene_manager.camera.Elevation(elevation)
+        self.ctrl.view_update(push_camera=True)
+
+    def time_move(self, delta):
+        new_time = self.state.time_index + delta
+        new_time = max(min(new_time, self.state.nb_timesteps - 1), 0)
+        self.state.time_index = new_time
+
+    async def play_time(self):
+        while self.state.playing_time:
+            if self.state.time_index < self.state.nb_timesteps:
+                with self.state:
+                    self.state.time_index += 1
+                await asyncio.sleep(0.1)
+            else:
+                with self.state:
+                    self.state.playing_time = False
+
+    @change("playing_time")
+    def _on_play_time_change(self, playing_time, **_):
+        if playing_time:
+            asynchronous.create_task(self.play_time())
+
     def _build_ui(self):
         self.state.trame__title = "Parsli"
+        self.state.setdefault("playing_time", False)
         self.state.setdefault("camera", None)
         with VAppLayout(self.server, full_height=True) as layout:
             self.ui = layout
+            # Keyboard shortcuts
+            with MouseTrap(
+                # bounds
+                boundsSnap=self.ctrl.crop_bound_to_mesh,
+                # camera
+                cameraReset=self.reset_to_mesh,
+                cameraViewUp=(self.update_view_up, "[[0, 0, 1]]"),
+                cameraZoomIn=(self.apply_zoom, "[1.1]"),
+                cameraZoomOut=(self.apply_zoom, "[0.9]"),
+                cameraRotateLeft=(self.camera_rotate, "[-1, 0]"),
+                cameraRotateRight=(self.camera_rotate, "[1, 0]"),
+                cameraRotateUp=(self.camera_rotate, "[0, 1]"),
+                cameraRotateDown=(self.camera_rotate, "[0, -1]"),
+                cameraRotateLeftFast=(self.camera_rotate, "[-5, 0]"),
+                cameraRotateRightFast=(self.camera_rotate, "[5, 0]"),
+                cameraRotateUpFast=(self.camera_rotate, "[0, 5]"),
+                cameraRotateDownFast=(self.camera_rotate, "[0, -5]"),
+                # time
+                timeNextSlow=(self.time_move, "[1]"),
+                timeNextMedium=(self.time_move, "[10]"),
+                timeNextFast=(self.time_move, "[100]"),
+                timePreviousSlow=(self.time_move, "[-1]"),
+                timePreviousMedium=(self.time_move, "[-10]"),
+                timePreviousFast=(self.time_move, "[-100]"),
+                timeFirst="time_index = 0",
+                timeLast="time_index = nb_timesteps - 1",
+                timeTogglePlay="playing_time = !playing_time",
+            ) as mt:
+                # view
+                mt.bind(["f"], "boundsSnap")
+                mt.bind(["r"], "cameraReset")
+                mt.bind(["t"], "cameraViewUp")
+
+                # zoom
+                mt.bind(["+", "="], "cameraZoomIn")
+                mt.bind(["-"], "cameraZoomOut")
+
+                # rotation
+                mt.bind(["left"], "cameraRotateLeft")
+                mt.bind(["right"], "cameraRotateRight")
+                mt.bind(["up"], "cameraRotateUp")
+                mt.bind(["down"], "cameraRotateDown")
+                mt.bind(["alt+left"], "cameraRotateLeftFast")
+                mt.bind(["alt+right"], "cameraRotateRightFast")
+                mt.bind(["alt+up"], "cameraRotateUpFast")
+                mt.bind(["alt+down"], "cameraRotateDownFast")
+
+                # time
+                mt.bind(["space"], "timeTogglePlay")
+                mt.bind(["home"], "timeFirst")
+                mt.bind(["end"], "timeLast")
+                mt.bind(["."], "timeNextSlow")
+                mt.bind([">", "alt+."], "timeNextMedium")
+                mt.bind(["shift+alt+."], "timeNextFast")
+                mt.bind([","], "timePreviousSlow")
+                mt.bind(["<", "alt+,"], "timePreviousMedium")
+                mt.bind(["shift+alt+,"], "timePreviousFast")
 
             # Screenshot Export Dialog
             with v3.VDialog(v_model=("configure_screenshot_export", False)):
