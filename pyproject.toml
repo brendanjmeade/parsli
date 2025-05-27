@@ -88,6 +88,7 @@ scripts.test = "pytest {args}"
 [tool.uv]
 dev-dependencies = [
   "parsli[test]",
+  "pre-commit>=4.2.0",
 ]
 
 

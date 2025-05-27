@@ -158,3 +158,8 @@ Thumbs.db
 # Common editor files
 *~
 *.swp
+
+# Animations.
+*.mp4
+*.mpg
+*.mov
