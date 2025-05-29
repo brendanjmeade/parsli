@@ -24,8 +24,12 @@ class ControlPanel(v3.VCard):
         self.state.setdefault("subdivide", False)
         self.state.setdefault("show_segment", True)
         self.state.setdefault("show_surface", True)
+        self.state.setdefault("show_topo", True)
+        self.state.setdefault("show_rivers", True)
         self.state.setdefault("light_surface", False)
         self.state.setdefault("light_segment", False)
+        self.state.setdefault("light_topo", False)
+        self.state.setdefault("light_rivers", False)
         self.state.setdefault("color_min", 0)
         self.state.setdefault("color_max", 1)
         self.state.setdefault("show_grid", False)
@@ -384,6 +388,44 @@ class ControlPanel(v3.VCard):
                     classes="mx-1",
                     style=("show_surface ? '' : 'opacity: 0.25'",),
                 )
+                v3.VSlider(
+                    v_if="topo_ui",
+                    click_prepend="show_topo = !show_topo",
+                    click_append="light_topo = !light_topo",
+                    v_model=("topo_opacity", 100),
+                    min=0,
+                    max=1,
+                    step=0.05,
+                    prepend_icon="mdi-terrain",
+                    append_icon=(
+                        "light_topo ? 'mdi-lightbulb-outline' : 'mdi-lightbulb-off-outline'",
+                    ),
+                    hide_details=True,
+                    density="compact",
+                    flat=True,
+                    variant="solo",
+                    classes="mx-1",
+                    style=("show_topo ? '' : 'opacity: 0.25'",),
+                )
+                v3.VSlider(
+                    v_if="topo_ui",
+                    click_prepend="show_rivers = !show_rivers",
+                    click_append="light_rivers = !light_rivers",
+                    v_model=("rivers_opacity", 100),
+                    min=0,
+                    max=1,
+                    step=0.05,
+                    prepend_icon="mdi-waves",
+                    append_icon=(
+                        "light_rivers ? 'mdi-lightbulb-outline' : 'mdi-lightbulb-off-outline'",
+                    ),
+                    hide_details=True,
+                    density="compact",
+                    flat=True,
+                    variant="solo",
+                    classes="mx-1",
+                    style=("show_rivers ? '' : 'opacity: 0.25'",),
+                )
 
                 # -------------------------------------------------------------
 
@@ -614,7 +656,7 @@ class ControlPanel(v3.VCard):
     @change("vertical_scaling")
     def _on_vertical_scaling(self, vertical_scaling, **_):
         max_depth = 0
-        for mesh_type in ["meshes", "segment"]:
+        for mesh_type in ["meshes", "segment", "topo", "rivers"]:
             if mesh_type in self._scene_manager:
                 source = self._scene_manager[mesh_type].get("source")
                 source.vertical_scale = vertical_scaling
@@ -642,20 +684,32 @@ class ControlPanel(v3.VCard):
         "show_segment",
         "show_surface",
         "show_earth_core",
+        "show_topo",
+        "show_rivers",
         "light_segment",
         "light_surface",
+        "light_topo",
+        "light_rivers",
         "surface_opacity",
         "segment_opacity",
+        "topo_opacity",
+        "rivers_opacity",
     )
     def _on_visibility(
         self,
         show_segment,
         show_surface,
         show_earth_core,
+        show_topo,
+        show_rivers,
         light_segment,
         light_surface,
+        light_topo,
+        light_rivers,
         surface_opacity,
         segment_opacity,
+        topo_opacity,
+        rivers_opacity,
         **_,
     ):
         seg_actors = []
@@ -674,6 +728,19 @@ class ControlPanel(v3.VCard):
             actor.SetVisibility(show_surface)
             actor.property.opacity = surface_opacity
             actor.property.lighting = not light_surface
+
+        if "topo" in self._scene_manager:
+            actors = self._scene_manager["topo"].get("actors")
+            for actor in actors:
+                actor.SetVisibility(show_topo)
+                actor.property.opacity = topo_opacity
+                actor.property.lighting = not light_topo
+
+            actors = self._scene_manager["rivers"].get("actors")
+            for actor in actors:
+                actor.SetVisibility(show_rivers)
+                actor.property.opacity = rivers_opacity
+                actor.property.lighting = not light_rivers
 
         for actor in earth_actors:
             actor.SetVisibility(show_earth_core)

@@ -20,7 +20,13 @@ from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
-from parsli.io import VtkCoastLineSource, VtkMeshReader, VtkSegmentReader
+from parsli.io import (
+    RiverReader,
+    TopoReader,
+    VtkCoastLineSource,
+    VtkMeshReader,
+    VtkSegmentReader,
+)
 from parsli.utils import expend_range, sort_fields, source, to_precision
 from parsli.utils.earth import EARTH_RADIUS
 from parsli.viewer import css, ui
@@ -38,11 +44,17 @@ METADATA_STATE_KEYS = [
     "show_earth_core",
     "coast_active_regions",
     "show_segment",
+    "show_topo",
+    "show_rivers",
     "show_surface",
     "light_segment",
     "light_surface",
+    "light_topo",
+    "light_rivers",
     "surface_opacity",
     "segment_opacity",
+    "topo_opacity",
+    "rivers_opacity",
     "color_by",
     "color_min",
     "color_max",
@@ -60,6 +72,9 @@ class Viewer(TrameApp):
         self.server.enable_module(css)
         self.server.cli.add_argument(
             "--data", help="Path of hdf5 file to load", required=True
+        )
+        self.server.cli.add_argument(
+            "--topo", help="Path of hdf5 file to load for topo", required=True
         )
         self.server.cli.add_argument(
             "--wasm", help="Use local rendering", action="store_true"
@@ -151,6 +166,27 @@ class Viewer(TrameApp):
 
         self.readers = [mesh_reader, seg_reader]
 
+        # topo
+        self.state.topo_ui = bool(args.topo)
+        self.topo = None
+        self.rivers = None
+        if self.state.topo_ui:
+            # topo
+            self.topo = TopoReader()
+            self.topo.file_name = Path(args.topo).resolve()
+            pipeline = self.scene_manager.add_geometry("topo", self.topo)
+            topo_props = pipeline.get("actor").property
+            topo_props.color = (0.5, 0.5, 0.5)
+            topo_props.edge_visibility = 1
+
+            # rivers
+            self.rivers = RiverReader()
+            self.rivers.file_name = Path(args.topo).resolve()
+            pipeline = self.scene_manager.add_geometry("rivers", self.rivers, True)
+            topo_props = pipeline.get("actor").property
+            topo_props.color = (0.08, 0.7, 0.96)  # 64B5F6
+            topo_props.line_width = 5
+
         # setup camera to look at the data
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.focus_on(bounds)
@@ -200,7 +236,7 @@ class Viewer(TrameApp):
     def _on_projection_change(self, spherical, **_):
         self.state.show_earth_core = spherical
 
-        for geo_name in ["segment", "meshes", "coast", "bbox"]:
+        for geo_name in ["segment", "meshes", "coast", "bbox", "topo", "rivers"]:
             if geo_name not in self.scene_manager:
                 continue
 
