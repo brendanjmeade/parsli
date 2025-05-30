@@ -39,6 +39,7 @@ METADATA_STATE_KEYS = [
     "longitude_bnds",
     "latitude_bnds",
     "vertical_scaling",
+    "vertical_scaling_topo",
     "nb_grid_line_per_degree",
     "show_grid",
     "show_earth_core",

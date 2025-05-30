@@ -426,6 +426,21 @@ class ControlPanel(v3.VCard):
                     classes="mx-1",
                     style=("show_rivers ? '' : 'opacity: 0.25'",),
                 )
+                v3.VSlider(
+                    v_if="topo_ui",
+                    v_model=("vertical_scaling_topo", 1),
+                    click_prepend="vertical_scaling_topo = vertical_scaling",
+                    prepend_icon="mdi-waves-arrow-up",
+                    min=0,
+                    max=10,
+                    step=0.01,
+                    density="compact",
+                    hide_details=True,
+                    flat=True,
+                    variant="solo",
+                    classes="mx-1",
+                    style=("show_rivers || show_topo ? '' : 'opacity: 0.25'",),
+                )
 
                 # -------------------------------------------------------------
 
@@ -653,16 +668,21 @@ class ControlPanel(v3.VCard):
         source.active_regions = coast_active_regions
         self.ctrl.view_update()
 
-    @change("vertical_scaling")
-    def _on_vertical_scaling(self, vertical_scaling, **_):
+    @change("vertical_scaling", "vertical_scaling_topo")
+    def _on_vertical_scaling(self, vertical_scaling, vertical_scaling_topo, **_):
         max_depth = 0
-        for mesh_type in ["meshes", "segment", "topo", "rivers"]:
+        for mesh_type in ["meshes", "segment"]:
             if mesh_type in self._scene_manager:
                 source = self._scene_manager[mesh_type].get("source")
                 source.vertical_scale = vertical_scaling
                 if mesh_type == "meshes":
                     source()
                     max_depth = source.maximum_depth
+
+        for mesh_type in ["topo", "rivers"]:
+            if mesh_type in self._scene_manager:
+                source = self._scene_manager[mesh_type].get("source")
+                source.vertical_scale = vertical_scaling_topo
 
         bbox = self._scene_manager["bbox"].get("source")
         bbox.depth = max_depth * 1.01
