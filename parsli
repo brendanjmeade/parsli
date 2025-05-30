@@ -1,0 +1,15 @@
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "parsli[app]>=1.2.1",
+# ]
+# ///
+from parsli.viewer.core import Viewer
+from multiprocessing import freeze_support
+
+if __name__ == "__main__":
+    freeze_support()
+    app = Viewer()
+    app.server.start(exec_mode="desktop")
