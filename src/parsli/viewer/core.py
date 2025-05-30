@@ -74,7 +74,8 @@ class Viewer(TrameApp):
             "--data", help="Path of hdf5 file to load", required=True
         )
         self.server.cli.add_argument(
-            "--topo", help="Path of hdf5 file to load for topo", required=True
+            "--topo",
+            help="Path of hdf5 file to load for topo",
         )
         self.server.cli.add_argument(
             "--wasm", help="Use local rendering", action="store_true"
