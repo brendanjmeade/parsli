@@ -10,3 +10,7 @@ src/parsli/assets/asia-cil-spherical.vtp filter=lfs diff=lfs merge=lfs -text
 src/parsli/assets/europe-cil-spherical.vtp filter=lfs diff=lfs merge=lfs -text
 src/parsli/assets/namer-cil-euclidean.vtp filter=lfs diff=lfs merge=lfs -text
 *.hdf5 filter=lfs diff=lfs merge=lfs -text
+data/model_0000000881_multi_quads_coupling.hdf5 filter=lfs diff=lfs merge=lfs -text
+data/model_0000000927.hdf5 filter=lfs diff=lfs merge=lfs -text
+data/skies_data_002.hdf5 filter=lfs diff=lfs merge=lfs -text
+data/topo.hdf5 filter=lfs diff=lfs merge=lfs -text

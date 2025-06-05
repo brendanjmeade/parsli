@@ -10,7 +10,7 @@ authors = [
   { name = "Brendan Meade", email = "brendanjmeade@gmail.com" },
   { name = "Sebastien Jourdain", email = "sebastien.jourdain@kitware.com" },
 ]
-description = "Earth data viewers"
+description = "Parsli is a VTK+trame based viewer for fault system kinematics that enables fast exploration and export of time animation."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -160,9 +160,7 @@ ignore = [
   "ISC001",   # Conflicts with formatter
   "ARG002",   # unused args
 ]
-isort.required-imports = ["from __future__ import annotations"]
-# Uncomment if using a _compat.typing backport
-# typing-modules = ["parsli._compat.typing"]
+isort.required-imports = []
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20"]
