@@ -27,8 +27,9 @@ from parsli.io import (
     VtkMeshReader,
     VtkSegmentReader,
 )
-from parsli.utils import expend_range, sort_fields, source, to_precision
+from parsli.utils.core import expend_range, sort_fields, to_precision
 from parsli.utils.earth import EARTH_RADIUS
+from parsli.utils.source import VtkLatLonBound
 from parsli.viewer import css, ui
 from parsli.viewer.vtk import SceneManager
 
@@ -115,7 +116,7 @@ class Viewer(TrameApp):
         # Latitude/Longitude bounding box
         pipeline = self.scene_manager.add_geometry(
             "bbox",
-            source.VtkLatLonBound(),
+            VtkLatLonBound(),
         )
         bbox_prop = pipeline.get("actor").property
         bbox_prop.line_width = 2

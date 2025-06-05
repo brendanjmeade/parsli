@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from trame.decorators import change, controller
 from trame.widgets import html
 from trame.widgets import vuetify3 as v3
 from vtkmodules.vtkCommonDataModel import vtkDataObject, vtkDataSetAttributes
 
-from parsli.utils import expend_range, to_precision
+from parsli.utils.core import expend_range, to_precision
 from parsli.viewer.vtk import PRESETS, set_preset, to_image
 
 

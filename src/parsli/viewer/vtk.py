@@ -122,9 +122,9 @@ def to_image(lut, samples=255):
     rgb = [0, 0, 0]
     for i in range(samples):
         lut.GetColor(dataRange[0] + float(i) * delta, rgb)
-        r = int(round(rgb[0] * 255))
-        g = int(round(rgb[1] * 255))
-        b = int(round(rgb[2] * 255))
+        r = round(rgb[0] * 255)
+        g = round(rgb[1] * 255)
+        b = round(rgb[2] * 255)
         colorArray.SetTuple3(i, r, g, b)
 
     writer = vtkPNGWriter()

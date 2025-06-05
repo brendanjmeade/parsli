@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Spherical Axis Grid Box
+"""
 
 import math
 

@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Helper functions for handling earth coordinate projection
+"""
 
 import math
 
