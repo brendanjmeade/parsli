@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Main Parsli viewer
+"""
 
 import asyncio
 import datetime
@@ -31,56 +33,31 @@ from parsli.utils.core import expend_range, sort_fields, to_precision
 from parsli.utils.earth import EARTH_RADIUS
 from parsli.utils.source import VtkLatLonBound
 from parsli.viewer import css, ui
+from parsli.viewer.export import METADATA_STATE_KEYS
 from parsli.viewer.vtk import SceneManager
-
-DEBUG_WRITE_MESH = False
-
-METADATA_STATE_KEYS = [
-    "spherical",
-    "longitude_bnds",
-    "latitude_bnds",
-    "vertical_scaling",
-    "vertical_scaling_topo",
-    "nb_grid_line_per_degree",
-    "show_grid",
-    "show_earth_core",
-    "coast_active_regions",
-    "show_segment",
-    "show_topo",
-    "show_rivers",
-    "show_surface",
-    "light_segment",
-    "light_surface",
-    "light_topo",
-    "light_rivers",
-    "surface_opacity",
-    "segment_opacity",
-    "topo_opacity",
-    "rivers_opacity",
-    "color_by",
-    "color_min",
-    "color_max",
-    "color_preset",
-    "subdivide",
-    "nb_contours",
-    "use_formula",
-    "formula",
-]
 
 
 class Viewer(TrameApp):
     def __init__(self, server=None):
         super().__init__(server)
+
+        # Load custom CSS
         self.server.enable_module(css)
+
+        # Add CLI
         self.server.cli.add_argument(
-            "--data", help="Path of hdf5 file to load", required=True
+            "--data",
+            help="Path of hdf5 file to load",
+            required=True,
         )
         self.server.cli.add_argument(
             "--topo",
             help="Path of hdf5 file to load for topo",
         )
         self.server.cli.add_argument(
-            "--wasm", help="Use local rendering", action="store_true"
+            "--wasm",
+            help="Use local rendering",
+            action="store_true",
         )
 
         # process cli
@@ -101,7 +78,7 @@ class Viewer(TrameApp):
         self.scene_manager = SceneManager(self.server)
         self._build_ui()
 
-        # earth core
+        # Earth core
         pipeline = self.scene_manager.add_geometry(
             "earth_core",
             vtkSphereSource(
@@ -122,7 +99,7 @@ class Viewer(TrameApp):
         bbox_prop.line_width = 2
         bbox_prop.color = (0.5, 0.5, 0.5)
 
-        # load segments
+        # Quad/Segments meshes
         seg_reader = VtkSegmentReader()
         seg_reader.file_name = self.data_file
         self.state.quad_ui = seg_reader.has_segments
@@ -132,10 +109,11 @@ class Viewer(TrameApp):
             )
             pipeline.get("mapper").SetScalarModeToUseCellFieldData()
 
-        # load meshes
+        # Surface meshes
         mesh_reader = VtkMeshReader()
         mesh_reader.file_name = self.data_file
 
+        # Extract meshes info for UI
         self.state.fields = sort_fields(mesh_reader.available_fields)
         self.state.time_index = mesh_reader.time_index
         self.state.nb_timesteps = mesh_reader.number_of_timesteps
@@ -161,34 +139,26 @@ class Viewer(TrameApp):
         coast_props.line_width = 2
         coast_props.color = (0.5, 0.5, 0.5)
 
-        if DEBUG_WRITE_MESH:
-            writer = vtkXMLPartitionedDataSetWriter()
-            writer.SetInputData(mesh_reader())
-            writer.SetFileName("all_meshes.vtpd")
-            writer.Write()
-
-        self.readers = [mesh_reader, seg_reader]
-
-        # topo
+        # Topo
         self.state.topo_ui = bool(args.topo)
-        self.topo = None
+        self.terrain = None
         self.rivers = None
         if self.state.topo_ui:
-            # topo
-            self.topo = TopoReader()
-            self.topo.file_name = Path(args.topo).resolve()
-            pipeline = self.scene_manager.add_geometry("topo", self.topo)
-            topo_props = pipeline.get("actor").property
-            topo_props.color = (0.5, 0.5, 0.5)
-            topo_props.edge_visibility = 1
+            # terrain
+            self.terrain = TopoReader()
+            self.terrain.file_name = Path(args.topo).resolve()
+            pipeline = self.scene_manager.add_geometry("terrain", self.terrain)
+            terrain_props = pipeline.get("actor").property
+            terrain_props.color = (0.5, 0.5, 0.5)
+            terrain_props.edge_visibility = 1
 
             # rivers
             self.rivers = RiverReader()
             self.rivers.file_name = Path(args.topo).resolve()
             pipeline = self.scene_manager.add_geometry("rivers", self.rivers, True)
-            topo_props = pipeline.get("actor").property
-            topo_props.color = (0.08, 0.7, 0.96)  # 64B5F6
-            topo_props.line_width = 5
+            rivers_props = pipeline.get("actor").property
+            rivers_props.color = (0.08, 0.7, 0.96)  # 64B5F6
+            rivers_props.line_width = 5
 
         # setup camera to look at the data
         bounds = self.scene_manager["meshes"].get("actor").bounds
@@ -239,7 +209,8 @@ class Viewer(TrameApp):
     def _on_projection_change(self, spherical, **_):
         self.state.show_earth_core = spherical
 
-        for geo_name in ["segment", "meshes", "coast", "bbox", "topo", "rivers"]:
+        # Update all meshes with new projection
+        for geo_name in ["segment", "meshes", "coast", "bbox", "terrain", "rivers"]:
             if geo_name not in self.scene_manager:
                 continue
 
@@ -247,10 +218,12 @@ class Viewer(TrameApp):
             pipeline_item.get("source").spherical = spherical
             actors = pipeline_item.get("actors")
 
+            # In Euclidean mode we need custom z scaling
             scale = (1, 1, 1) if spherical else (1, 1, 0.01)
             for actor in actors:
                 actor.scale = scale
 
+        # Update camera based on projection
         if spherical:
             bounds = self.scene_manager["meshes"].get("actor").bounds
             self.scene_manager.camera.focal_point = (0, 0, 0)
@@ -266,6 +239,7 @@ class Viewer(TrameApp):
 
     @change("camera")
     def _on_camera(self, camera, **_):
+        """To sync camera when doing local rendering with WASM"""
         if camera is None:
             return
 
@@ -278,6 +252,7 @@ class Viewer(TrameApp):
 
     @change("subdivide")
     def _on_subdivide(self, subdivide, **_):
+        """Change pipeline to smooth or not to smooth surface mesh"""
         # source >> quality >> threshold >> geometry >> cell2point >> refine >> assign >> bands
         pipeline = self.scene_manager["meshes"]
 
@@ -305,27 +280,27 @@ class Viewer(TrameApp):
 
     @change("screenshot_export_path")
     def _on_export_path(self, screenshot_export_path, **_):
+        """Check is directory already exist to prevent export on top of another one"""
         self.state.screenshot_export_path_exits = Path(screenshot_export_path).exists()
 
     def reset_to_mesh(self):
+        """Reset camera to focus on surface mesh bounds"""
         bounds = self.scene_manager["meshes"].get("actor").bounds
         self.scene_manager.reset_camera_to(bounds)
         self.ctrl.view_update(push_camera=True)
 
     def apply_zoom(self, scale):
+        """Zoom in/out base on scale value"""
         self.scene_manager.apply_zoom(scale)
         self.ctrl.view_update(push_camera=True)
 
     def update_view_up(self, view_up):
+        """Snap view-up to provided vector"""
         self.scene_manager.update_view_up(view_up)
         self.ctrl.view_update(push_camera=True)
 
-    # def debug_check_quality(self):
-    #     filter = self.scene_manager["meshes"].get("quality").GetOutputDataObject(0)
-    #     for array in filter.cell_data["Quality"].Arrays:
-    #         print("Quality range", array.GetRange())
-
     async def _export_movie(self):
+        """Internal async task to export time series of images"""
         t0 = time.time()
         await asyncio.sleep(0.1)
 
@@ -401,6 +376,7 @@ class Viewer(TrameApp):
         self.scene_manager.show_scalar_bar(False)
         self.scene_manager.render_window.SetMultiSamples(1)
 
+        # Done with the export - update the UI
         with self.state:
             self.state.exporting_movie = False
             self.state.export_progress = 100
@@ -409,6 +385,7 @@ class Viewer(TrameApp):
 
     @controller.set("export_movie")
     def export_movie(self):
+        """Called from the UI - trigger background export task for images"""
         self.state.configure_screenshot_export = False
         self.state.export_progress = 0
         self.state.exporting_movie = True
@@ -416,6 +393,7 @@ class Viewer(TrameApp):
         asynchronous.create_task(self._export_movie())
 
     async def _export_data(self):
+        """Internal async task to export geometry data"""
         t0 = time.time()
         await asyncio.sleep(0.1)
 
@@ -436,14 +414,16 @@ class Viewer(TrameApp):
         bbox = self.scene_manager["bbox"].get("source")
         coast = self.scene_manager["coast"].get("source")
 
-        # Time independent data
+        # For coast lines + surface mesh
         partition_writer = vtkXMLPartitionedDataSetWriter()
         partition_writer.SetInputConnection(coast.output_port)
         partition_writer.SetFileName(str(base_directory / "coast.vtpd"))
         partition_writer.Write()
 
+        # For bbox + segments
+        polydata_writer = vtkXMLPolyDataWriter()
+
         if bbox.valid:
-            polydata_writer = vtkXMLPolyDataWriter()
             polydata_writer.SetInputConnection(bbox.output_port)
             polydata_writer.SetFileName(str(base_directory / "bbox.vtp"))
             polydata_writer.Write()
@@ -460,6 +440,9 @@ class Viewer(TrameApp):
                     }
                 )
             planes_file.write_text(json.dumps(planes_content, indent=2))
+
+        # FIXME - missing topo data...
+        # => Don't have the time to add it
 
         # Time dependent data
         partition_writer.SetInputConnection(meshes.output_port)
@@ -494,6 +477,7 @@ class Viewer(TrameApp):
 
     @controller.set("export_data")
     def export_data(self):
+        """Called from the UI - trigger background export task for geometry"""
         self.state.configure_screenshot_export = False
         self.state.export_progress = 0
         self.state.exporting_movie = True
@@ -501,10 +485,12 @@ class Viewer(TrameApp):
         asynchronous.create_task(self._export_data())
 
     def load_metadata_file(self, file):
+        """Helper for handling meta data from UI"""
         metadata = yaml.safe_load(file.get("content"))
         self.load_metadata(metadata)
 
     def load_metadata(self, metadata, **_):
+        """Use metadata content to update UI configuration"""
         with self.state:
             self.state.update(metadata.get("state", {}))
             self.scene_manager.update_camera(metadata.get("camera", {}))
@@ -512,6 +498,7 @@ class Viewer(TrameApp):
             self.state.configure_screenshot_export = False
 
     def export_metadata(self, base_path):
+        """Write metadata file to disk"""
         metafile = Path(base_path) / "info.yml"
         data = {
             "info": {
@@ -526,20 +513,25 @@ class Viewer(TrameApp):
         metafile.write_text(yaml.dump(data))
 
     def camera_rotate(self, azimuth, elevation):
+        """Camera control helper for key binding"""
         self.scene_manager.camera.Azimuth(azimuth)
         self.scene_manager.camera.Elevation(elevation)
         self.ctrl.view_update(push_camera=True)
 
     def time_move(self, delta):
+        """Time control helper for key binding"""
         new_time = self.state.time_index + delta
         new_time = max(min(new_time, self.state.nb_timesteps - 1), 0)
         self.state.time_index = new_time
 
     async def play_time(self):
+        """Loop to move time forward and play animation"""
         while self.state.playing_time:
             if self.state.time_index < self.state.nb_timesteps:
                 with self.state:
                     self.state.time_index += 1
+                # May need to asjust the wait time
+                # => could also be made dynamic
                 await asyncio.sleep(0.1)
             else:
                 with self.state:
@@ -547,6 +539,7 @@ class Viewer(TrameApp):
 
     @change("playing_time")
     def _on_play_time_change(self, playing_time, **_):
+        """Trigger play in background"""
         if playing_time:
             asynchronous.create_task(self.play_time())
 
@@ -555,7 +548,9 @@ class Viewer(TrameApp):
         self.state.setdefault("playing_time", False)
         self.state.setdefault("camera", None)
         with VAppLayout(self.server, full_height=True) as layout:
+            # Enable Jupyter usage
             self.ui = layout
+
             # Keyboard shortcuts
             with MouseTrap(
                 # bounds
@@ -756,6 +751,7 @@ class Viewer(TrameApp):
                         v_show="exporting_movie",
                         style="z-index: 1000; position: absolute; width: 100%; height: 100%; top:0; left: 0; background: rgba(0,0,0,0.5); cursor: wait;",
                     )
+                    # We could use trame-rca for better rendering performance
                     with vtkw.VtkRemoteView(
                         self.scene_manager.render_window,
                         interactive_ratio=2,
