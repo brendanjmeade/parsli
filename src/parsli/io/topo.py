@@ -6,12 +6,7 @@ from pathlib import Path
 import h5py
 from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 from vtkmodules.vtkCommonCore import vtkPoints
-from vtkmodules.vtkCommonDataModel import (
-    # vtkCellArray,
-    # vtkPartitionedDataSet,
-    # vtkPolyData,
-    vtkStructuredGrid,
-)
+from vtkmodules.vtkCommonDataModel import vtkStructuredGrid
 from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 
 from parsli.utils import earth
@@ -80,7 +75,7 @@ class TopoReader(VTKPythonAlgorithmBase):
     def latitude_bounds(self):
         return self._latitude_bnd
 
-    def _expend_bounds(self, longitude, latitude, depth):
+    def _expand_bounds(self, longitude, latitude, depth):
         self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
         self._longitude_bnd[1] = max(longitude, self._longitude_bnd[1])
 
@@ -140,7 +135,7 @@ class TopoReader(VTKPythonAlgorithmBase):
                     lon = min_lon + delta_lon * i / (dims[1] - 1)
                     elevation = elevations[j][i]
 
-                    self._expend_bounds(lon, lat, elevation * self._vertical_scale)
+                    self._expand_bounds(lon, lat, elevation * self._vertical_scale)
                     insert_pt(vtk_points, lon, lat, elevation * self._vertical_scale)
 
             topo.SetDimensions(dims[1], dims[0], 1)

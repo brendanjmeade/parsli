@@ -105,7 +105,7 @@ class RiverReader(VTKPythonAlgorithmBase):
         """
         return self._latitude_bnd
 
-    def _expend_bounds(self, longitude, latitude, depth):
+    def _expand_bounds(self, longitude, latitude, depth):
         """Helper to expand longitude and latitude bounds"""
         self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
         self._longitude_bnd[1] = max(longitude, self._longitude_bnd[1])
@@ -158,7 +158,7 @@ class RiverReader(VTKPythonAlgorithmBase):
                     lon = river[i][0]
                     lat = river[i][1]
                     elevation = river[i][2]
-                    self._expend_bounds(lon, lat, elevation * self._vertical_scale)
+                    self._expand_bounds(lon, lat, elevation * self._vertical_scale)
                     insert_pt(vtk_points, lon, lat, elevation * self._vertical_scale)
                     vtk_lines.InsertCellPoint(i)
 

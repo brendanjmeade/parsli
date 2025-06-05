@@ -208,7 +208,7 @@ class VtkMeshReader(VTKPythonAlgorithmBase):
                 vtk_points.Allocate(n_points)
 
                 for xyz in hdf_ds:
-                    self._expend_bounds(xyz[0], xyz[1], -xyz[2] * self._vertical_scale)
+                    self._expand_bounds(xyz[0], xyz[1], -xyz[2] * self._vertical_scale)
                     insert_pt(
                         vtk_points, xyz[0], xyz[1], -xyz[2] * self._vertical_scale
                     )
