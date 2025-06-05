@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Topo reader for the rivers/lines section
+"""
 
 import logging
 from pathlib import Path
@@ -19,6 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class RiverReader(VTKPythonAlgorithmBase):
+    """
+    VTK Topo river hdf5 reader
+    """
+
     def __init__(self):
         VTKPythonAlgorithmBase.__init__(
             self,
@@ -35,6 +41,10 @@ class RiverReader(VTKPythonAlgorithmBase):
 
     @property
     def file_name(self):
+        """
+        This property captures the file path to read.
+        If set using an invalid path, a ValueError is raised.
+        """
         return self._file_name
 
     @file_name.setter
@@ -48,6 +58,10 @@ class RiverReader(VTKPythonAlgorithmBase):
 
     @property
     def spherical(self):
+        """
+        This property captures the projection system which can either be spherical or euclidean.
+        When set to True (the default), the spherical projection will be used.
+        """
         return self._proj_spherical
 
     @spherical.setter
@@ -58,6 +72,9 @@ class RiverReader(VTKPythonAlgorithmBase):
 
     @property
     def vertical_scale(self):
+        """
+        This property captures the vertical scale. The default value is 1.0.
+        """
         return self._vertical_scale
 
     @vertical_scale.setter
@@ -68,17 +85,28 @@ class RiverReader(VTKPythonAlgorithmBase):
 
     @property
     def maximum_depth(self):
+        """
+        This property captures the maximum depth based on the mesh read.
+        To be accurate, the filter needs to first execute.
+        """
         return self._max_depth
 
     @property
     def longitude_bounds(self):
+        """
+        This property captures the longitude bounds based on the mesh file.
+        """
         return self._longitude_bnd
 
     @property
     def latitude_bounds(self):
+        """
+        This property captures the latitude bounds based on the mesh file.
+        """
         return self._latitude_bnd
 
     def _expend_bounds(self, longitude, latitude, depth):
+        """Helper to expand longitude and latitude bounds"""
         self._longitude_bnd[0] = min(longitude, self._longitude_bnd[0])
         self._longitude_bnd[1] = max(longitude, self._longitude_bnd[1])
 
@@ -88,6 +116,7 @@ class RiverReader(VTKPythonAlgorithmBase):
         self._max_depth = max(depth, self._max_depth)
 
     def RequestData(self, _request, _inInfo, outInfo):
+        """VTK Method executed when filter is modified (file_name, spherical)"""
         if self._file_name is None or not self._file_name.exists():
             return 1
 

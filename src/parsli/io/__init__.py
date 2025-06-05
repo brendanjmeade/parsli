@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Package capturing all the readers available for parsing and processing data.
+"""
 
 from .coast import VtkCoastLineSource
 from .mesh import VtkMeshReader

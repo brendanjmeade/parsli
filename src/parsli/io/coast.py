@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Coast line VTK source using the content of ../assets/*.vtp
+"""
 
 from pathlib import Path
 

@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+Quad segment VTK reader from hdf5 file
+"""
 
 from pathlib import Path
 
@@ -75,6 +77,10 @@ FIELD_NAMES = list(FIELD_COLS.keys())
 
 
 class QuadCell:
+    """
+    Helper QuadCell for converting file data into actual coordinate for display.
+    """
+
     __slots__ = (
         "dip",
         "end",
@@ -131,6 +137,10 @@ class QuadCell:
 
 
 class VtkSegmentReader(VTKPythonAlgorithmBase):
+    """
+    VTK Quad/Segment hdf5 reader
+    """
+
     def __init__(self):
         VTKPythonAlgorithmBase.__init__(
             self,
@@ -148,6 +158,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def has_segments(self):
+        """
+        Check if the reader has segments.
+        Some mesh files don't always contain segments.
+        """
         if self._valid is None:
             self.Update()
 
@@ -155,12 +169,19 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def field_names(self):
+        """
+        Get the available field names.
+        """
         if self.number_of_timesteps > 1:
             return self._field_names
         return FIELD_NAMES
 
     @property
     def file_name(self):
+        """
+        This property captures the file path to read.
+        If set using an invalid path, a ValueError is raised.
+        """
         return self._file_name
 
     @file_name.setter
@@ -177,6 +198,10 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def spherical(self):
+        """
+        This property captures the projection system which can either be spherical or euclidean.
+        When set to True (the default), the spherical projection will be used.
+        """
         return self._proj_spherical
 
     @spherical.setter
@@ -187,6 +212,9 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def vertical_scale(self):
+        """
+        This property captures the vertical scale. The default value is 1.0.
+        """
         return self._vertical_scale
 
     @vertical_scale.setter
@@ -197,6 +225,11 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def time_index(self):
+        """
+        This property captures the current time_index.
+        The value can only be within [0, number_of_timesteps] range.
+        Setting outside values will be ignored.
+        """
         return self._time_index
 
     @time_index.setter
@@ -210,6 +243,9 @@ class VtkSegmentReader(VTKPythonAlgorithmBase):
 
     @property
     def number_of_timesteps(self):
+        """
+        This property captures the number of timesteps available in the current file.
+        """
         if self._n_times < 0:
             with h5py.File(self._file_name, "r") as hdf:
                 if "segments" in hdf:
