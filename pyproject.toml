@@ -28,7 +28,7 @@ dependencies = [
   "pyyaml",
   "h5py",
   "vtk>=9.4.1",
-  "trame>=3.9",
+  "trame>=3.10",
   "trame-vuetify",
   "trame-vtk",
   "trame-vtklocal >=0.7",

@@ -1,10 +1,21 @@
-from __future__ import annotations
+"""
+Image Player application
+
+Usage:
+
+    # Using module name
+    python -m parsli.player.app --data /path/to/parsli/export1/ /path/to/parsli/export2/ ...
+
+    # Using script alias
+    parsli-player --data /path/to/parsli/export1/ /path/to/parsli/export2/ ...
+
+"""
 
 import asyncio
 from pathlib import Path
 
-from trame.app import asynchronous, get_server
-from trame.decorators import TrameApp, change
+from trame.app import TrameApp, asynchronous
+from trame.decorators import change
 from trame.ui.vuetify3 import VAppLayout
 from trame.widgets import vuetify3 as v3
 from trame.widgets.trame import MouseTrap
@@ -17,10 +28,9 @@ LAYOUTS = [
 ]
 
 
-@TrameApp()
-class ParsliPlayer:
+class ParsliPlayer(TrameApp):
     def __init__(self, server=None):
-        self.server = get_server(server, client_type="vue3")
+        super().__init__(server, client_type="vue3")
         self.server.cli.add_argument(
             "--data", nargs="+", help="List all export directory you want to load"
         )
@@ -91,8 +101,8 @@ class ParsliPlayer:
                     )
                     v3.VCheckbox(
                         v_model=("playing", False),
-                        true_icon="mdi-play",
-                        false_icon="mdi-stop",
+                        true_icon="mdi-stop",
+                        false_icon="mdi-play",
                         density="compact",
                         hide_details=True,
                         classes="mx-2",
