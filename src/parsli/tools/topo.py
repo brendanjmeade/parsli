@@ -1,7 +1,12 @@
-# ---------------------------------------------------------
-# python -m parsli.tools.topo
-# ---------------------------------------------------------
-from __future__ import annotations
+"""
+Topography Tools that will generate a topo.hdf5 file using some
+wavy shape.
+
+Can be ran using the following command line:
+
+   python -m parsli.tools.topo
+
+"""
 
 import h5py
 import numpy as np

@@ -1,4 +1,15 @@
-from __future__ import annotations
+"""
+Parsli conversion tool to generate vtp files from coastline text file.
+
+Usage:
+
+    # Euclidean
+    python -m parsli.tools.wdb --input /path/to/file.wdb
+
+    # Spherical
+    python -m parsli.tools.wdb --input /path/to/file.wdb -s
+
+"""
 
 import argparse
 from pathlib import Path
