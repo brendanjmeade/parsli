@@ -11,7 +11,7 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
 
 BASE_DIRECTORY = Path(__file__).parent.with_name("assets").resolve()
-RESIONS = [f.name.split("-")[0] for f in BASE_DIRECTORY.glob("*-spherical.vtp")]
+REGIONS = [f.name.split("-")[0] for f in BASE_DIRECTORY.glob("*-spherical.vtp")]
 
 
 def region_to_full_name(name, use_spherical):
@@ -44,7 +44,7 @@ class VtkCoastLineSource(VTKPythonAlgorithmBase):
 
     @property
     def available_regions(self):
-        return RESIONS
+        return REGIONS
 
     @property
     def active_regions(self):
@@ -52,7 +52,7 @@ class VtkCoastLineSource(VTKPythonAlgorithmBase):
 
     @active_regions.setter
     def active_regions(self, value):
-        new_region_set = set(value) & set(RESIONS)
+        new_region_set = set(value) & set(REGIONS)
         if self._active_regions != new_region_set:
             self._active_regions = new_region_set
             self.Modified()
@@ -69,6 +69,7 @@ class VtkCoastLineSource(VTKPythonAlgorithmBase):
         # Projection selection
         for idx, name in enumerate(self._active_regions):
             reader.file_name = region_to_full_name(name, self.spherical)
+            print(reader.file_name)  # noqa: T201
             all_meshes.SetPartition(idx, reader())
 
         output.ShallowCopy(all_meshes)
