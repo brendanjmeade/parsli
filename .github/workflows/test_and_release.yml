@@ -84,7 +84,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          lfs: true
           fetch-depth: 0
+      - name: Fetch LFS content
+        run: git lfs pull
       - name: Python Semantic Release
         id: release
         uses: python-semantic-release/python-semantic-release@v10.0.2

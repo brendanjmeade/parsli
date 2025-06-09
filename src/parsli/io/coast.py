@@ -69,7 +69,6 @@ class VtkCoastLineSource(VTKPythonAlgorithmBase):
         # Projection selection
         for idx, name in enumerate(self._active_regions):
             reader.file_name = region_to_full_name(name, self.spherical)
-            print(reader.file_name)  # noqa: T201
             all_meshes.SetPartition(idx, reader())
 
         output.ShallowCopy(all_meshes)
