@@ -48,7 +48,6 @@ class Viewer(TrameApp):
         self.server.cli.add_argument(
             "--data",
             help="Path of hdf5 file to load",
-            required=True,
         )
         self.server.cli.add_argument(
             "--topo",
@@ -62,17 +61,29 @@ class Viewer(TrameApp):
 
         # process cli
         args, _ = self.server.cli.parse_known_args()
-        self.data_file = str(Path(args.data).resolve())
+        self.data_file = str(Path(args.data).resolve()) if args.data else None
         self.local_rendering = args.wasm
 
         # Handle meta file loading
-        input_data = Path(self.data_file)
-        input_data = (input_data / "info.yml") if input_data.is_dir() else input_data
-        if input_data.exists() and input_data.name == "info.yml":
-            meta = yaml.safe_load(input_data.read_text())
-            self.data_file = meta.get("info").get("data_path")
-            load_meta = partial(self.load_metadata, meta)
-            self.ctrl.on_server_ready.add(load_meta)
+        if self.data_file:
+            input_data = Path(self.data_file)
+            input_data = (
+                (input_data / "info.yml") if input_data.is_dir() else input_data
+            )
+            if input_data.exists() and input_data.name == "info.yml":
+                meta = yaml.safe_load(input_data.read_text())
+                self.data_file = meta.get("info").get("data_path")
+                load_meta = partial(self.load_metadata, meta)
+                self.ctrl.on_server_ready.add(load_meta)
+
+        # Download sample file if no --data args
+        if not args.topo and self.data_file is None:
+            from trame.assets.remote import HttpFile
+
+            self.data_file = HttpFile(
+                local_path="parsli-sample.hdf5",
+                remote_url="https://github.com/brendanjmeade/parsli/raw/refs/heads/main/data/model_0000000927.hdf5",
+            ).path
 
         # Setup app
         self.scene_manager = SceneManager(self.server)
