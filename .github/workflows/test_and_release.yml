@@ -90,7 +90,7 @@ jobs:
         run: git lfs pull
       - name: Python Semantic Release
         id: release
-        uses: python-semantic-release/python-semantic-release@v10.0.2
+        uses: python-semantic-release/python-semantic-release@v10.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # for debug output
@@ -98,7 +98,7 @@ jobs:
 
       - name: Generate artifact attestation for sdist and wheel
         if: steps.release.outputs.released == 'true'
-        uses: actions/attest-build-provenance@v2.3.0
+        uses: actions/attest-build-provenance@v2.4.0
         with:
           subject-path: "dist/*"
 
