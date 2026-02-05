@@ -69,9 +69,12 @@ class EarthLocation:
 
 
 FIELD_COLS = {
-    "strike_slip": 68,
-    "dip_slip": 69,
-    "tensile_slip": 70,
+    # "strike_slip": 68,
+    # "dip_slip": 69,
+    # "tensile_slip": 70,
+    "strike_slip": 52,
+    "dip_slip": 53,
+    "tensile_slip": 53,
 }
 FIELD_NAMES = list(FIELD_COLS.keys())
 
@@ -101,9 +104,9 @@ class QuadCell:
         self.normal = EarthLocation()
 
     def update(self, row):
-        if row[34]:
-            # skip cell if column 34 is true
-            return False
+        # if row[34]:
+        #     # skip cell if column 34 is true
+        #     return False
 
         if row[0] >= row[2]:
             self.start.lon = row[0]
@@ -117,7 +120,7 @@ class QuadCell:
             self.start.lat = row[3]
 
         self.dip = row[4]
-        self.locking_depth = row[14]
+        self.locking_depth = row[6]  # Locking depth column
 
         lon3, lat3, lon4, lat4 = get_segment_bottom_lon_lat(
             self.start.lon,
